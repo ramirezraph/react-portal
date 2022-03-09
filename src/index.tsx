@@ -24,6 +24,8 @@ import { configureAppStore } from 'store/configureStore';
 
 import reportWebVitals from 'reportWebVitals';
 
+import './index.css';
+
 // Initialize languages
 import './locales/i18n';
 
