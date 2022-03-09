@@ -8,7 +8,7 @@ export function HomePage() {
         <title>HomePage</title>
         <meta name="description" content="A Boilerplate application homepage" />
       </Helmet>
-      <span>My HomePage</span>
+      <span className="text-lg text-blue-300">My HomePage</span>
     </>
   );
 }

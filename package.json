@@ -119,5 +119,10 @@
         "statements": 90
       }
     }
+  },
+  "devDependencies": {
+    "autoprefixer": "10.4.2",
+    "postcss": "8.4.8",
+    "tailwindcss": "3.0.23"
   }
 }
