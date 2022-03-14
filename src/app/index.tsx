@@ -13,6 +13,7 @@ import { GlobalStyle } from 'styles/global-styles';
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { useTranslation } from 'react-i18next';
 import { Landing } from './pages/Landing/Loadable';
+import { Main } from './pages/Main/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -27,7 +28,8 @@ export function App() {
       </Helmet>
 
       <Switch>
-        <Route exact path="/" component={Landing} />
+        <Route exact path="/welcome" component={Landing} />
+        <Route exact path="/" component={Main} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />
