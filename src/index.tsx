@@ -28,8 +28,6 @@ import './index.css';
 
 // Initialize languages
 import './locales/i18n';
-import { VechaiProvider } from '@vechaiui/react';
-import { theme } from 'styles/theme';
 
 const store = configureAppStore();
 const MOUNT_NODE = document.getElementById('root') as HTMLElement;
@@ -37,11 +35,9 @@ const MOUNT_NODE = document.getElementById('root') as HTMLElement;
 ReactDOM.render(
   <Provider store={store}>
     <HelmetProvider>
-      <VechaiProvider theme={theme} colorScheme="light">
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      </VechaiProvider>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
     </HelmetProvider>
   </Provider>,
   MOUNT_NODE,

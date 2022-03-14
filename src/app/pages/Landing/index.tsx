@@ -12,7 +12,7 @@ export function Landing() {
       </Helmet>
       <div className="flex h-screen w-screen flex-col justify-between">
         <section className="flex w-full flex-1 items-center space-x-10">
-          <div className="flex flex-1 justify-end">
+          <div className="flex flex-1 justify-end ">
             <img
               src={image}
               className="object-cover"
@@ -31,17 +31,17 @@ export function Landing() {
               Dr. Pablito V. Mendoza Sr. High School
             </span>
             <Link
-              to="/"
-              className="mt-24 w-fit rounded-sm bg-primary-500 py-2 px-24 text-white"
+              to={'/'}
+              className="mt-24 w-fit rounded-sm bg-primary py-2 px-24 text-white"
             >
               Get Started
             </Link>
           </div>
         </section>
-        <footer className="flex justify-between bg-neutral-500 py-3 px-8 text-sm">
+        <footer className="flex justify-between bg-document py-3 px-8 text-sm">
           <span>&copy; All rights reserved.</span>
           <span>
-            developed by <span className="text-primary-500">Lorem Ipsum</span>
+            developed by <span className="text-primary">Lorem Ipsum</span>
           </span>
         </footer>
       </div>
