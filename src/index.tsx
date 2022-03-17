@@ -28,15 +28,37 @@ import './index.css';
 
 // Initialize languages
 import './locales/i18n';
+import { MantineProvider, MantineThemeOverride } from '@mantine/core';
 
 const store = configureAppStore();
 const MOUNT_NODE = document.getElementById('root') as HTMLElement;
+
+const theme: MantineThemeOverride = {
+  fontFamily: 'Open Sans, sans-serif',
+  colors: {
+    'primary-purple': [
+      '#E3E2F6',
+      '#BFBCF0',
+      '#9892F3',
+      '#6C63FF',
+      '#5C53EC',
+      '#5048D7',
+      '#4841C2',
+      '#4A45A4',
+      '#4A468B',
+      '#484577',
+    ],
+  },
+  primaryColor: 'primary-purple',
+};
 
 ReactDOM.render(
   <Provider store={store}>
     <HelmetProvider>
       <React.StrictMode>
-        <App />
+        <MantineProvider theme={theme}>
+          <App />
+        </MantineProvider>
       </React.StrictMode>
     </HelmetProvider>
   </Provider>,
