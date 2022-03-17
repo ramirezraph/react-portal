@@ -1,10 +1,14 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+
+import { Anchor, Image, Text, useMantineTheme } from '@mantine/core';
 
 import image from './images/undraw_communicate.svg';
+import { Link } from 'react-router-dom';
 
 export function Landing() {
+  const theme = useMantineTheme();
+
   return (
     <>
       <Helmet>
@@ -12,36 +16,32 @@ export function Landing() {
       </Helmet>
       <div className="flex h-screen w-screen flex-col justify-between">
         <section className="flex w-full flex-1 items-center space-x-10">
-          <div className="flex flex-1 justify-end">
-            <img
-              src={image}
-              className="object-cover"
-              alt="Undraw"
-              width={600}
-            />
+          <div className="flex flex-1 justify-end ">
+            <Image src={image} fit="cover" alt="Undraw" width={600} />
           </div>
           <div className="flex h-full flex-1 flex-col justify-center">
-            <span className="select-none text-xl leading-loose text-zinc-800">
+            <Text className="select-none text-xl leading-loose text-gray-600">
               welcome to
-            </span>
-            <h1 className="select-none text-6xl font-semibold">
+            </Text>
+            <Text className="select-none text-6xl font-semibold leading-normal">
               DPVMHS Portal
-            </h1>
-            <span className="select-none text-xl leading-loose text-zinc-800">
+            </Text>
+            <Text className="select-none text-xl leading-loose text-gray-600">
               Dr. Pablito V. Mendoza Sr. High School
-            </span>
-            <Link
+            </Text>
+            <Anchor
+              component={Link}
               to="/"
-              className="mt-24 w-fit rounded-sm bg-primary-500 py-2 px-24 text-white"
+              className="mt-24 w-fit rounded-sm bg-primary py-2 px-24 text-white"
             >
               Get Started
-            </Link>
+            </Anchor>
           </div>
         </section>
-        <footer className="flex justify-between bg-neutral-500 py-3 px-8 text-sm">
+        <footer className="flex justify-between bg-document py-3 px-8 text-sm">
           <span>&copy; All rights reserved.</span>
           <span>
-            developed by <span className="text-primary-500">Lorem Ipsum</span>
+            developed by <span className="text-primary">Lorem Ipsum</span>
           </span>
         </footer>
       </div>
