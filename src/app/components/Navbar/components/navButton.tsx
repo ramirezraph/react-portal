@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Button, Group, Text, UnstyledButton } from '@mantine/core';
-import { Icon, IconProps } from 'tabler-icons-react';
+import { Group, Text, UnstyledButton } from '@mantine/core';
+import { IconProps } from 'tabler-icons-react';
 import { Link } from 'react-router-dom';
 
 interface Props {

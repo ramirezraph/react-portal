@@ -29,7 +29,7 @@ export function App() {
 
       <Switch>
         <Route exact path="/welcome" component={Landing} />
-        <Route exact path="/" component={Main} />
+        <Route path="/" component={Main} />
         <Route component={NotFoundPage} />
       </Switch>
       <GlobalStyle />
