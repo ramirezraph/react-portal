@@ -22,9 +22,9 @@ export function AppHeader(props: Props) {
   const { opened, burgerOnClick } = props;
 
   return (
-    <Header height={50} className="bg-zinc-800 text-white" p="md">
+    <Header height={50} className="bg-zinc-800 text-white sm:px-6" p="md">
       {/* Handle other responsive styles with MediaQuery component or createStyles function */}
-      <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+      <div className="flex h-full items-center">
         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
           <Burger
             opened={opened}
@@ -35,7 +35,7 @@ export function AppHeader(props: Props) {
           />
         </MediaQuery>
         <Group position="apart" className="w-full">
-          <Text weight="bold">DPVMHSHS Portal</Text>
+          <Text weight="bold">DPVMHS Portal</Text>
           <Group spacing={'xl'}>
             <ActionIcon className="text-white hover:bg-transparent hover:text-secondary">
               <Home size={24} />

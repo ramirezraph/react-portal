@@ -20,6 +20,7 @@ export function Main() {
         fixed
         navbar={<AppNavbar hidden={!opened} />}
         header={<AppHeader opened={opened} burgerOnClick={setOpened} />}
+        className="bg-document"
       >
         <Text>Resize app to see responsive navbar in action</Text>
       </AppShell>
