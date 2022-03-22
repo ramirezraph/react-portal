@@ -6,7 +6,6 @@ export function HomePage() {
     <>
       <Helmet>
         <title>HomePage</title>
-        <meta name="description" content="A Boilerplate application homepage" />
       </Helmet>
       <span className="text-lg text-blue-300">My HomePage</span>
     </>

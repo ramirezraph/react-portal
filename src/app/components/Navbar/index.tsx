@@ -60,11 +60,7 @@ export function AppNavbar(props: Props) {
         <NavButton to="/" text="Dashboard" icon={<Home />} />
         <NavButton to="/discussions" text="Discussions" icon={<Message />} />
         <NavButton to="/classes" text="Classes" icon={<Users />} />
-        <NavButton
-          to="/discussions"
-          text="Grades"
-          icon={<ChartArrowsVertical />}
-        />
+        <NavButton to="/grades" text="Grades" icon={<ChartArrowsVertical />} />
         <NavButton to="/calendar" text="Calendar" icon={<Calendar />} />
         <Divider
           variant="solid"
