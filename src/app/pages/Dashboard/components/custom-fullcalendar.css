@@ -1,0 +1,22 @@
+.fc-timegrid {
+  margin-top: 1rem;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.fc-timegrid-slot {
+  background-color: white;
+}
+
+.fc-col-header-cell-cushion {
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
+.fc-direction-ltr .fc-timegrid-slot-label-frame {
+  font-size: 0.8rem;
+  text-align: center;
+}

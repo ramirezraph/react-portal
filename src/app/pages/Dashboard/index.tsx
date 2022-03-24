@@ -4,6 +4,13 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Eye, EyeOff } from 'tabler-icons-react';
 
+import FullCalendar from '@fullcalendar/react'; // must go before plugins
+import timeGridPlugin from '@fullcalendar/timegrid';
+
+import '@fullcalendar/daygrid/main.css';
+
+import './components/custom-fullcalendar.css';
+
 export function Dashboard() {
   return (
     <>
@@ -22,7 +29,7 @@ export function Dashboard() {
               Dashboard
             </Text>
           </div>
-          <div className="h-full w-1/3 bg-white p-6">
+          <div className="flex h-full w-1/3 flex-col bg-white p-6">
             <Group noWrap position="apart">
               <Text size="xl" className="font-semibold">
                 Calendar
@@ -36,6 +43,16 @@ export function Dashboard() {
                 Hide
               </Button>
             </Group>
+            <div className="flex-1">
+              <FullCalendar
+                height={'100%'}
+                plugins={[timeGridPlugin]}
+                initialView="timeGridDay"
+                allDaySlot={false}
+                headerToolbar={false}
+                dayHeaders={true}
+              />
+            </div>
           </div>
         </Group>
       </PageContainer>
