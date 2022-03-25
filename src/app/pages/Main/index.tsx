@@ -27,6 +27,7 @@ export function Main() {
         navbar={<AppNavbar hidden={!opened} />}
         header={<AppHeader opened={opened} burgerOnClick={setOpened} />}
         className="bg-document"
+        padding={0}
       >
         <Switch>
           <Route exact path="/" component={Dashboard} />
