@@ -1,6 +1,6 @@
 import { lazyLoad } from 'utils/loadable';
 
-export const Classes = lazyLoad(
+export const ClassCard = lazyLoad(
   () => import('./index'),
-  module => module.Classes,
+  module => module.ClassCard,
 );
