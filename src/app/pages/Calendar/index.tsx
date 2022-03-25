@@ -1,4 +1,3 @@
-import { Container } from '@mantine/core';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
