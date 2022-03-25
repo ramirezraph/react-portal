@@ -1,4 +1,4 @@
-import { Text, AppShell } from '@mantine/core';
+import { AppShell } from '@mantine/core';
 import { AppHeader } from 'app/components/Header/Loadable';
 import { AppNavbar } from 'app/components/Navbar/Loadable';
 import * as React from 'react';

@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import { Anchor, Image, Text, useMantineTheme } from '@mantine/core';
+import { Anchor, Image, Text } from '@mantine/core';
 
 import image from './images/undraw_communicate.svg';
 import { Link } from 'react-router-dom';
 
 export function Landing() {
-  const theme = useMantineTheme();
-
   return (
     <>
       <Helmet>
