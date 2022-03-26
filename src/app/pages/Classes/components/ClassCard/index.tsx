@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Box, Group, Space, Text } from '@mantine/core';
 import { Compass, User } from 'tabler-icons-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   className: string;
@@ -25,10 +26,12 @@ export enum CardColor {
 export function ClassCard(props: Props) {
   const { className, classCode, teacherName, color } = props;
 
+  const navigate = useNavigate();
+
   const cardBgColor = color ? color : CardColor.Sky;
 
   const onClicked = () => {
-    console.log('card clicked');
+    navigate('/class/1');
   };
 
   return (

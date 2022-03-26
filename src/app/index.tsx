@@ -8,12 +8,18 @@
 
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Switch, Route, BrowserRouter } from 'react-router-dom';
+import { Route, BrowserRouter, Routes } from 'react-router-dom';
 import { GlobalStyle } from 'styles/global-styles';
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { useTranslation } from 'react-i18next';
 import { Landing } from './pages/Landing/Loadable';
 import { Main } from './pages/Main/Loadable';
+import { Dashboard } from './pages/Dashboard/Loadable';
+import { Discussions } from './pages/Discussions/Loadable';
+import { Classes } from './pages/Classes/Loadable';
+import { Class } from './pages/Class/Loadable';
+import { Grades } from './pages/Grades/Loadable';
+import { Calendar } from './pages/Calendar/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -27,11 +33,18 @@ export function App() {
         <meta name="description" content="DPVMSHS Portal" />
       </Helmet>
 
-      <Switch>
-        <Route exact path="/welcome" component={Landing} />
-        <Route path="/" component={Main} />
-        <Route component={NotFoundPage} />
-      </Switch>
+      <Routes>
+        <Route path="/welcome" element={<Landing />} />
+        <Route path="/" element={<Main />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/discussions" element={<Discussions />} />
+          <Route path="/classes" element={<Classes />} />
+          <Route path="/class/:id" element={<Class />} />
+          <Route path="/grades" element={<Grades />} />
+          <Route path="/calendar" element={<Calendar />} />
+        </Route>
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
       <GlobalStyle />
     </BrowserRouter>
   );
