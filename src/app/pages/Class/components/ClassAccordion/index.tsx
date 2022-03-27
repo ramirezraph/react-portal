@@ -53,6 +53,35 @@ export function ClassAccordion(props: Props) {
     },
   ]);
 
+  const unitItems = units.map(unit => (
+    <Accordion.Item
+      label={
+        <ClassAccordionHeader
+          type={ClassAccordionType.Unit}
+          number={unit.number}
+          title={unit.title}
+          live={unit.isLive}
+        />
+      }
+    >
+      {/* Text Content */}
+      <Text className="mt-3" size="sm">
+        {unit.content}
+      </Text>
+
+      {/* Lessons Accordon */}
+      {/* @Todo */}
+
+      <Divider className="mt-6" />
+
+      {/* Controls */}
+      <ClassAccordionControl
+        live={unit.isLive}
+        type={ClassAccordionType.Unit}
+      />
+    </Accordion.Item>
+  ));
+
   return (
     <Accordion
       className="mt-3"
@@ -66,34 +95,7 @@ export function ClassAccordion(props: Props) {
       iconSize={24}
       multiple
     >
-      {units.map(unit => (
-        <Accordion.Item
-          label={
-            <ClassAccordionHeader
-              type={ClassAccordionType.Unit}
-              number={unit.number}
-              title={unit.title}
-              live={unit.isLive}
-            />
-          }
-        >
-          {/* Text Content */}
-          <Text className="mt-3" size="sm">
-            {unit.content}
-          </Text>
-
-          {/* Lessons Accordon */}
-          {/* @Todo */}
-
-          <Divider className="mt-6" />
-
-          {/* Controls */}
-          <ClassAccordionControl
-            live={unit.isLive}
-            type={ClassAccordionType.Unit}
-          />
-        </Accordion.Item>
-      ))}
+      {unitItems}
     </Accordion>
   );
 }
