@@ -36,11 +36,14 @@ export function ClassUnitAccordion(props: Props) {
           live={unit.isLive}
         />
       }
+      key={unit.id}
     >
       {/* Text Content */}
-      <Text className="mt-3" size="sm">
-        {unit.content}
-      </Text>
+      {unit.content && (
+        <Text className="mt-3" size="sm">
+          {unit.content}
+        </Text>
+      )}
 
       {/* Lessons Accordon */}
       <ClassLessonAccordion lessons={unit.lessons} />

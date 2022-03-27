@@ -20,21 +20,24 @@ export function ClassLessonAccordion(props: Props) {
     }
   }, [lessons]);
 
-  const renderLessonItems = lessonList.map(Lesson => (
+  const renderLessonItems = lessonList.map(lesson => (
     <Accordion.Item
       label={
         <ClassAccordionHeader
           type={ClassAccordionType.Lesson}
-          number={Lesson.number}
-          title={Lesson.title}
-          live={Lesson.isLive}
+          number={lesson.number}
+          title={lesson.title}
+          live={lesson.isLive}
         />
       }
+      key={lesson.id}
     >
       {/* Text Content */}
-      <Text className="mt-3" size="sm">
-        {Lesson.content}
-      </Text>
+      {lesson.content && (
+        <Text className="mt-3" size="sm">
+          {lesson.content}
+        </Text>
+      )}
 
       {/* Files */}
       {/* @Todo */}
@@ -43,7 +46,7 @@ export function ClassLessonAccordion(props: Props) {
 
       {/* Controls */}
       <ClassAccordionControl
-        live={Lesson.isLive}
+        live={lesson.isLive}
         type={ClassAccordionType.Lesson}
       />
     </Accordion.Item>

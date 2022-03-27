@@ -7,6 +7,7 @@ import { ClassCard } from '../Classes/components/ClassCard/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
 
 export interface Unit {
+  id: string;
   number: number;
   title: string;
   content: string;
@@ -20,6 +21,7 @@ export interface LessonFile {
 }
 
 export interface Lesson {
+  id: string;
   number: number;
   title: string;
   content: string;
@@ -30,12 +32,14 @@ export interface Lesson {
 export function Class() {
   const [units, setUnits] = React.useState<Unit[]>([
     {
+      id: '1',
       number: 1,
       title: 'Getting Started',
-      content: 'This is a sample content.',
+      content: 'sed quia non numquam eius modi tempora.',
       isLive: true,
       lessons: [
         {
+          id: '1',
           number: 1,
           title: 'Why we program?',
           content:
@@ -44,6 +48,7 @@ export function Class() {
           files: [],
         },
         {
+          id: '2',
           number: 2,
           title: 'Installing and using Python',
           content:
@@ -52,6 +57,7 @@ export function Class() {
           files: [],
         },
         {
+          id: '3',
           number: 3,
           title: 'Variables and Expressions',
           content:
@@ -62,12 +68,14 @@ export function Class() {
       ],
     },
     {
+      id: '2',
       number: 2,
       title: 'Data Structures',
-      content: 'This is a sample content.',
+      content: '',
       isLive: false,
       lessons: [
         {
+          id: '1',
           number: 1,
           title: 'Arrays',
           content:
