@@ -4,9 +4,81 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { CardColor } from '../Classes/components/ClassCard';
 import { ClassCard } from '../Classes/components/ClassCard/Loadable';
-import { ClassAccordion } from './components/ClassAccordion/Loadable';
+import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
+
+export interface Unit {
+  number: number;
+  title: string;
+  content: string;
+  isLive: boolean;
+  lessons: Lesson[];
+}
+
+export interface LessonFile {
+  title: string;
+  downloadUrl: string;
+}
+
+export interface Lesson {
+  number: number;
+  title: string;
+  content: string;
+  isLive: boolean;
+  files: LessonFile[];
+}
 
 export function Class() {
+  const [units, setUnits] = React.useState<Unit[]>([
+    {
+      number: 1,
+      title: 'Getting Started',
+      content: 'This is a sample content.',
+      isLive: true,
+      lessons: [
+        {
+          number: 1,
+          title: 'Why we program?',
+          content:
+            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
+          isLive: true,
+          files: [],
+        },
+        {
+          number: 2,
+          title: 'Installing and using Python',
+          content:
+            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
+          isLive: true,
+          files: [],
+        },
+        {
+          number: 3,
+          title: 'Variables and Expressions',
+          content:
+            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
+          isLive: false,
+          files: [],
+        },
+      ],
+    },
+    {
+      number: 2,
+      title: 'Data Structures',
+      content: 'This is a sample content.',
+      isLive: false,
+      lessons: [
+        {
+          number: 1,
+          title: 'Arrays',
+          content:
+            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
+          isLive: false,
+          files: [],
+        },
+      ],
+    },
+  ]);
+
   return (
     <>
       <Helmet>
@@ -28,7 +100,7 @@ export function Class() {
               <Text size="sm" weight={'bold'}>
                 Class materials
               </Text>
-              <ClassAccordion />
+              <ClassUnitAccordion units={units} />
             </Box>
           </Group>
           <div className="h-full w-2/3 bg-green-500">C</div>

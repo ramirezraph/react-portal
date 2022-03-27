@@ -1,7 +1,9 @@
 import { Accordion, Divider, Text } from '@mantine/core';
 import * as React from 'react';
+import { Unit } from '../..';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
+import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
 
 export enum ClassAccordionType {
   Unit,
@@ -10,50 +12,21 @@ export enum ClassAccordionType {
 
 interface Props {
   // someProps: string
+  units: Unit[];
 }
 
-export function ClassAccordion(props: Props) {
-  // const { someProps } = props;
+export function ClassUnitAccordion(props: Props) {
+  const { units } = props;
 
-  const [units, setUnits] = React.useState([
-    {
-      number: 1,
-      title: 'Getting Started',
-      content: 'This is a sample content.',
-      isLive: true,
-      lessons: [
-        {
-          number: 1,
-          title: 'Why we program?',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: true,
-        },
-        {
-          number: 2,
-          title: 'Installing and using Python',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: true,
-        },
-        {
-          number: 3,
-          title: 'Variables and Expressions',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: false,
-        },
-      ],
-    },
-    {
-      number: 2,
-      title: 'Data Structures',
-      content: 'This is a sample content.',
-      isLive: false,
-    },
-  ]);
+  const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
 
-  const unitItems = units.map(unit => (
+  React.useEffect(() => {
+    if (units) {
+      setUnitsList(units);
+    }
+  }, [units]);
+
+  const renderUnitItems = unitsList.map(unit => (
     <Accordion.Item
       label={
         <ClassAccordionHeader
@@ -70,7 +43,7 @@ export function ClassAccordion(props: Props) {
       </Text>
 
       {/* Lessons Accordon */}
-      {/* @Todo */}
+      <ClassLessonAccordion lessons={unit.lessons} />
 
       <Divider className="mt-6" />
 
@@ -95,7 +68,7 @@ export function ClassAccordion(props: Props) {
       iconSize={24}
       multiple
     >
-      {unitItems}
+      {renderUnitItems}
     </Accordion>
   );
 }

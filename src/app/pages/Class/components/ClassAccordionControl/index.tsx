@@ -1,7 +1,7 @@
 import { Group, ActionIcon, Switch, Button, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { FileUpload, Pencil, SquarePlus, Trash } from 'tabler-icons-react';
-import { ClassAccordionType } from '../ClassAccordion';
+import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   type: ClassAccordionType;

@@ -1,6 +1,6 @@
 import { Badge, Text } from '@mantine/core';
 import * as React from 'react';
-import { ClassAccordionType } from '../ClassAccordion';
+import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   live: boolean;
@@ -25,7 +25,7 @@ export function ClassAccordionHeader(props: Props) {
         </Text>
       )}
       {type === ClassAccordionType.Lesson && (
-        <Text size="md" className="ml-1">
+        <Text size="sm" className="ml-1">
           {`Lesson ${number}: ${title}`}
         </Text>
       )}
