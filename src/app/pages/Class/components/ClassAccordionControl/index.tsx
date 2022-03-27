@@ -1,4 +1,5 @@
 import { Group, ActionIcon, Switch, Button, Tooltip } from '@mantine/core';
+import { useBooleanToggle, useToggle } from '@mantine/hooks';
 import * as React from 'react';
 import { FileUpload, Pencil, SquarePlus, Trash } from 'tabler-icons-react';
 import { ClassAccordionType } from '../ClassUnitAccordion';
@@ -10,6 +11,21 @@ interface Props {
 
 export function ClassAccordionControl(props: Props) {
   const { type, live } = props;
+
+  const [isLive, toggleLive] = useBooleanToggle(live);
+  const [switchLabel, toggleSwitchLabel] = useToggle(null, ['Live', 'Draft']);
+
+  React.useEffect(() => {
+    if (isLive) {
+      toggleSwitchLabel('Live');
+    } else {
+      toggleSwitchLabel('Draft');
+    }
+  }, [isLive]);
+
+  const toggleSwitch = () => {
+    toggleLive();
+  };
 
   return (
     <Group position="apart" className="mt-3">
@@ -23,7 +39,17 @@ export function ClassAccordionControl(props: Props) {
           </ActionIcon>
         )}
 
-        <Switch size="sm" label="Live" aria-label="Is unit live" />
+        <Switch
+          checked={isLive}
+          size="sm"
+          label={switchLabel}
+          aria-label="Live or draft"
+          onChange={toggleSwitch}
+          color="green"
+          classNames={{
+            input: 'bg-orange-500',
+          }}
+        />
       </Group>
       <Group spacing={'sm'}>
         <Tooltip label="Edit" position="bottom" withArrow>
