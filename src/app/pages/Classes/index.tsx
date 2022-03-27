@@ -38,19 +38,19 @@ export function Classes() {
         >
           {/* @Todo: Use map*/}
           <ClassCard
-            className="Python Programming"
+            classTitle="Python Programming"
             classCode="CPE 401"
             teacherName="Guido van Rossum"
             color={CardColor.Sky}
           />
           <ClassCard
-            className="Rizal Life and Works"
+            classTitle="Rizal Life and Works"
             classCode="RLW 101"
             teacherName="Jose P. Rizal"
             color={CardColor.Orange}
           />
           <ClassCard
-            className="Physical Education 4"
+            classTitle="Physical Education 4"
             classCode="PE 4"
             teacherName="Friedrich Jahn"
             color={CardColor.Stone}

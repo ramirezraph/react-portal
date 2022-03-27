@@ -4,7 +4,7 @@ import { Compass, User } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
-  className: string;
+  classTitle: string;
   classCode: string;
   teacherName: string;
   color: CardColor;
@@ -24,7 +24,7 @@ export enum CardColor {
 }
 
 export function ClassCard(props: Props) {
-  const { className, classCode, teacherName, color } = props;
+  const { classTitle, classCode, teacherName, color } = props;
 
   const navigate = useNavigate();
 
@@ -37,19 +37,19 @@ export function ClassCard(props: Props) {
   return (
     <Box
       component="button"
-      className={`cursor-pointer rounded-md border-none px-6 py-6 text-white ${cardBgColor}`}
+      className={`w-full cursor-pointer rounded-md border-none px-6 py-6 text-white ${cardBgColor}`}
       onClick={onClicked}
     >
-      <Group position="apart">
-        <Text weight={'bold'}>{className}</Text>
+      <Group position="apart" noWrap>
+        <Text weight={'bold'}>{classTitle}</Text>
         <Compass size={20} />
       </Group>
       <Space h={80} />
-      <Group position="apart">
+      <Group position="apart" noWrap>
         <Text size="xl" weight={'lighter'}>
           {classCode}
         </Text>
-        <Group className="rounded-md bg-white px-3 py-1 text-black">
+        <Group noWrap className="rounded-md bg-white px-3 py-1 text-black">
           <User size={20} />
           <Text size="sm">{teacherName}</Text>
         </Group>
