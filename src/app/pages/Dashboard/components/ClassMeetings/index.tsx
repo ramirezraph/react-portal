@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Button, Box, Group, Text, ActionIcon } from '@mantine/core';
-import { EyeOff, Users, DotsVertical } from 'tabler-icons-react';
+import { Group } from '@mantine/core';
 import { ClassMeetingsItem } from '../ClassMeetingsItem/Loadable';
 
 interface Props {}

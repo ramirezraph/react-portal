@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Button, Box, Group, Text } from '@mantine/core';
-import { EyeOff, Users } from 'tabler-icons-react';
+import { Group } from '@mantine/core';
 import { StatsItem } from '../StatsItem/Loadable';
 
 interface Props {}

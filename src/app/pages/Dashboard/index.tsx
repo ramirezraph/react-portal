@@ -1,8 +1,8 @@
-import { Group, Text, Box, ActionIcon, Menu, Button } from '@mantine/core';
+import { Group, Text, ActionIcon, Menu, Button } from '@mantine/core';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { InfoCircle, ChevronDown, DotsVertical } from 'tabler-icons-react';
+import { InfoCircle, ChevronDown } from 'tabler-icons-react';
 import { CalendarToday } from './components/CalendarToday/Loadable';
 import { ClassMeetings } from './components/ClassMeetings';
 import { Stats } from './components/Stats/Loadable';

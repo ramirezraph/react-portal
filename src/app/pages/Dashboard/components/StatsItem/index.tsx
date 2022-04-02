@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Button, Box, Group, Text } from '@mantine/core';
-import { EyeOff, Users } from 'tabler-icons-react';
+import { Box, Group, Text } from '@mantine/core';
+import { Users } from 'tabler-icons-react';
 
 interface Props {
   title: string;
