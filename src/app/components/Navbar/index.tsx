@@ -68,10 +68,10 @@ export function AppNavbar(props: Props) {
           color={'dark'}
           className="my-2 w-8"
         />
-        <NavButton to="/classes" text="RLW 101" icon={<Book />} />
-        <NavButton to="/classes" text="PE 4" icon={<Book />} />
-        <NavButton to="/classes" text="CPE 401" icon={<Book />} />
-        <NavButton to="/classes" text="CPE 402" icon={<Book />} />
+        <NavButton to="/class/1" text="RLW 101" icon={<Book />} />
+        <NavButton to="/class/2" text="PE 4" icon={<Book />} />
+        <NavButton to="/class/3" text="CPE 401" icon={<Book />} />
+        <NavButton to="/class/4" text="CPE 402" icon={<Book />} />
       </Group>
     </Navbar>
   );
