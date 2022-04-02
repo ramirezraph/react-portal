@@ -30,7 +30,7 @@ export interface Lesson {
 }
 
 export function Class() {
-  const [units, setUnits] = React.useState<Unit[]>([
+  const [units] = React.useState<Unit[]>([
     {
       id: '1',
       number: 1,

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Group, Text, UnstyledButton } from '@mantine/core';
 import { IconProps } from 'tabler-icons-react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 interface Props {
   to: string;

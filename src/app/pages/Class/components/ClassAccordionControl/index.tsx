@@ -21,7 +21,7 @@ export function ClassAccordionControl(props: Props) {
     } else {
       toggleSwitchLabel('Draft');
     }
-  }, [isLive]);
+  }, [isLive, toggleSwitchLabel]);
 
   const toggleSwitch = () => {
     toggleLive();
