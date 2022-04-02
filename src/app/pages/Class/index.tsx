@@ -77,6 +77,15 @@ export function Class() {
         {
           id: '1',
           number: 1,
+          title: 'Objects',
+          content:
+            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
+          isLive: false,
+          files: [],
+        },
+        {
+          id: '2',
+          number: 2,
           title: 'Arrays',
           content:
             'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
