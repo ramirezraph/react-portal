@@ -15,8 +15,6 @@ interface Props {
 export function NavButton(props: Props) {
   const { icon, to, text, className, centered, smallText } = props;
 
-  const [active, isActive] = React.useState(false);
-
   return (
     <UnstyledButton className="w-full py-1">
       <NavLink
