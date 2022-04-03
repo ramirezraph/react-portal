@@ -26,10 +26,6 @@ export function ClassUnitAccordion(props: Props) {
     }
   }, [units]);
 
-  const toggleLive = (id: string) => {
-    console.log('toggle: ' + id);
-  };
-
   const renderUnitItems = unitsList.map(unit => (
     <Accordion.Item
       label={

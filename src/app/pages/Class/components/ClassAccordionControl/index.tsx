@@ -1,5 +1,5 @@
 import { Group, ActionIcon, Switch, Button, Tooltip } from '@mantine/core';
-import { useBooleanToggle, useToggle } from '@mantine/hooks';
+import { useToggle } from '@mantine/hooks';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { FileUpload, Pencil, SquarePlus, Trash } from 'tabler-icons-react';

@@ -21,7 +21,7 @@ export function Class() {
 
   React.useEffect(() => {
     dispatch(actions.fetchUnits());
-  }, []);
+  }, [actions, dispatch]);
 
   React.useEffect(() => {
     setUnitsList(classroom.units);
