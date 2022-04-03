@@ -1,6 +1,6 @@
 import { Accordion, Divider, Text } from '@mantine/core';
 import * as React from 'react';
-import { Unit } from '../..';
+import { Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
 import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
@@ -26,6 +26,10 @@ export function ClassUnitAccordion(props: Props) {
     }
   }, [units]);
 
+  const toggleLive = (id: string) => {
+    console.log('toggle: ' + id);
+  };
+
   const renderUnitItems = unitsList.map(unit => (
     <Accordion.Item
       label={
@@ -46,12 +50,13 @@ export function ClassUnitAccordion(props: Props) {
       )}
 
       {/* Lessons Accordon */}
-      <ClassLessonAccordion lessons={unit.lessons} />
+      <ClassLessonAccordion unitId={unit.id} lessons={unit.lessons} />
 
       <Divider className="mt-6" />
 
       {/* Controls */}
       <ClassAccordionControl
+        unitId={unit.id}
         live={unit.isLive}
         type={ClassAccordionType.Unit}
       />

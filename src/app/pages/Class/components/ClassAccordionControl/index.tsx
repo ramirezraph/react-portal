@@ -1,30 +1,44 @@
 import { Group, ActionIcon, Switch, Button, Tooltip } from '@mantine/core';
 import { useBooleanToggle, useToggle } from '@mantine/hooks';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 import { FileUpload, Pencil, SquarePlus, Trash } from 'tabler-icons-react';
+import { useClassroomSlice } from '../../slice';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
+  unitId: string;
+  lessonId?: string;
   type: ClassAccordionType;
   live: boolean;
 }
 
 export function ClassAccordionControl(props: Props) {
-  const { type, live } = props;
+  const { unitId, lessonId, type, live } = props;
 
-  const [isLive, toggleLive] = useBooleanToggle(live);
   const [switchLabel, toggleSwitchLabel] = useToggle(null, ['Live', 'Draft']);
 
   React.useEffect(() => {
-    if (isLive) {
+    if (live) {
       toggleSwitchLabel('Live');
     } else {
       toggleSwitchLabel('Draft');
     }
-  }, [isLive, toggleSwitchLabel]);
+  }, [live, toggleSwitchLabel]);
+
+  const { actions } = useClassroomSlice();
+  const dispatch = useDispatch();
 
   const toggleSwitch = () => {
-    toggleLive();
+    if (type === ClassAccordionType.Unit) {
+      dispatch(actions.toggleUnitLive(unitId));
+    } else if (type === ClassAccordionType.Lesson) {
+      if (lessonId) {
+        dispatch(
+          actions.toggleLessonLive({ unitId: unitId, lessonId: lessonId }),
+        );
+      }
+    }
   };
 
   return (
@@ -40,7 +54,7 @@ export function ClassAccordionControl(props: Props) {
         )}
 
         <Switch
-          checked={isLive}
+          checked={live}
           size="sm"
           label={switchLabel}
           aria-label="Live or draft"
