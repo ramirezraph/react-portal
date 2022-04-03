@@ -45,7 +45,9 @@ export function ClassAccordionControl(props: Props) {
     <Group position="apart" className="mt-3">
       <Group spacing={'sm'}>
         {type === ClassAccordionType.Unit && (
-          <Button leftIcon={<SquarePlus size={21} />}>Add Lesson</Button>
+          <Button size="xs" leftIcon={<SquarePlus size={19} />}>
+            Add Lesson
+          </Button>
         )}
         {type === ClassAccordionType.Lesson && (
           <ActionIcon variant="transparent">

@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 import { CardColor } from '../Classes/components/ClassCard';
 import { ClassCard } from '../Classes/components/ClassCard/Loadable';
+import { ClassTabs } from './components/ClassTabs/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
 import { useClassroomSlice } from './slice';
 import { selectClassroom } from './slice/selectors';
@@ -51,7 +52,7 @@ export function Class() {
               <ClassUnitAccordion units={unitsList} />
             </Box>
           </Group>
-          <div className="h-full w-2/3 bg-green-500">C</div>
+          <ClassTabs />
         </Group>
       </PageContainer>
     </>
