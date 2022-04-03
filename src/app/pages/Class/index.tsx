@@ -2,99 +2,30 @@ import { Box, Group, Text } from '@mantine/core';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useDispatch, useSelector } from 'react-redux';
 import { CardColor } from '../Classes/components/ClassCard';
 import { ClassCard } from '../Classes/components/ClassCard/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
-
-export interface Unit {
-  id: string;
-  number: number;
-  title: string;
-  content: string;
-  isLive: boolean;
-  lessons: Lesson[];
-}
-
-export interface LessonFile {
-  title: string;
-  downloadUrl: string;
-}
-
-export interface Lesson {
-  id: string;
-  number: number;
-  title: string;
-  content: string;
-  isLive: boolean;
-  files: LessonFile[];
-}
+import { useClassroomSlice } from './slice';
+import { selectClassroom } from './slice/selectors';
+import { Unit } from './slice/types';
 
 export function Class() {
-  const [units] = React.useState<Unit[]>([
-    {
-      id: '1',
-      number: 1,
-      title: 'Getting Started',
-      content: 'sed quia non numquam eius modi tempora.',
-      isLive: true,
-      lessons: [
-        {
-          id: '1',
-          number: 1,
-          title: 'Why we program?',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: true,
-          files: [],
-        },
-        {
-          id: '2',
-          number: 2,
-          title: 'Installing and using Python',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: true,
-          files: [],
-        },
-        {
-          id: '3',
-          number: 3,
-          title: 'Variables and Expressions',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: false,
-          files: [],
-        },
-      ],
-    },
-    {
-      id: '2',
-      number: 2,
-      title: 'Data Structures',
-      content: '',
-      isLive: false,
-      lessons: [
-        {
-          id: '1',
-          number: 1,
-          title: 'Objects',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: false,
-          files: [],
-        },
-        {
-          id: '2',
-          number: 2,
-          title: 'Arrays',
-          content:
-            'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
-          isLive: false,
-          files: [],
-        },
-      ],
-    },
-  ]);
+  const { actions } = useClassroomSlice();
+
+  const dispatch = useDispatch();
+
+  const classroom = useSelector(selectClassroom);
+
+  const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
+
+  React.useEffect(() => {
+    dispatch(actions.fetchUnits());
+  }, [actions, dispatch]);
+
+  React.useEffect(() => {
+    setUnitsList(classroom.units);
+  }, [classroom]);
 
   return (
     <>
@@ -117,7 +48,7 @@ export function Class() {
               <Text size="sm" weight={'bold'}>
                 Class materials
               </Text>
-              <ClassUnitAccordion units={units} />
+              <ClassUnitAccordion units={unitsList} />
             </Box>
           </Group>
           <div className="h-full w-2/3 bg-green-500">C</div>

@@ -1,16 +1,17 @@
 import { Accordion, Divider, Text } from '@mantine/core';
 import * as React from 'react';
-import { Lesson } from '../..';
+import { Lesson } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
+  unitId: string;
   lessons: Lesson[];
 }
 
 export function ClassLessonAccordion(props: Props) {
-  const { lessons } = props;
+  const { unitId, lessons } = props;
 
   const [lessonList, setLessonList] = React.useState<Lesson[]>([]);
 
@@ -46,6 +47,8 @@ export function ClassLessonAccordion(props: Props) {
 
       {/* Controls */}
       <ClassAccordionControl
+        unitId={unitId}
+        lessonId={lesson.id}
         live={lesson.isLive}
         type={ClassAccordionType.Lesson}
       />
