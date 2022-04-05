@@ -4,7 +4,7 @@
 
 import { lazyLoad } from 'utils/loadable';
 
-export const Post = lazyLoad(
+export const PostCard = lazyLoad(
   () => import('./index'),
-  module => module.Post,
+  module => module.PostCard,
 );
