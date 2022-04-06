@@ -1,4 +1,11 @@
-import { ActionIcon, Avatar, Card, Group, TextInput } from '@mantine/core';
+import {
+  ActionIcon,
+  Avatar,
+  Card,
+  Group,
+  ScrollArea,
+  TextInput,
+} from '@mantine/core';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
 import * as React from 'react';
@@ -15,6 +22,27 @@ export function DiscussionTab(props: Props) {
 
   React.useEffect(() => {
     setPosts([
+      {
+        id: '0',
+        ownerName: 'John Doe',
+        date: '2022-04-05T12:10',
+        content: 'Post with no photos',
+        images: [],
+        files: [
+          {
+            id: 'asdsa',
+            downloadUrl: '',
+            name: 'Sample File 1',
+            type: 'pdf',
+          },
+          {
+            id: 'asdsadad',
+            downloadUrl: '',
+            name: 'Sample File 2',
+            type: 'pdf',
+          },
+        ],
+      },
       {
         id: '1',
         ownerName: 'John Doe',
@@ -100,7 +128,7 @@ export function DiscussionTab(props: Props) {
   }, []);
 
   return (
-    <div className="bg-transparent py-3">
+    <ScrollArea className="h-screen bg-transparent py-3" scrollbarSize={5}>
       <Card>
         <Group noWrap className="rounded-md">
           <Avatar color={'primary'} radius="xl">
@@ -133,9 +161,10 @@ export function DiscussionTab(props: Props) {
             content={post.content}
             date={post.date}
             images={post.images}
+            files={post.files}
           />
         ))}
       </div>
-    </div>
+    </ScrollArea>
   );
 }
