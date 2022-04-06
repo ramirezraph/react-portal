@@ -5,11 +5,12 @@ import {
   Group,
   ScrollArea,
   TextInput,
+  Text,
 } from '@mantine/core';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
 import * as React from 'react';
-import { At, File, Photo } from 'tabler-icons-react';
+import { ArrowsSort, At, Clock, File, Photo } from 'tabler-icons-react';
 
 interface Props {
   // someProps: string
@@ -152,6 +153,19 @@ export function DiscussionTab(props: Props) {
           </ActionIcon>
         </Group>
       </Card>
+      <div className="mt-4">
+        <Group position="apart">
+          <Group spacing="xs">
+            <Clock size={14} color={'gray'} />
+            <Text size="sm" color={'gray'}>
+              Recent discussions
+            </Text>
+          </Group>
+          <ActionIcon size={'sm'} className="mr-2">
+            <ArrowsSort color={'gray'} />
+          </ActionIcon>
+        </Group>
+      </div>
       <div>
         {posts.map(post => (
           <PostCard
