@@ -12,8 +12,13 @@ export function ClassTabs(props: Props) {
   // const { units } = props;
 
   return (
-    <div className="h-full w-2/3 rounded-md bg-white">
-      <Group grow noWrap direction="row" className="w-full py-3">
+    <div className="h-full w-2/3">
+      <Group
+        grow
+        noWrap
+        direction="row"
+        className="w-full rounded-tr-md rounded-tl-md bg-white py-3 shadow-md"
+      >
         <NavButton
           centered
           smallText
