@@ -8,7 +8,13 @@
 
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Route, BrowserRouter, Routes, Navigate } from 'react-router-dom';
+import {
+  Route,
+  BrowserRouter,
+  Routes,
+  Navigate,
+  useLocation,
+} from 'react-router-dom';
 import { GlobalStyle } from 'styles/global-styles';
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { useTranslation } from 'react-i18next';
@@ -26,11 +32,17 @@ import {
   PeopleTab,
   MeetingsTab,
 } from './pages/Class/components/ClassTabs/Loadable';
+import { LessonModal } from './components/LessonModal/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
+
+  let location = useLocation();
+
+  let state = location.state as { backgroundLocation?: Location };
+
   return (
-    <BrowserRouter>
+    <>
       <Helmet
         titleTemplate="%s - DPVMSHS Portal"
         defaultTitle="DPVMSHS Portal"
@@ -39,7 +51,7 @@ export function App() {
         <meta name="description" content="DPVMSHS Portal" />
       </Helmet>
 
-      <Routes>
+      <Routes location={state?.backgroundLocation || location}>
         <Route path="/welcome" element={<Landing />} />
         <Route path="/" element={<Main />}>
           <Route path="/" element={<Dashboard />} />
@@ -60,7 +72,15 @@ export function App() {
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
+      {state?.backgroundLocation && (
+        <Routes>
+          <Route path="/lesson/new" element={<LessonModal />} />
+          <Route path="/lesson/:id" element={<LessonModal />} />
+        </Routes>
+      )}
+
       <GlobalStyle />
-    </BrowserRouter>
+    </>
   );
 }

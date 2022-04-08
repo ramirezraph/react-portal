@@ -29,6 +29,7 @@ import './index.css';
 // Initialize languages
 import './locales/i18n';
 import { MantineProvider, MantineThemeOverride } from '@mantine/core';
+import { BrowserRouter } from 'react-router-dom';
 
 const store = configureAppStore();
 const MOUNT_NODE = document.getElementById('root') as HTMLElement;
@@ -57,7 +58,9 @@ ReactDOM.render(
     <HelmetProvider>
       <React.StrictMode>
         <MantineProvider theme={theme}>
-          <App />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
         </MantineProvider>
       </React.StrictMode>
     </HelmetProvider>

@@ -2,6 +2,7 @@ import { Group, ActionIcon, Switch, Button, Tooltip } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FileUpload, Pencil, SquarePlus, Trash } from 'tabler-icons-react';
 import { useClassroomSlice } from '../../slice';
 import { ClassAccordionType } from '../ClassUnitAccordion';
@@ -15,6 +16,9 @@ interface Props {
 
 export function ClassAccordionControl(props: Props) {
   const { unitId, lessonId, type, live } = props;
+
+  const navigate = useNavigate();
+  let location = useLocation();
 
   const [switchLabel, toggleSwitchLabel] = useToggle(null, ['Live', 'Draft']);
 
@@ -41,11 +45,22 @@ export function ClassAccordionControl(props: Props) {
     }
   };
 
+  const displayNewLessonModal = () => {
+    navigate('/lesson/new', { state: { backgroundLocation: location } });
+  };
+  const displayLessonModalOnEdit = () => {
+    navigate('/lesson/123', { state: { backgroundLocation: location } });
+  };
+
   return (
-    <Group position="apart" className="mt-3">
-      <Group spacing="sm">
+    <Group position="apart" className="mt-3" noWrap>
+      <Group spacing="sm" noWrap>
         {type === ClassAccordionType.Unit && (
-          <Button size="xs" leftIcon={<SquarePlus size={19} />}>
+          <Button
+            size="xs"
+            onClick={displayNewLessonModal}
+            leftIcon={<SquarePlus size={19} />}
+          >
             Add Lesson
           </Button>
         )}
@@ -67,9 +82,16 @@ export function ClassAccordionControl(props: Props) {
           }}
         />
       </Group>
-      <Group className="gap-1">
+      <Group className="gap-0" noWrap>
         <Tooltip label="Edit" position="bottom" withArrow>
-          <ActionIcon variant="transparent">
+          <ActionIcon
+            variant="transparent"
+            onClick={
+              type === ClassAccordionType.Lesson
+                ? displayLessonModalOnEdit
+                : undefined
+            }
+          >
             <Pencil />
           </ActionIcon>
         </Tooltip>
