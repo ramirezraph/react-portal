@@ -42,7 +42,7 @@ interface Prop {
 }
 
 export function PostCard(props: Prop) {
-  const { id, ownerName, date, content, images, files } = props;
+  const { ownerName, date, content, images, files } = props;
 
   const [ownerInitials, setOwnerInitials] = React.useState<string | null>(null);
 
