@@ -43,7 +43,7 @@ export function ClassAccordionControl(props: Props) {
 
   return (
     <Group position="apart" className="mt-3">
-      <Group spacing={'sm'}>
+      <Group spacing="sm">
         {type === ClassAccordionType.Unit && (
           <Button size="xs" leftIcon={<SquarePlus size={19} />}>
             Add Lesson
@@ -67,7 +67,7 @@ export function ClassAccordionControl(props: Props) {
           }}
         />
       </Group>
-      <Group spacing={'sm'}>
+      <Group className="gap-1">
         <Tooltip label="Edit" position="bottom" withArrow>
           <ActionIcon variant="transparent">
             <Pencil />
