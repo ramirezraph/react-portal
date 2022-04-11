@@ -9,7 +9,6 @@ import {
   Message,
   Pencil,
   SquarePlus,
-  ThumbUp,
   Trash,
 } from 'tabler-icons-react';
 import { useClassroomSlice } from '../../slice';
