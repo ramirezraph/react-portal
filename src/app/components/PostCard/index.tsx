@@ -6,6 +6,7 @@ import {
   Button,
   Text,
   Popover,
+  Tooltip,
 } from '@mantine/core';
 import moment from 'moment';
 import * as React from 'react';
@@ -36,7 +37,7 @@ interface Prop {
   id: string;
   ownerName: string;
   date: string;
-  content: string;
+  content?: string;
   images?: PostImage[];
   files?: IFile[];
 }
@@ -72,7 +73,7 @@ export function PostCard(props: Prop) {
               <Dots />
             </ActionIcon>
           </Group>
-          <Text size="sm">{content}</Text>
+          {content && <Text size="sm">{content}</Text>}
           <PostImages images={images} />
           <Group className="w-full" position="apart" noWrap>
             <Group>
@@ -87,23 +88,38 @@ export function PostCard(props: Prop) {
             </Group>
             {files && files?.length > 0 && (
               <Group>
-                <Popover
-                  opened={opened}
-                  onClose={() => setOpened(false)}
-                  target={
-                    <ActionIcon onClick={() => setOpened(o => !o)}>
-                      <Files />
-                    </ActionIcon>
-                  }
-                  width={300}
-                  position="left"
-                >
-                  <PostFiles files={files} />
-                </Popover>
+                <Tooltip label="Attached files" position="bottom" withArrow>
+                  <Popover
+                    opened={opened}
+                    onClose={() => setOpened(false)}
+                    target={
+                      <Button
+                        variant="subtle"
+                        color={'dark'}
+                        className="px-1"
+                        onClick={() => setOpened(o => !o)}
+                      >
+                        <Files />
+                        <Text className="ml-2">{files.length}</Text>
+                      </Button>
+                    }
+                    width={300}
+                    position="left"
+                  >
+                    <PostFiles files={files} />
+                  </Popover>
+                </Tooltip>
 
-                <ActionIcon>
-                  <Download />
-                </ActionIcon>
+                <Tooltip
+                  label="Download All"
+                  position="bottom"
+                  withArrow
+                  className="m-0 p-0"
+                >
+                  <ActionIcon>
+                    <Download />
+                  </ActionIcon>
+                </Tooltip>
               </Group>
             )}
           </Group>

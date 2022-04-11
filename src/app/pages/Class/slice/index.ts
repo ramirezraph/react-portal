@@ -28,7 +28,18 @@ const slice = createSlice({
               content:
                 'Enim sem egestas omare ac cursus non odio nibh gravidia. Pharetra, fringila amet, vel at a.',
               isLive: true,
-              files: [],
+              files: [
+                {
+                  id: '123fsadfadse2',
+                  title: 'Why we program.pdf',
+                  downloadUrl: '',
+                },
+                {
+                  id: '123fsgijgh',
+                  title: 'Introduction.mp4',
+                  downloadUrl: '',
+                },
+              ],
             },
             {
               id: '2',
