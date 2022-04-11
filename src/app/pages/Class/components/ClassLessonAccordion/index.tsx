@@ -36,7 +36,7 @@ export function ClassLessonAccordion(props: Props) {
     >
       {/* Text Content */}
       {lesson.content && (
-        <Text className="mt-3" size="sm">
+        <Text className="mt-3" size="sm" lineClamp={5}>
           {lesson.content}
         </Text>
       )}
