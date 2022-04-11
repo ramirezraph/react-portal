@@ -9,7 +9,7 @@ export function PeopleTab(props: Props) {
   // const { someProps } = props;
 
   return (
-    <div className="p-6">
+    <div className="bg-white p-6">
       <Text>People Tab</Text>
     </div>
   );

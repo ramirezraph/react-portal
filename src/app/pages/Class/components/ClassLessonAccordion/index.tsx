@@ -1,4 +1,5 @@
 import { Accordion, Divider, Text } from '@mantine/core';
+import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import * as React from 'react';
 import { Lesson } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
@@ -35,13 +36,24 @@ export function ClassLessonAccordion(props: Props) {
     >
       {/* Text Content */}
       {lesson.content && (
-        <Text className="mt-3" size="sm">
+        <Text className="mt-3" size="sm" lineClamp={5}>
           {lesson.content}
         </Text>
       )}
 
       {/* Files */}
-      {/* @Todo */}
+      {lesson.files && lesson.files.length > 0 && (
+        <div className="mt-6">
+          {lesson.files.map(item => (
+            <AttachedFile
+              key={item.id}
+              name={item.title}
+              downloadUrl={item.downloadUrl}
+              compact
+            />
+          ))}
+        </div>
+      )}
 
       <Divider className="mt-6" />
 

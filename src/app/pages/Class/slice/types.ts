@@ -13,6 +13,7 @@ export interface Unit {
 }
 
 export interface LessonFile {
+  id: string;
   title: string;
   downloadUrl: string;
 }
