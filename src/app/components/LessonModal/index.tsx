@@ -19,10 +19,12 @@ import {
   Minus,
   Pencil,
   Plus,
+  Settings,
   Trash,
   X,
 } from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
+import { PostCard } from '../PostCard';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 
 interface Prop {}
@@ -55,7 +57,7 @@ export function LessonModal(props: Prop) {
       onClose={onClose}
       withCloseButton={false}
       centered
-      size="full"
+      size={1600}
       padding={0}
       radius="md"
     >
@@ -102,7 +104,7 @@ export function LessonModal(props: Prop) {
             </ActionIcon>
           </Group>
         </Group>
-        <Group className="w-full rounded-md" direction="row" grow>
+        <Group className="w-full rounded-md" direction="row" spacing={0} grow>
           <Card withBorder radius={0} className="h-full">
             <Card.Section className="p-4">
               <Group position="apart">
@@ -172,14 +174,40 @@ export function LessonModal(props: Prop) {
               </ScrollArea>
             </Card.Section>
           </Card>
-          <Card className="bg-red-500">
-            <ScrollArea
-              style={{
-                height: '70vh',
-              }}
-            >
-              <Text>Test</Text>
-            </ScrollArea>
+          <Card className="m-0 p-0" radius={0}>
+            <Card>
+              <Card.Section className="p-4">
+                <Group position="apart">
+                  <Text className="font-semibold">Comments</Text>
+                  <Group>
+                    <Button>Write a comment</Button>
+                    <ActionIcon size="lg">
+                      <Settings />
+                    </ActionIcon>
+                  </Group>
+                </Group>
+              </Card.Section>
+              <Card.Section>
+                <Divider />
+              </Card.Section>
+              <Card.Section>
+                <ScrollArea
+                  style={{
+                    height: '70vh',
+                  }}
+                  className="bg-document"
+                >
+                  <div className="p-4">
+                    <PostCard
+                      id="asdfasdfa"
+                      ownerName="John Doe"
+                      date="2022-04-05T12:10"
+                      content="Hello, World!"
+                    />
+                  </div>
+                </ScrollArea>
+              </Card.Section>
+            </Card>
           </Card>
         </Group>
       </Group>

@@ -36,7 +36,7 @@ interface Prop {
   id: string;
   ownerName: string;
   date: string;
-  content: string;
+  content?: string;
   images?: PostImage[];
   files?: IFile[];
 }
@@ -72,7 +72,7 @@ export function PostCard(props: Prop) {
               <Dots />
             </ActionIcon>
           </Group>
-          <Text size="sm">{content}</Text>
+          {content && <Text size="sm">{content}</Text>}
           <PostImages images={images} />
           <Group className="w-full" position="apart" noWrap>
             <Group>
