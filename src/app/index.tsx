@@ -8,13 +8,7 @@
 
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import {
-  Route,
-  BrowserRouter,
-  Routes,
-  Navigate,
-  useLocation,
-} from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { GlobalStyle } from 'styles/global-styles';
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { useTranslation } from 'react-i18next';

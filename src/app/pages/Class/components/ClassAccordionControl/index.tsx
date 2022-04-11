@@ -1,5 +1,6 @@
 import { Group, ActionIcon, Switch, Button, Tooltip } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
+import { LiveSwitch } from 'app/components/LiveSwitch/Loadable';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -70,17 +71,7 @@ export function ClassAccordionControl(props: Props) {
           </ActionIcon>
         )}
 
-        <Switch
-          checked={live}
-          size="sm"
-          label={switchLabel}
-          aria-label="Live or draft"
-          onChange={toggleSwitch}
-          color="green"
-          classNames={{
-            input: 'bg-orange-500',
-          }}
-        />
+        <LiveSwitch live={live} onToggle={toggleSwitch} />
       </Group>
       <Group className="gap-0" noWrap>
         <Tooltip label="Edit" position="bottom" withArrow>
