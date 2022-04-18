@@ -51,7 +51,7 @@ export function ClassMeetingsItem(props: Props) {
           <Button size="sm" className="bg-blue-600 px-6" radius="md">
             <Text size="xs">Join Meeting</Text>
           </Button>
-          <Button
+          {/* <Button
             className="px-6 "
             size="sm"
             color={'dark'}
@@ -61,7 +61,7 @@ export function ClassMeetingsItem(props: Props) {
             <Text color={'black'} size="xs">
               I'll be absent
             </Text>
-          </Button>
+          </Button> */}
         </Group>
       </Group>
     </Box>
