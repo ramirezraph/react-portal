@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Route, BrowserRouter, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { GlobalStyle } from 'styles/global-styles';
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { useTranslation } from 'react-i18next';
@@ -20,11 +20,23 @@ import { Classes } from './pages/Classes/Loadable';
 import { Class } from './pages/Class/Loadable';
 import { Grades } from './pages/Grades/Loadable';
 import { Calendar } from './pages/Calendar/Loadable';
+import {
+  DiscussionTab,
+  ClassworkTab,
+  PeopleTab,
+  MeetingsTab,
+} from './pages/Class/components/ClassTabs/Loadable';
+import { LessonModal } from './components/LessonModal/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
+
+  let location = useLocation();
+
+  let state = location.state as { backgroundLocation?: Location };
+
   return (
-    <BrowserRouter>
+    <>
       <Helmet
         titleTemplate="%s - DPVMSHS Portal"
         defaultTitle="DPVMSHS Portal"
@@ -33,19 +45,36 @@ export function App() {
         <meta name="description" content="DPVMSHS Portal" />
       </Helmet>
 
-      <Routes>
+      <Routes location={state?.backgroundLocation || location}>
         <Route path="/welcome" element={<Landing />} />
         <Route path="/" element={<Main />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/discussions" element={<Discussions />} />
           <Route path="/classes" element={<Classes />} />
-          <Route path="/class/:id" element={<Class />} />
+          <Route path="/class/:id" element={<Class />}>
+            <Route
+              index
+              element={<Navigate to="discussions" replace={true} />}
+            />
+            <Route path="discussions" element={<DiscussionTab />} />
+            <Route path="classwork" element={<ClassworkTab />} />
+            <Route path="people" element={<PeopleTab />} />
+            <Route path="meetings" element={<MeetingsTab />} />
+          </Route>
           <Route path="/grades" element={<Grades />} />
           <Route path="/calendar" element={<Calendar />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
+      {state?.backgroundLocation && (
+        <Routes>
+          <Route path="/lesson/new" element={<LessonModal />} />
+          <Route path="/lesson/:id" element={<LessonModal />} />
+        </Routes>
+      )}
+
       <GlobalStyle />
-    </BrowserRouter>
+    </>
   );
 }
