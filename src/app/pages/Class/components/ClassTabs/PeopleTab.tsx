@@ -11,6 +11,7 @@ export function PeopleTab(props: Props) {
   return (
     <div className="bg-white p-6">
       <Text>People Tab</Text>
+      <Text>Hello, Jeff!</Text>
     </div>
   );
 }
