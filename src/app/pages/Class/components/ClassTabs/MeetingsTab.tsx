@@ -1,7 +1,6 @@
 import { Text, Button, Group, ActionIcon, Chips, Chip } from '@mantine/core';
 import { Video, Settings } from 'tabler-icons-react';
 import * as React from 'react';
-import { ClassMeetings } from 'app/pages/Dashboard/components/ClassMeetings';
 import { MeetingItem } from './components/MeetingItem/Loadable';
 
 interface Props {
