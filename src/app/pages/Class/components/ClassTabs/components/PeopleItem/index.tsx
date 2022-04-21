@@ -1,6 +1,6 @@
-import { Group, Avatar, ActionIcon, Text } from '@mantine/core';
+import { Group, Avatar, ActionIcon, Text, Checkbox } from '@mantine/core';
 import * as React from 'react';
-import { Checkbox, Mail, UserCircle, UserX } from 'tabler-icons-react';
+import { Mail, UserCircle, UserX } from 'tabler-icons-react';
 
 interface Prop {
   name: string;
