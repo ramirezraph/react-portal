@@ -1,6 +1,6 @@
 import { lazyLoad } from 'utils/loadable';
 
-export const ClassMeetings = lazyLoad(
+export const MeetingItem = lazyLoad(
   () => import('./index'),
-  module => module.ClassMeetings,
+  module => module.MeetingItem,
 );
