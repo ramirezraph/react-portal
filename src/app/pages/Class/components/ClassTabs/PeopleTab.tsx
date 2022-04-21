@@ -1,24 +1,14 @@
 import {
   ActionIcon,
-  Avatar,
   Button,
   Checkbox,
   Group,
-  Loader,
   NativeSelect,
   Text,
   TextInput,
 } from '@mantine/core';
 import * as React from 'react';
-import {
-  ArrowsUpDown,
-  Mail,
-  Menu2,
-  Search,
-  UserCircle,
-  UserPlus,
-  UserX,
-} from 'tabler-icons-react';
+import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
