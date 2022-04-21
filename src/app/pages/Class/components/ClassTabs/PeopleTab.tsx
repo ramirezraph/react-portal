@@ -1,6 +1,25 @@
-import { Button, Group, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Avatar,
+  Button,
+  Checkbox,
+  Group,
+  Loader,
+  NativeSelect,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import * as React from 'react';
-import { Menu2, UserPlus } from 'tabler-icons-react';
+import {
+  ArrowsUpDown,
+  Mail,
+  Menu2,
+  Search,
+  UserCircle,
+  UserPlus,
+  UserX,
+} from 'tabler-icons-react';
+import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
   // someProps: string
@@ -25,6 +44,25 @@ export function PeopleTab(props: Props) {
             Pending Invites
           </Text>
         </Button>
+      </Group>
+      <Text className="mt-6 text-2xl font-semibold">Teacher</Text>
+      <PeopleItem name="John Doe" />
+      <Text className="mt-6 text-2xl font-semibold">Students</Text>
+      <Group position="apart" className="mt-6">
+        <Group>
+          <Checkbox />
+          <NativeSelect
+            className="w-48"
+            data={['React', 'Vue', 'Angular', 'Svelte']}
+          />
+          <ActionIcon>
+            <ArrowsUpDown size={20} />
+          </ActionIcon>
+        </Group>
+        <TextInput placeholder="Search" rightSection={<Search size={15} />} />
+        <PeopleItem name="John Doe" />
+        <PeopleItem name="Jeff Lacerna" />
+        <PeopleItem name="Jane Test" />
       </Group>
     </div>
   );
