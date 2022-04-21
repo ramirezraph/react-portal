@@ -43,7 +43,7 @@ export function PeopleTab(props: Props) {
           <Checkbox />
           <NativeSelect
             className="w-48"
-            data={['React', 'Vue', 'Angular', 'Svelte']}
+            data={['Action', 'React', 'Vue', 'Angular', 'Svelte']}
           />
           <ActionIcon>
             <ArrowsUpDown size={20} />
