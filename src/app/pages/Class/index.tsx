@@ -1,8 +1,9 @@
-import { Box, Group, Text } from '@mantine/core';
+import { Box, Button, Group, Text } from '@mantine/core';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { CardColor } from '../Classes/components/ClassCard';
 import { ClassCard } from '../Classes/components/ClassCard/Loadable';
 import { ClassTabs } from './components/ClassTabs/Loadable';
@@ -50,6 +51,9 @@ export function Class() {
                 Class materials
               </Text>
               <ClassUnitAccordion units={unitsList} />
+              <Button className="mt-2" color="primary">
+                ADD NEW UNIT
+              </Button>
             </Box>
           </Group>
           <ClassTabs />
