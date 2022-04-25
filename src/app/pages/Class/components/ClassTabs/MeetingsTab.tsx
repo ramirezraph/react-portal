@@ -14,7 +14,7 @@ export function MeetingsTab(props: Props) {
     <div className="bg-white p-6">
       <Group>
         <Button
-          color="violet"
+          color="primary"
           radius="xl"
           size="md"
           leftIcon={<Video size={20} />}

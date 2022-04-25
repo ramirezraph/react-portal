@@ -56,10 +56,10 @@ export function ClassworkTab(props: Props) {
             Classwork - <span className="font-semibold">CPE 401</span>
           </Text>
           <Group spacing={'xs'}>
-            <Button radius="xl" leftIcon={<Plus size={21} />}>
+            <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
               Create
             </Button>
-            <Button radius="xl">
+            <Button size="md" radius="xl">
               <Settings size={21} />
             </Button>
           </Group>
@@ -113,7 +113,9 @@ export function ClassworkTab(props: Props) {
               variant="outline"
               size="md"
             >
-              Filter by status
+              <Text size="sm" weight={400} color="black">
+                Filter by status
+              </Text>
             </Button>
           }
         >

@@ -26,10 +26,17 @@ export function PeopleTab(props: Props) {
           radius="xl"
           leftIcon={<UserPlus size={19} />}
           variant="filled"
+          size="md"
         >
-          Send Invite
+          <Text weight={400} size="sm">
+            Send Invite
+          </Text>
         </Button>
-        <Button leftIcon={<Menu2 color="black" size={19} />} variant="subtle">
+        <Button
+          size="sm"
+          leftIcon={<Menu2 color="black" size={19} />}
+          variant="subtle"
+        >
           <Text weight={400} color="black">
             Pending Invites
           </Text>
