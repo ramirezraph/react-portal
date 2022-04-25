@@ -1,17 +1,28 @@
+import { Group, Text, ActionIcon, Button, Box } from '@mantine/core';
 import * as React from 'react';
-import { Button, Box, Group, Text, ActionIcon } from '@mantine/core';
 import { DotsVertical } from 'tabler-icons-react';
 
 interface Props {
   title: string;
   subtitle: string;
+  description: string;
   date: string;
   timeStart: string;
   timeEnd: string;
+  shouldShowDescription: Boolean;
 }
 
-export function ClassMeetingsItem(props: Props) {
-  const { title, subtitle, date, timeStart, timeEnd } = props;
+export function MeetingItem(props: Props) {
+  const {
+    title,
+    subtitle,
+    description,
+    date,
+    timeStart,
+    timeEnd,
+    shouldShowDescription = false,
+  } = props;
+
   return (
     <Box
       className={`w-full rounded-md border-none bg-white p-7 drop-shadow-md `}
@@ -29,6 +40,9 @@ export function ClassMeetingsItem(props: Props) {
           <DotsVertical size={48} strokeWidth={2} color={'black'} />
         </ActionIcon>
       </Group>
+      <Text size="xs" className="mb-5">
+        {shouldShowDescription && description}
+      </Text>
       <Group className="" position="apart">
         <Group spacing={'xs'}>
           <Box className="rounded-2xl bg-slate-700 px-6 py-1">
@@ -51,17 +65,6 @@ export function ClassMeetingsItem(props: Props) {
           <Button size="sm" className="bg-blue-600 px-6" radius="md">
             <Text size="xs">Join Meeting</Text>
           </Button>
-          {/* <Button
-            className="px-6 "
-            size="sm"
-            color={'dark'}
-            variant="outline"
-            radius="md"
-          >
-            <Text color={'black'} size="xs">
-              I'll be absent
-            </Text>
-          </Button> */}
         </Group>
       </Group>
     </Box>
