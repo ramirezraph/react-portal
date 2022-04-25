@@ -9,7 +9,7 @@ interface Props {
   date: string;
   timeStart: string;
   timeEnd: string;
-  shouldShowDescription: Boolean;
+  shouldShowDescription: boolean;
 }
 
 export function MeetingItem(props: Props) {
