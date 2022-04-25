@@ -1,7 +1,23 @@
-import { Button, Group, Text } from '@mantine/core';
+import {
+  Button,
+  Group,
+  Menu,
+  SimpleGrid,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import * as React from 'react';
 import { Doughnut } from 'react-chartjs-2';
-import { Circle, InfoCircle, Pencil, Plus, Settings } from 'tabler-icons-react';
+import {
+  Adjustments,
+  Circle,
+  InfoCircle,
+  Pencil,
+  Plus,
+  Search,
+  Settings,
+} from 'tabler-icons-react';
+import { ClassworkItem } from './components/ClassworkItem/Loadable';
 
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 
@@ -88,9 +104,51 @@ export function ClassworkTab(props: Props) {
           </Group>
         </Group>
       </Group>
-      <Group>
-        <Text>Hello, World!</Text>
+      <Group className="mt-6" noWrap>
+        <Menu
+          control={
+            <Button
+              leftIcon={<Adjustments color="gray" />}
+              color="gray"
+              variant="outline"
+              size="md"
+            >
+              Filter by status
+            </Button>
+          }
+        >
+          <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
+        </Menu>
+        <TextInput
+          className="w-full"
+          placeholder="Search"
+          size="md"
+          required
+          icon={<Search size={20} />}
+        />
       </Group>
+      <SimpleGrid cols={2} className="mt-5">
+        <ClassworkItem
+          title="Laboratory Activity 1"
+          date="12/1/2022"
+          status="Graded"
+        />
+        <ClassworkItem
+          title="Laboratory Activity 2"
+          date="12/2/2022"
+          status="No Grade"
+        />
+        <ClassworkItem
+          title="Laboratory Activity 3"
+          date="12/1/2022"
+          status="Graded"
+        />
+        <ClassworkItem
+          title="Laboratory Activity 4"
+          date="12/1/2022"
+          status="Graded"
+        />
+      </SimpleGrid>
     </div>
   );
 }
