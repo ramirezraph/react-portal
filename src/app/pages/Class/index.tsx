@@ -3,7 +3,7 @@ import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
-import { Butterfly } from 'tabler-icons-react';
+
 import { CardColor } from '../Classes/components/ClassCard';
 import { ClassCard } from '../Classes/components/ClassCard/Loadable';
 import { ClassTabs } from './components/ClassTabs/Loadable';
