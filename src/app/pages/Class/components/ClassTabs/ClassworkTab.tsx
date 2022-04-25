@@ -57,7 +57,9 @@ export function ClassworkTab(props: Props) {
           </Text>
           <Group spacing={'xs'}>
             <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
-              Create
+              <Text weight={400} size="sm">
+                Create new
+              </Text>
             </Button>
             <Button size="md" radius="xl">
               <Settings size={21} />

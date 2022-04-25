@@ -52,7 +52,9 @@ export function Class() {
               </Text>
               <ClassUnitAccordion units={unitsList} />
               <Button className="mt-2" color="primary">
-                ADD NEW UNIT
+                <Text size="sm" weight={400}>
+                  Add new unit
+                </Text>
               </Button>
             </Box>
           </Group>
