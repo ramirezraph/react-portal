@@ -19,10 +19,12 @@ export function MeetingsTab(props: Props) {
           size="md"
           leftIcon={<Video size={20} />}
         >
-          New Meeting
+          <Text weight={400} size="sm">
+            New Meeting
+          </Text>
         </Button>
         <Group className="ml-auto">
-          <Chips color="violet" variant="filled" spacing="sm" size="md">
+          <Chips color="violet" variant="filled" spacing={5} size="sm">
             <Chip value={'today'}>Today</Chip>
             <Chip value={'week'}>This Week</Chip>
             <Chip value={'all'}>All Meetings</Chip>
@@ -30,7 +32,7 @@ export function MeetingsTab(props: Props) {
         </Group>
       </Group>
       <Group className="py-6 px-2">
-        <Text size="md" weight={500}>
+        <Text size="lg" weight={500}>
           Class meetings
         </Text>
         <Group className="ml-auto">
