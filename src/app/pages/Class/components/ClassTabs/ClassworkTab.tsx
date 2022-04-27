@@ -20,6 +20,7 @@ import {
 import { ClassworkItem } from './components/ClassworkItem/Loadable';
 
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 ChartJS.register(ArcElement, Tooltip);
 
@@ -29,6 +30,10 @@ interface Props {
 
 export function ClassworkTab(props: Props) {
   // const { someProps } = props;
+
+  const navigate = useNavigate();
+
+  let location = useLocation();
 
   const [doughnutData] = React.useState({
     labels: ['Draft', 'Assigned', 'To review', 'Graded'],
@@ -47,6 +52,10 @@ export function ClassworkTab(props: Props) {
       },
     ],
   });
+
+  const onClassworkClicked = (id: string) => {
+    navigate('/classwork/new', { state: { backgroundLocation: location } });
+  };
 
   return (
     <div className="bg-transparent p-6">
@@ -133,24 +142,18 @@ export function ClassworkTab(props: Props) {
       </Group>
       <SimpleGrid cols={2} className="mt-5">
         <ClassworkItem
+          id="123"
           title="Laboratory Activity 1"
           date="12/1/2022"
           status="Graded"
+          onClick={onClassworkClicked}
         />
         <ClassworkItem
+          id="456"
           title="Laboratory Activity 2"
           date="12/2/2022"
           status="No Grade"
-        />
-        <ClassworkItem
-          title="Laboratory Activity 3"
-          date="12/1/2022"
-          status="Graded"
-        />
-        <ClassworkItem
-          title="Laboratory Activity 4"
-          date="12/1/2022"
-          status="Graded"
+          onClick={onClassworkClicked}
         />
       </SimpleGrid>
     </div>

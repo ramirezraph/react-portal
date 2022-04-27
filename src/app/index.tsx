@@ -27,6 +27,7 @@ import {
   MeetingsTab,
 } from './pages/Class/components/ClassTabs/Loadable';
 import { LessonModal } from './components/LessonModal/Loadable';
+import { ClassworkModal } from './components/ClassworkModal';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -69,6 +70,8 @@ export function App() {
 
       {state?.backgroundLocation && (
         <Routes>
+          <Route path="/classwork/new" element={<ClassworkModal />} />
+          <Route path="/classwork/id" element={<ClassworkModal />} />
           <Route path="/lesson/new" element={<LessonModal />} />
           <Route path="/lesson/:id" element={<LessonModal />} />
         </Routes>

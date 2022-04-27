@@ -6,13 +6,14 @@ interface Prop {
   name: string;
   downloadUrl?: string;
   compact?: boolean;
+  className?: string;
 }
 
 export function AttachedFile(props: Prop) {
-  const { name, compact } = props;
+  const { name, compact, className } = props;
 
   return (
-    <Group position="apart" className="mt-3" noWrap>
+    <Group position="apart" className={`w-full ${className}`} noWrap>
       <Group noWrap>
         <File size={18} />
         <Text size="sm" lineClamp={1}>

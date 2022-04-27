@@ -3,13 +3,18 @@ import * as React from 'react';
 import { CircleCheck, Clock } from 'tabler-icons-react';
 
 interface Prop {
+  id: string;
   title: string;
   date: string;
   status: string;
+  onClick?: (id: string) => void;
 }
 
 export function ClassworkItem(props: Prop) {
-  const { title, date, status } = props;
+  const { id, title, date, status, onClick } = props;
+
+  const onPressed = onClick ? onClick : () => {};
+
   return (
     <Box
       sx={theme => ({
@@ -20,7 +25,6 @@ export function ClassworkItem(props: Prop) {
         textAlign: 'center',
         borderRadius: theme.radius.md,
         cursor: 'pointer',
-
         '&:hover': {
           backgroundColor:
             theme.colorScheme === 'dark'
@@ -28,6 +32,7 @@ export function ClassworkItem(props: Prop) {
               : theme.colors.gray[1],
         },
       })}
+      onClick={() => onPressed(id)}
     >
       <Group spacing={0} noWrap>
         <Group direction="column" spacing={'sm'} className="w-96 flex-grow p-6">
