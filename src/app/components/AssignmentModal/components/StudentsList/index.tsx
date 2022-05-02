@@ -1,7 +1,7 @@
 import { Group, ActionIcon, ScrollArea, Text } from '@mantine/core';
-import { StudentWorkListItem } from 'app/components/ClassworkModal/components/StudentWorkListItem/Loadable';
 import * as React from 'react';
 import { SortAscending } from 'tabler-icons-react';
+import { StudentsListItem } from '../StudentsListItem/Loadable';
 
 interface Props {}
 
@@ -26,17 +26,18 @@ export function StudentsList(props: Props) {
             height: '55vh',
           }}
           scrollbarSize={7}
+          offsetScrollbars
           className="mt-6 w-full"
         >
           <Group>
-            <StudentWorkListItem
+            <StudentsListItem
               id="123"
               studentImageUrl="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
               studentName="John D. Doe"
               gradeText="89/100"
               status="Graded"
             />
-            <StudentWorkListItem
+            <StudentsListItem
               id="456"
               studentImageUrl="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
               studentName="Jose P. Rizal"

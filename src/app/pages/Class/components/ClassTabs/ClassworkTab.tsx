@@ -54,9 +54,15 @@ export function ClassworkTab(props: Props) {
   });
 
   const onClassworkClicked = (id: string, type: string) => {
-    navigate(`/classwork/${id}?type=${type}`, {
-      state: { backgroundLocation: location },
-    });
+    navigate(
+      {
+        pathname: `/classwork/${id}`,
+        search: `type=${type}&view=list`,
+      },
+      {
+        state: { backgroundLocation: location },
+      },
+    );
   };
 
   return (

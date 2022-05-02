@@ -8,7 +8,14 @@
 
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import {
+  Route,
+  Routes,
+  Navigate,
+  useLocation,
+  NavigateOptions,
+  useSearchParams,
+} from 'react-router-dom';
 import { GlobalStyle } from 'styles/global-styles';
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +35,28 @@ import {
 } from './pages/Class/components/ClassTabs/Loadable';
 import { LessonModal } from './components/LessonModal/Loadable';
 import { ClassworkModal } from './components/ClassworkModal';
+
+import * as JSURL from 'jsurl';
+
+export function useQueryParam<T>(
+  key: string,
+): [T | undefined, (newQuery: T, options?: NavigateOptions) => void] {
+  let [searchParams, setSearchParams] = useSearchParams();
+  let paramValue = searchParams.get(key);
+
+  let value = React.useMemo(() => JSURL.parse(paramValue), [paramValue]);
+
+  let setValue = React.useCallback(
+    (newValue: T, options?: NavigateOptions) => {
+      let newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set(key, JSURL.stringify(newValue));
+      setSearchParams(newSearchParams, options);
+    },
+    [key, searchParams, setSearchParams],
+  );
+
+  return [value, setValue];
+}
 
 export function App() {
   const { i18n } = useTranslation();

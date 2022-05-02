@@ -1,5 +1,6 @@
 import { Group, Avatar, Text } from '@mantine/core';
 import * as React from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 interface Props {
   id: string;
@@ -9,11 +10,23 @@ interface Props {
   status: string;
 }
 
-export function StudentWorkListItem(props: Props) {
+export function StudentsListItem(props: Props) {
   const { id, gradeText, studentName, studentImageUrl, status } = props;
 
-  const onClick = (id: string) => {
+  let location = useLocation();
+
+  let [searchParams, setSearchParams] = useSearchParams();
+
+  const onClick = () => {
     console.log('item clicked: ' + id);
+
+    let newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('view', id);
+
+    setSearchParams(newSearchParams.toString(), {
+      state: { backgroundLocation: location },
+      replace: true,
+    });
   };
 
   return (
@@ -21,7 +34,7 @@ export function StudentWorkListItem(props: Props) {
       position="apart"
       className="w-full cursor-pointer select-none"
       noWrap
-      onClick={() => onClick(id)}
+      onClick={onClick}
     >
       <Group noWrap className="w-full">
         <Text weight={600} size="sm" className="w-16">

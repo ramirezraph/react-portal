@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Avatar,
   Button,
   Group,
   Modal,
@@ -10,7 +9,12 @@ import {
   TextInput,
 } from '@mantine/core';
 import * as React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import {
   ChevronRight,
   ArrowNarrowRight,
@@ -22,9 +26,7 @@ import {
   Calendar,
   Plus,
   Download,
-  SortAscending,
 } from 'tabler-icons-react';
-import { StudentWorkListItem } from '../ClassworkModal/components/StudentWorkListItem/Loadable';
 import { AttachedFile } from '../LessonModal/components/AttachedFile/Loadable';
 import { LiveSwitch } from '../LiveSwitch';
 import { StudentsList } from './components/StudentsList/Loadable';
@@ -36,6 +38,8 @@ export function AssignmentModal(props: Props) {
   // const {  } = props;
 
   let navigate = useNavigate();
+
+  let [searchParams] = useSearchParams();
 
   const onClose = () => {
     navigate(-1);
@@ -54,21 +58,13 @@ export function AssignmentModal(props: Props) {
     setInstruction(event.currentTarget.value);
   };
 
-  let [searchParams] = useSearchParams();
-
-  const [view, setView] = React.useState<string | null>(null);
-  React.useEffect(() => {
-    const viewId = searchParams.get('view');
-    setView(viewId);
-  }, [searchParams]);
-
   return (
     <Modal
       opened={true}
       onClose={onClose}
       withCloseButton={false}
       centered
-      size={1000}
+      size={1100}
       padding={0}
       radius="md"
     >
@@ -145,7 +141,7 @@ export function AssignmentModal(props: Props) {
             </Group>
             <ScrollArea
               style={{
-                height: '55vh',
+                height: '60vh',
               }}
               scrollbarSize={7}
               className="w-full rounded-md"
@@ -204,8 +200,12 @@ export function AssignmentModal(props: Props) {
               </Group>
             </ScrollArea>
           </Group>
-          {!view && <StudentsList />}
-          {view && <StudentWork />}
+          {searchParams && searchParams.get('view') === 'list' && (
+            <StudentsList />
+          )}
+          {searchParams &&
+            searchParams.get('view') !== 'list' &&
+            searchParams.get('view') !== null && <StudentWork />}
         </Group>
       </Group>
     </Modal>

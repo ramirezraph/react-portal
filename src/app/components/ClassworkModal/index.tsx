@@ -15,6 +15,7 @@ export function ClassworkModal(props: Props) {
   } else if (type === 'quiz') {
     return <QuizAssignmentModal />;
   } else {
+    console.log('Unknown search params type');
     return null;
   }
 }
