@@ -40,7 +40,9 @@ export function MeetingItem(props: Props) {
         <Menu position="right" className="mb-4">
           <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
 
-          <Menu.Item icon={<Trash size={16} color="red" />}>Delete</Menu.Item>
+          <Menu.Item icon={<Trash size={16} color="red" />}>
+            <Text color="red">Delete</Text>
+          </Menu.Item>
         </Menu>
       </Group>
       <Text size="xs" className="mb-5">

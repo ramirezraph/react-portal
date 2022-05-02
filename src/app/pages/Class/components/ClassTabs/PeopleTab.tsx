@@ -3,12 +3,19 @@ import {
   Button,
   Checkbox,
   Group,
+  Menu,
   NativeSelect,
   Text,
   TextInput,
 } from '@mantine/core';
 import * as React from 'react';
-import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
+import {
+  ArrowsUpDown,
+  Menu2,
+  Pencil,
+  Search,
+  UserPlus,
+} from 'tabler-icons-react';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
@@ -21,17 +28,26 @@ export function PeopleTab(props: Props) {
   return (
     <div className="bg-white p-6">
       <Group position="apart">
-        <Button
-          color="primary"
-          radius="xl"
-          leftIcon={<UserPlus size={19} />}
-          variant="filled"
-          size="md"
+        <Menu
+          position="bottom"
+          control={
+            <Button
+              color="primary"
+              radius="xl"
+              leftIcon={<UserPlus size={19} />}
+              variant="filled"
+              size="md"
+            >
+              <Text weight={400} size="sm">
+                Send Invite
+              </Text>
+            </Button>
+          }
         >
-          <Text weight={400} size="sm">
-            Send Invite
-          </Text>
-        </Button>
+          <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
+          <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
+          <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
+        </Menu>
         <Button
           size="sm"
           leftIcon={<Menu2 color="black" size={19} />}
