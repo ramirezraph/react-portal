@@ -85,7 +85,9 @@ export function PostCard(props: Prop) {
                 <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
                 <Divider />
                 <Menu.Item icon={<Trash size={16} color="red" />}>
-                  <Text color="red">Delete</Text>
+                  <Text size="sm" color="red">
+                    Delete
+                  </Text>
                 </Menu.Item>
               </Menu>
             </ActionIcon>
