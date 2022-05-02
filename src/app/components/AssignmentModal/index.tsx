@@ -146,13 +146,16 @@ export function AssignmentModal(props: Props) {
               scrollbarSize={7}
               className="w-full rounded-md"
             >
-              <Group direction="column" className="p-4" spacing={0}>
+              <Group direction="column" className="px-4" spacing={0}>
                 <TextInput
                   value={title}
                   onChange={onTitleChange}
                   className="w-full"
                   size="xl"
                   placeholder="Lesson #: Title"
+                  classNames={{
+                    input: 'border-gray-200',
+                  }}
                 />
                 <Text weight={'bold'} size="sm" className="mt-3">
                   Instruction
@@ -163,6 +166,9 @@ export function AssignmentModal(props: Props) {
                   placeholder={'Write an instruction here.'}
                   className="mt-1 w-full"
                   minRows={8}
+                  classNames={{
+                    input: 'border-gray-200',
+                  }}
                 />
               </Group>
               <Group className="p-4" direction="column">

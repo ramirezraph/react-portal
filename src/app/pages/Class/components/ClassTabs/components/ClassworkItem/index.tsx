@@ -41,11 +41,11 @@ export function ClassworkItem(props: Prop) {
       >
         <Text weight="bold">{title}</Text>
         <Group>
-          <Clock size={19}></Clock>
+          <Clock size={19} className="text-gray-700" />
           <Text size="xs">{date}</Text>
         </Group>
         <Group>
-          <CircleCheck size={19} />
+          <CircleCheck size={19} className="text-gray-700" />
           <Text size="sm">{status}</Text>
         </Group>
       </Group>

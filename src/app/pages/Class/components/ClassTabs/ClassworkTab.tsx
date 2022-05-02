@@ -20,20 +20,22 @@ import {
 import { ClassworkItem } from './components/ClassworkItem/Loadable';
 
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Location, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useClassroomSlice } from '../../slice';
+import { selectClassroom } from '../../slice/selectors';
 
 ChartJS.register(ArcElement, Tooltip);
 
-interface Props {
-  // someProps: string
-}
+interface Props {}
 
 export function ClassworkTab(props: Props) {
-  // const { someProps } = props;
+  const { actions } = useClassroomSlice();
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
-  let location = useLocation();
+  let location: Location = useLocation();
 
   const [doughnutData] = React.useState({
     labels: ['Draft', 'Assigned', 'To review', 'Graded'],
@@ -54,6 +56,12 @@ export function ClassworkTab(props: Props) {
   });
 
   const onClassworkClicked = (id: string, type: string) => {
+    dispatch(
+      actions.setClassworkModalBackground({
+        backgroundLocation: location,
+      }),
+    );
+
     navigate(
       {
         pathname: `/classwork/${id}`,
@@ -162,7 +170,7 @@ export function ClassworkTab(props: Props) {
           id="456"
           title="Quiz #2"
           date="12/2/2022"
-          status="No Grade"
+          status="Assigned"
           onClick={() => {
             onClassworkClicked('123', 'quiz');
           }}

@@ -8,8 +8,10 @@ import {
   Text,
 } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,8 +25,21 @@ interface Props {}
 
 export function StudentWork(props: Props) {
   // const {  } = props;
+  let [searchParams, setSearchParams] = useSearchParams();
+  const classroom = useSelector(selectClassroom);
 
-  const navigate = useNavigate();
+  const backToList = () => {
+    if (!classroom.classworkModalBackground) {
+      console.log('Location is null');
+      return;
+    }
+    let newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('view', 'list');
+    setSearchParams(newSearchParams.toString(), {
+      state: { backgroundLocation: classroom.classworkModalBackground },
+      replace: true,
+    });
+  };
 
   return (
     <Group className="my-3 w-2/5 bg-document p-4" direction="column">
@@ -34,7 +49,7 @@ export function StudentWork(props: Props) {
           color="dark"
           leftIcon={<ChevronLeft size={16} />}
           compact
-          onClick={() => navigate(-1)}
+          onClick={backToList}
         >
           Back to list
         </Button>
@@ -74,8 +89,8 @@ export function StudentWork(props: Props) {
               </Text>
             </Group>
             <Group direction="column" className="mt-3" spacing="md">
-              <AttachedFile name="Introduction.pdf" compact />
-              <AttachedFile name="Welcome to the class.mp4" compact />
+              <AttachedFile name="Introduction.pdf" compact viewOnly />
+              <AttachedFile name="Welcome to the class.mp4" compact viewOnly />
             </Group>
           </Box>
           <Box className="w-full rounded-md bg-white p-4">

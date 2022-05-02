@@ -14,9 +14,7 @@ import { Unit } from './slice/types';
 
 export function Class() {
   const { actions } = useClassroomSlice();
-
   const dispatch = useDispatch();
-
   const classroom = useSelector(selectClassroom);
 
   const [unitsList, setUnitsList] = React.useState<Unit[]>([]);

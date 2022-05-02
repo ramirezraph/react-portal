@@ -1,6 +1,8 @@
 import { Group, Avatar, Text } from '@mantine/core';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import * as React from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Location, useLocation, useSearchParams } from 'react-router-dom';
 
 interface Props {
   id: string;
@@ -13,18 +15,19 @@ interface Props {
 export function StudentsListItem(props: Props) {
   const { id, gradeText, studentName, studentImageUrl, status } = props;
 
-  let location = useLocation();
-
   let [searchParams, setSearchParams] = useSearchParams();
 
-  const onClick = () => {
-    console.log('item clicked: ' + id);
+  const classroom = useSelector(selectClassroom);
 
+  const onClick = () => {
+    if (!classroom.classworkModalBackground) {
+      console.log('Location is null');
+      return;
+    }
     let newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set('view', id);
-
     setSearchParams(newSearchParams.toString(), {
-      state: { backgroundLocation: location },
+      state: { backgroundLocation: classroom.classworkModalBackground },
       replace: true,
     });
   };
