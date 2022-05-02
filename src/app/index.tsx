@@ -71,7 +71,7 @@ export function App() {
       {state?.backgroundLocation && (
         <Routes>
           <Route path="/classwork/new" element={<ClassworkModal />} />
-          <Route path="/classwork/id" element={<ClassworkModal />} />
+          <Route path="/classwork/:id" element={<ClassworkModal />} />
           <Route path="/lesson/new" element={<LessonModal />} />
           <Route path="/lesson/:id" element={<LessonModal />} />
         </Routes>

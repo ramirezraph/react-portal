@@ -53,8 +53,10 @@ export function ClassworkTab(props: Props) {
     ],
   });
 
-  const onClassworkClicked = (id: string) => {
-    navigate('/classwork/new', { state: { backgroundLocation: location } });
+  const onClassworkClicked = (id: string, type: string) => {
+    navigate(`/classwork/${id}?type=${type}`, {
+      state: { backgroundLocation: location },
+    });
   };
 
   return (
@@ -146,14 +148,18 @@ export function ClassworkTab(props: Props) {
           title="Laboratory Activity 1"
           date="12/1/2022"
           status="Graded"
-          onClick={onClassworkClicked}
+          onClick={() => {
+            onClassworkClicked('123', 'assignment');
+          }}
         />
         <ClassworkItem
           id="456"
-          title="Laboratory Activity 2"
+          title="Quiz #2"
           date="12/2/2022"
           status="No Grade"
-          onClick={onClassworkClicked}
+          onClick={() => {
+            onClassworkClicked('123', 'quiz');
+          }}
         />
       </SimpleGrid>
     </div>
