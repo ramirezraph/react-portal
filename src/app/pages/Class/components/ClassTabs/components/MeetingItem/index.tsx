@@ -1,6 +1,6 @@
-import { Group, Text, ActionIcon, Button, Box } from '@mantine/core';
+import { Group, Text, Button, Box, Menu } from '@mantine/core';
 import * as React from 'react';
-import { DotsVertical } from 'tabler-icons-react';
+import { Pencil, Trash } from 'tabler-icons-react';
 
 interface Props {
   title: string;
@@ -36,9 +36,12 @@ export function MeetingItem(props: Props) {
             {subtitle}
           </Text>
         </Group>
-        <ActionIcon className="mb-4">
-          <DotsVertical size={48} strokeWidth={2} color={'black'} />
-        </ActionIcon>
+
+        <Menu position="right" className="mb-4">
+          <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
+
+          <Menu.Item icon={<Trash size={16} color="red" />}>Delete</Menu.Item>
+        </Menu>
       </Group>
       <Text size="xs" className="mb-5">
         {shouldShowDescription && description}
