@@ -8,8 +8,18 @@ import {
   Header,
   Text,
   useMantineTheme,
+  Menu,
+  Divider,
 } from '@mantine/core';
-import { Home, Calendar, Bell } from 'tabler-icons-react';
+import {
+  Home,
+  Calendar,
+  Bell,
+  User,
+  Settings,
+  Logout,
+} from 'tabler-icons-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface Props {
   opened: boolean;
@@ -18,6 +28,8 @@ interface Props {
 
 export function AppHeader(props: Props) {
   const theme = useMantineTheme();
+
+  const navigate = useNavigate();
 
   const { opened, burgerOnClick } = props;
 
@@ -37,20 +49,53 @@ export function AppHeader(props: Props) {
         <Group position="apart" className="w-full">
           <Text weight="bold">DPVMHS Portal</Text>
           <Group spacing={'xl'}>
-            <ActionIcon className="text-white hover:bg-transparent hover:text-secondary">
+            <ActionIcon
+              className="text-white hover:bg-transparent hover:text-secondary"
+              onClick={() => {
+                navigate('/');
+              }}
+            >
               <Home size={24} />
             </ActionIcon>
-            <ActionIcon className="text-white hover:bg-transparent hover:text-secondary">
+            <ActionIcon
+              className="text-white hover:bg-transparent hover:text-secondary"
+              onClick={() => {
+                navigate('/calendar');
+              }}
+            >
               <Calendar size={24} />
             </ActionIcon>
-            <ActionIcon className="text-white hover:bg-transparent hover:text-secondary">
+            <ActionIcon
+              className="text-white hover:bg-transparent hover:text-secondary"
+              onClick={() => {
+                console.log('menu');
+              }}
+            >
               <Bell size={24} />
             </ActionIcon>
-            <Avatar
-              size={'sm'}
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-              radius="xl"
-            />
+
+            <Menu
+              control={
+                <Avatar
+                  size={'sm'}
+                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+                  radius="xl"
+                  className="cursor-pointer"
+                />
+              }
+            >
+              <Menu.Item icon={<User size={17} />}>My account</Menu.Item>
+              <Divider />
+              <Menu.Item icon={<Settings size={17} />}>Settings</Menu.Item>
+              <Menu.Item
+                component={Link}
+                to="/welcome"
+                color="red"
+                icon={<Logout size={17} />}
+              >
+                Sign out
+              </Menu.Item>
+            </Menu>
           </Group>
         </Group>
       </div>
