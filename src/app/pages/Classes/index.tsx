@@ -1,15 +1,7 @@
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import {
-  Button,
-  Card,
-  Collapse,
-  Group,
-  SimpleGrid,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Button, Group, SimpleGrid, Text } from '@mantine/core';
 import { Calendar, Link, Plus } from 'tabler-icons-react';
 import { ClassCard } from './components/ClassCard/Loadable';
 import { CardColor } from './components/ClassCard';
