@@ -10,7 +10,6 @@ import {
   useMantineTheme,
   Menu,
   Divider,
-  Button,
 } from '@mantine/core';
 import {
   Home,
@@ -20,7 +19,7 @@ import {
   Settings,
   Logout,
 } from 'tabler-icons-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 
 interface Props {
