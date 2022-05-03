@@ -80,11 +80,19 @@ export function ClassworkTab(props: Props) {
             Classwork - <span className="font-semibold">CPE 401</span>
           </Text>
           <Group spacing={'xs'}>
-            <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
-              <Text weight={400} size="sm">
-                Create new
-              </Text>
-            </Button>
+            <Menu
+              control={
+                <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
+                  <Text weight={400} size="sm">
+                    Create new
+                  </Text>
+                </Button>
+              }
+            >
+              <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
+              <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
+              <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
+            </Menu>
             <Button size="md" radius="xl">
               <Settings size={21} />
             </Button>
