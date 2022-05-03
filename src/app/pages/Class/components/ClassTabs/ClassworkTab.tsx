@@ -21,9 +21,8 @@ import { ClassworkItem } from './components/ClassworkItem/Loadable';
 
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 import { Location, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useClassroomSlice } from '../../slice';
-import { selectClassroom } from '../../slice/selectors';
 
 ChartJS.register(ArcElement, Tooltip);
 

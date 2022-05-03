@@ -17,8 +17,6 @@ import {
   Calendar,
   Plus,
   Download,
-  ClipboardList,
-  Trash,
 } from 'tabler-icons-react';
 import { Form } from '../Form/Loadable';
 
