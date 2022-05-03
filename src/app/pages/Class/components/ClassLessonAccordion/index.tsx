@@ -50,6 +50,7 @@ export function ClassLessonAccordion(props: Props) {
               name={item.title}
               downloadUrl={item.downloadUrl}
               compact
+              className="mt-3"
             />
           ))}
         </div>

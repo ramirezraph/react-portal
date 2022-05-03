@@ -1,6 +1,9 @@
+import { Location } from 'react-router-dom';
+
 /* --- STATE --- */
 export interface ClassroomState {
   units: Unit[];
+  classworkModalBackground: Location | undefined;
 }
 
 export interface Unit {

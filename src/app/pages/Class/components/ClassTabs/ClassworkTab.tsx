@@ -20,15 +20,21 @@ import {
 import { ClassworkItem } from './components/ClassworkItem/Loadable';
 
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
+import { Location, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useClassroomSlice } from '../../slice';
 
 ChartJS.register(ArcElement, Tooltip);
 
-interface Props {
-  // someProps: string
-}
+interface Props {}
 
 export function ClassworkTab(props: Props) {
-  // const { someProps } = props;
+  const { actions } = useClassroomSlice();
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  let location: Location = useLocation();
 
   const [doughnutData] = React.useState({
     labels: ['Draft', 'Assigned', 'To review', 'Graded'],
@@ -48,6 +54,24 @@ export function ClassworkTab(props: Props) {
     ],
   });
 
+  const onClassworkClicked = (id: string, type: string) => {
+    dispatch(
+      actions.setClassworkModalBackground({
+        backgroundLocation: location,
+      }),
+    );
+
+    navigate(
+      {
+        pathname: `/classwork/${id}`,
+        search: `type=${type}&view=list`,
+      },
+      {
+        state: { backgroundLocation: location },
+      },
+    );
+  };
+
   return (
     <div className="bg-transparent p-6">
       <Group position="apart">
@@ -56,11 +80,19 @@ export function ClassworkTab(props: Props) {
             Classwork - <span className="font-semibold">CPE 401</span>
           </Text>
           <Group spacing={'xs'}>
-            <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
-              <Text weight={400} size="sm">
-                Create new
-              </Text>
-            </Button>
+            <Menu
+              control={
+                <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
+                  <Text weight={400} size="sm">
+                    Create new
+                  </Text>
+                </Button>
+              }
+            >
+              <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
+              <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
+              <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
+            </Menu>
             <Button size="md" radius="xl">
               <Settings size={21} />
             </Button>
@@ -133,24 +165,22 @@ export function ClassworkTab(props: Props) {
       </Group>
       <SimpleGrid cols={2} className="mt-5">
         <ClassworkItem
+          id="123"
           title="Laboratory Activity 1"
           date="12/1/2022"
           status="Graded"
+          onClick={() => {
+            onClassworkClicked('123', 'assignment');
+          }}
         />
         <ClassworkItem
-          title="Laboratory Activity 2"
+          id="456"
+          title="Quiz #2"
           date="12/2/2022"
-          status="No Grade"
-        />
-        <ClassworkItem
-          title="Laboratory Activity 3"
-          date="12/1/2022"
-          status="Graded"
-        />
-        <ClassworkItem
-          title="Laboratory Activity 4"
-          date="12/1/2022"
-          status="Graded"
+          status="Assigned"
+          onClick={() => {
+            onClassworkClicked('123', 'quiz');
+          }}
         />
       </SimpleGrid>
     </div>
