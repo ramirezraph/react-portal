@@ -1,12 +1,26 @@
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Button, Group, SimpleGrid, Text } from '@mantine/core';
+import {
+  Button,
+  Card,
+  Collapse,
+  Group,
+  SimpleGrid,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { Calendar, Link, Plus } from 'tabler-icons-react';
 import { ClassCard } from './components/ClassCard/Loadable';
 import { CardColor } from './components/ClassCard';
+import { useNavigate } from 'react-router-dom';
+import { JoinClassCollapseCard } from './components/JoinClassCollapseCard';
 
 export function Classes() {
+  const navigate = useNavigate();
+
+  const [joinClassVisible, setJoinClassVisible] = React.useState(false);
+
   return (
     <>
       <Helmet>
@@ -23,6 +37,7 @@ export function Classes() {
             color="gray"
             variant="default"
             size="md"
+            onClick={() => navigate('/calendar')}
           >
             <Text size="sm" weight={400} color="black">
               Calendar
@@ -33,6 +48,7 @@ export function Classes() {
             color="gray"
             variant="default"
             size="md"
+            onClick={() => setJoinClassVisible(o => !o)}
           >
             <Text size="sm" weight={400} color="black">
               Join class
@@ -49,6 +65,10 @@ export function Classes() {
             </Text>
           </Button>
         </Group>
+        <JoinClassCollapseCard
+          visible={joinClassVisible}
+          onToggle={setJoinClassVisible}
+        />
         <SimpleGrid
           cols={3}
           breakpoints={[
