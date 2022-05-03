@@ -137,7 +137,7 @@ export function StudentWork(props: Props) {
                 <Text weight={400} size="sm" className="text-gray-500">
                   Write a comment here
                 </Text>
-                <ActionIcon className="text-gray-500">
+                <ActionIcon size="md" className="text-gray-500">
                   <Send />
                 </ActionIcon>
               </Group>
