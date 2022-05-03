@@ -9,6 +9,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import * as React from 'react';
+import { useState } from 'react';
 import {
   ArrowsUpDown,
   Menu2,
@@ -16,6 +17,7 @@ import {
   Search,
   UserPlus,
 } from 'tabler-icons-react';
+import { PendingInvitesModal } from './components/PendingInvitesModal/loadable';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
@@ -24,9 +26,11 @@ interface Props {
 
 export function PeopleTab(props: Props) {
   // const { someProps } = props;
+  const [opened, setOpened] = useState(false);
 
   return (
     <div className="bg-white p-6">
+      <PendingInvitesModal opened={opened} setOpened={setOpened} />
       <Group position="apart">
         <Menu
           position="bottom"
@@ -48,15 +52,18 @@ export function PeopleTab(props: Props) {
           <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
           <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
         </Menu>
-        <Button
-          size="sm"
-          leftIcon={<Menu2 color="black" size={19} />}
-          variant="subtle"
-        >
-          <Text weight={400} color="black">
-            Pending Invites
-          </Text>
-        </Button>
+        <Group position="center">
+          <Button
+            size="sm"
+            leftIcon={<Menu2 color="black" size={19} />}
+            variant="subtle"
+            onClick={() => setOpened(true)}
+          >
+            <Text weight={400} color="black">
+              Pending Invites
+            </Text>
+          </Button>
+        </Group>
       </Group>
       <Text className="mt-6 text-2xl font-semibold">Teacher</Text>
       <PeopleItem name="John Doe" />
