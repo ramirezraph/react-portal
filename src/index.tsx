@@ -30,6 +30,7 @@ import './index.css';
 import './locales/i18n';
 import { MantineProvider, MantineThemeOverride } from '@mantine/core';
 import { BrowserRouter } from 'react-router-dom';
+import { Auth0Provider } from '@auth0/auth0-react';
 
 const store = configureAppStore();
 const MOUNT_NODE = document.getElementById('root') as HTMLElement;
@@ -54,17 +55,23 @@ const theme: MantineThemeOverride = {
 };
 
 ReactDOM.render(
-  <Provider store={store}>
-    <HelmetProvider>
-      <React.StrictMode>
-        <MantineProvider theme={theme}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </MantineProvider>
-      </React.StrictMode>
-    </HelmetProvider>
-  </Provider>,
+  <Auth0Provider
+    domain="dev-1gj8-11r.us.auth0.com"
+    clientId="yULiFwDReW2HmJgTZWOVHD4bnBMprBae"
+    redirectUri={window.location.origin}
+  >
+    <Provider store={store}>
+      <HelmetProvider>
+        <React.StrictMode>
+          <MantineProvider theme={theme}>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </MantineProvider>
+        </React.StrictMode>
+      </HelmetProvider>
+    </Provider>
+  </Auth0Provider>,
   MOUNT_NODE,
 );
 

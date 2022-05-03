@@ -10,6 +10,7 @@ import {
   useMantineTheme,
   Menu,
   Divider,
+  Button,
 } from '@mantine/core';
 import {
   Home,
@@ -20,6 +21,7 @@ import {
   Logout,
 } from 'tabler-icons-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
 interface Props {
   opened: boolean;
@@ -32,6 +34,8 @@ export function AppHeader(props: Props) {
   const navigate = useNavigate();
 
   const { opened, burgerOnClick } = props;
+
+  const { logout } = useAuth0();
 
   return (
     <Header height={50} className="bg-zinc-800 text-white sm:px-6" p="md">
@@ -88,8 +92,9 @@ export function AppHeader(props: Props) {
               <Divider />
               <Menu.Item icon={<Settings size={17} />}>Settings</Menu.Item>
               <Menu.Item
-                component={Link}
-                to="/welcome"
+                onClick={() =>
+                  logout({ returnTo: 'http://localhost:3000/welcome' })
+                }
                 color="red"
                 icon={<Logout size={17} />}
               >

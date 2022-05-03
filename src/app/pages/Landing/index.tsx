@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import { Anchor, Image, Text } from '@mantine/core';
+import { Button, Image, Text } from '@mantine/core';
 
 import image from './images/undraw_communicate.svg';
-import { Link } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export function Landing() {
+  const { loginWithRedirect } = useAuth0();
+
   return (
     <>
       <Helmet>
@@ -27,13 +29,12 @@ export function Landing() {
             <Text className="select-none text-xl leading-loose text-gray-600">
               Dr. Pablito V. Mendoza Sr. High School
             </Text>
-            <Anchor
-              component={Link}
-              to="/"
+            <Button
               className="mt-24 w-fit rounded-sm bg-primary py-2 px-24 text-white"
+              onClick={() => loginWithRedirect()}
             >
               Get Started
-            </Anchor>
+            </Button>
           </div>
         </section>
         <footer className="flex justify-between bg-document py-3 px-8 text-sm">
