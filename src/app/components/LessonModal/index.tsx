@@ -168,8 +168,11 @@ export function LessonModal(props: Prop) {
                       Actions
                     </Text>
                   </Group>
-                  <AttachedFile name="Introduction.pdf" />
-                  <AttachedFile name="Test File.pdf" />
+                  <Group className="mt-6" spacing="sm">
+                    <AttachedFile name="Introduction.pdf" />
+                    <AttachedFile name="Test File.pdf" />
+                    <AttachedFile name="Test File.pdf" />
+                  </Group>
                 </div>
               </ScrollArea>
             </Card.Section>

@@ -4,8 +4,11 @@ import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { classroomSaga } from './saga';
 import { ClassroomState } from './types';
 
+import { Location } from 'react-router-dom';
+
 export const initialState: ClassroomState = {
   units: [],
+  classworkModalBackground: undefined,
 };
 
 const slice = createSlice({
@@ -117,6 +120,13 @@ const slice = createSlice({
       }
 
       lesson.isLive = !lesson.isLive;
+    },
+    setClassworkModalBackground(
+      state,
+      action: PayloadAction<{ backgroundLocation?: Location }>,
+    ) {
+      console.log(action.payload.backgroundLocation);
+      state.classworkModalBackground = action.payload.backgroundLocation;
     },
   },
 });
