@@ -21,10 +21,12 @@ export function JoinClassCollapseCard(props: Props) {
     >
       <Card className="mt-6 p-8">
         <Group direction="column" spacing="sm">
-          <Text size="xl" className="font-semibold">
+          <Text size="md" className="font-semibold">
             Join a class
           </Text>
-          <Text>Ask your teacher for the class key, then enter it here:</Text>
+          <Text size="sm">
+            Ask your teacher for the class key, then enter it here:
+          </Text>
           <TextInput
             radius="md"
             className="w-1/2"
@@ -32,18 +34,18 @@ export function JoinClassCollapseCard(props: Props) {
             size="lg"
           />
           <Group className="mt-6">
-            <Button className="h-12 px-16" onClick={onJoin}>
-              <Text size="md" weight={400}>
+            <Button className="px-12" onClick={onJoin}>
+              <Text size="sm" weight={400}>
                 Join
               </Text>
             </Button>
             <Button
               variant="subtle"
               color="dark"
-              className="h-12 px-16"
+              className="h-8 px-12"
               onClick={() => onToggle(false)}
             >
-              <Text size="md" weight={400}>
+              <Text size="sm" weight={400}>
                 Cancel
               </Text>
             </Button>

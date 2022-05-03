@@ -15,11 +15,13 @@ import { ClassCard } from './components/ClassCard/Loadable';
 import { CardColor } from './components/ClassCard';
 import { useNavigate } from 'react-router-dom';
 import { JoinClassCollapseCard } from './components/JoinClassCollapseCard';
+import { CreateClassModal } from './components/CreateClassModal/Loadable';
 
 export function Classes() {
   const navigate = useNavigate();
 
   const [joinClassVisible, setJoinClassVisible] = React.useState(false);
+  const [createClassVisible, setCreateClassVisible] = React.useState(false);
 
   return (
     <>
@@ -27,6 +29,10 @@ export function Classes() {
         <title>Classes</title>
         <meta name="description" content="A Boilerplate application homepage" />
       </Helmet>
+      <CreateClassModal
+        visible={createClassVisible}
+        onToggle={setCreateClassVisible}
+      />
       <PageContainer>
         <Text className="text-lg" weight={'bold'}>
           Classes
@@ -59,6 +65,7 @@ export function Classes() {
             color="gray"
             variant="default"
             size="md"
+            onClick={() => setCreateClassVisible(true)}
           >
             <Text size="sm" weight={400} color="black">
               Create class
