@@ -7,7 +7,7 @@ import {
   Chip,
   Menu,
 } from '@mantine/core';
-import { Video, Settings, Pencil } from 'tabler-icons-react';
+import { Video, Settings, Pencil, Butterfly } from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
 
@@ -22,7 +22,7 @@ export function MeetingsTab(props: Props) {
     <div className="bg-white p-6">
       <Group>
         <Menu
-          position="right"
+          position="bottom"
           control={
             <Button
               color="primary"
@@ -30,11 +30,15 @@ export function MeetingsTab(props: Props) {
               size="md"
               leftIcon={<Video size={20} />}
             >
-              <Text weight={400} size="sm"></Text> New Meeting
+              <Text weight={400} size="sm">
+                New Meeting
+              </Text>
             </Button>
           }
         >
-          <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
+          <Menu.Item icon={<Pencil size={16} />}>
+            <Butterfly />
+          </Menu.Item>
           <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
           <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
         </Menu>
