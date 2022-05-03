@@ -18,14 +18,35 @@ export function Classes() {
           Classes
         </Text>
         <Group spacing={'xs'} className="mt-3">
-          <Button variant="default" size="xs" leftIcon={<Calendar size={17} />}>
-            Calendar
+          <Button
+            leftIcon={<Calendar size={19} color="gray" />}
+            color="gray"
+            variant="default"
+            size="md"
+          >
+            <Text size="sm" weight={400} color="black">
+              Calendar
+            </Text>
           </Button>
-          <Button variant="default" size="xs" leftIcon={<Link size={17} />}>
-            Join class
+          <Button
+            leftIcon={<Link size={19} color="gray" />}
+            color="gray"
+            variant="default"
+            size="md"
+          >
+            <Text size="sm" weight={400} color="black">
+              Join class
+            </Text>
           </Button>
-          <Button variant="default" size="xs" leftIcon={<Plus size={17} />}>
-            Create class
+          <Button
+            leftIcon={<Plus size={19} color="gray" />}
+            color="gray"
+            variant="default"
+            size="md"
+          >
+            <Text size="sm" weight={400} color="black">
+              Create class
+            </Text>
           </Button>
         </Group>
         <SimpleGrid

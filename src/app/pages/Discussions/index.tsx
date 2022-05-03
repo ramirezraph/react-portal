@@ -124,13 +124,12 @@ export function Discussions() {
         <Text weight="bold" className="pt-6">
           Discussions
         </Text>
-        <Group>
+        <Group spacing={'xs'}>
           <Menu
             className="pt-6"
             control={
               <Button
-                className="w-48"
-                leftIcon={<Adjustments color="gray" />}
+                leftIcon={<Adjustments size={19} color="gray" />}
                 color="gray"
                 variant="default"
                 size="md"
@@ -147,8 +146,7 @@ export function Discussions() {
             className="pt-6"
             control={
               <Button
-                className="w-48"
-                leftIcon={<Adjustments color="gray" />}
+                leftIcon={<Adjustments size={19} color="gray" />}
                 color="gray"
                 variant="default"
                 size="md"
