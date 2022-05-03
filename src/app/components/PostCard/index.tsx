@@ -7,10 +7,20 @@ import {
   Text,
   Popover,
   Tooltip,
+  Menu,
+  Divider,
 } from '@mantine/core';
 import moment from 'moment';
 import * as React from 'react';
-import { Dots, ThumbUp, Message, Download, Files } from 'tabler-icons-react';
+import {
+  ThumbUp,
+  Message,
+  Download,
+  Files,
+  Pin,
+  Trash,
+  Pencil,
+} from 'tabler-icons-react';
 import { PostImages } from './PostImages';
 import { PostFiles } from './PostFiles';
 
@@ -70,7 +80,16 @@ export function PostCard(props: Prop) {
               </Text>
             </div>
             <ActionIcon className="self-start">
-              <Dots />
+              <Menu position="right">
+                <Menu.Item icon={<Pin size={16} />}>Pin on top</Menu.Item>
+                <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
+                <Divider />
+                <Menu.Item icon={<Trash size={16} color="red" />}>
+                  <Text size="sm" color="red">
+                    Delete
+                  </Text>
+                </Menu.Item>
+              </Menu>
             </ActionIcon>
           </Group>
           {content && <Text size="sm">{content}</Text>}
