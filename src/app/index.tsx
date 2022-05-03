@@ -37,6 +37,7 @@ import { LessonModal } from './components/LessonModal/Loadable';
 import { ClassworkModal } from './components/ClassworkModal';
 
 import * as JSURL from 'jsurl';
+import { ProtectedRoute } from './components/ProtectedRoute/Loadable';
 
 export function useQueryParam<T>(
   key: string,
@@ -77,7 +78,7 @@ export function App() {
 
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/welcome" element={<Landing />} />
-        <Route path="/" element={<Main />}>
+        <Route path="/" element={<ProtectedRoute component={Main} />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/discussions" element={<Discussions />} />
           <Route path="/classes" element={<Classes />} />
