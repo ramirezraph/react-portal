@@ -11,16 +11,11 @@ import {
   Menu,
   Divider,
 } from '@mantine/core';
-import {
-  Home,
-  Calendar,
-  Bell,
-  User,
-  Settings,
-  Logout,
-} from 'tabler-icons-react';
+import { Home, Calendar, User, Settings, Logout } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
+
+import { PopoverNotification } from './components/PopoverNotifcation/loadable';
 
 interface Props {
   opened: boolean;
@@ -68,13 +63,14 @@ export function AppHeader(props: Props) {
             >
               <Calendar size={24} />
             </ActionIcon>
+
             <ActionIcon
               className="text-white hover:bg-transparent hover:text-secondary"
               onClick={() => {
                 console.log('menu');
               }}
             >
-              <Bell size={24} />
+              <PopoverNotification />
             </ActionIcon>
 
             <Menu
