@@ -3,10 +3,9 @@ import { AppShell } from '@mantine/core';
 import { AppHeader } from 'app/components/Header/Loadable';
 import { AppNavbar } from 'app/components/Navbar/Loadable';
 import { useUserSlice } from 'store/userSlice';
-import { selectUser } from 'store/userSlice/selectors';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 export function Main() {
