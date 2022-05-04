@@ -91,9 +91,7 @@ export function AppHeader(props: Props) {
               <Divider />
               <Menu.Item icon={<Settings size={17} />}>Settings</Menu.Item>
               <Menu.Item
-                onClick={() =>
-                  logout({ returnTo: `${window.location.origin}/welcome` })
-                }
+                onClick={() => logout({ returnTo: window.location.origin })}
                 color="red"
                 icon={<Logout size={17} />}
               >
