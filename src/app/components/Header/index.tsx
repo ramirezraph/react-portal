@@ -14,6 +14,8 @@ import {
 import { Home, Calendar, User, Settings, Logout } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
+import { selectUser } from 'store/userSlice/selectors';
+import { useSelector } from 'react-redux';
 
 import { PopoverNotification } from './components/PopoverNotifcation/loadable';
 
@@ -24,12 +26,17 @@ interface Props {
 
 export function AppHeader(props: Props) {
   const theme = useMantineTheme();
-
   const navigate = useNavigate();
-
   const { opened, burgerOnClick } = props;
-
   const { logout } = useAuth0();
+
+  const userSlice = useSelector(selectUser);
+  const [userImageUrl, setUserImageUrl] = React.useState(
+    userSlice.currentUser.picture,
+  );
+  React.useEffect(() => {
+    setUserImageUrl(userSlice.currentUser.picture);
+  }, [userSlice]);
 
   return (
     <Header height={50} className="bg-zinc-800 text-white sm:px-6" p="md">
@@ -77,7 +84,7 @@ export function AppHeader(props: Props) {
               control={
                 <Avatar
                   size={'sm'}
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
+                  src={userImageUrl}
                   radius="xl"
                   className="cursor-pointer"
                 />

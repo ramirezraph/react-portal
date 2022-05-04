@@ -2,14 +2,16 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { AppShell } from '@mantine/core';
 import { AppHeader } from 'app/components/Header/Loadable';
 import { AppNavbar } from 'app/components/Navbar/Loadable';
+import { useUserSlice } from 'store/userSlice';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useDispatch } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 export function Main() {
   const [opened, setOpened] = React.useState(false);
 
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { isAuthenticated, isLoading, user } = useAuth0();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -17,6 +19,17 @@ export function Main() {
       if (!isAuthenticated) navigate('/welcome');
     }
   }, [isAuthenticated, isLoading, navigate]);
+
+  const { actions } = useUserSlice();
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      if (user) {
+        dispatch(actions.fetchUserInformation({ user: user }));
+      }
+    }
+  }, [actions, dispatch, isAuthenticated, user]);
 
   return (
     <>
