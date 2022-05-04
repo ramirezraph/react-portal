@@ -59,6 +59,8 @@ ReactDOM.render(
     domain="dev-1gj8-11r.us.auth0.com"
     clientId="yULiFwDReW2HmJgTZWOVHD4bnBMprBae"
     redirectUri={window.location.origin}
+    audience="https://dev-1gj8-11r.us.auth0.com/api/v2"
+    scope="read:current_user update:current_user_metadata"
   >
     <Provider store={store}>
       <HelmetProvider>
