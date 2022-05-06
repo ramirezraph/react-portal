@@ -70,7 +70,6 @@ export function ClassUnitAccordion(props: Props) {
       }}
       iconPosition="right"
       iconSize={24}
-      multiple
     >
       {renderUnitItems}
     </Accordion>

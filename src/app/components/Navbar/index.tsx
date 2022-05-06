@@ -16,6 +16,8 @@ import {
   Users,
 } from 'tabler-icons-react';
 import { NavButton } from './components/navButton';
+import { useSelector } from 'react-redux';
+import { selectUser } from 'store/userSlice/selectors';
 
 interface Props {
   hidden: boolean;
@@ -24,6 +26,19 @@ interface Props {
 export function AppNavbar(props: Props) {
   const theme = useMantineTheme();
   const { hidden } = props;
+
+  const userSlice = useSelector(selectUser);
+  const [userImageUrl, setUserImageUrl] = React.useState(
+    userSlice.currentUser.picture,
+  );
+  const [userName, setUserName] = React.useState(
+    userSlice.currentUser.nickname,
+  );
+
+  React.useEffect(() => {
+    setUserImageUrl(userSlice.currentUser.picture);
+    setUserName(userSlice.currentUser.name);
+  }, [userSlice]);
 
   return (
     <Navbar
@@ -42,14 +57,14 @@ export function AppNavbar(props: Props) {
         <Group direction="column">
           <Avatar
             size={'lg'}
-            src={null}
+            src={userImageUrl}
             radius="lg"
             alt="John D. Doe"
             color={theme.primaryColor}
-          >
-            JD
-          </Avatar>
-          <Text weight={'bold'}>John D. Doe</Text>
+          />
+          <Text weight={'bold'} className="w-3/4" lineClamp={1}>
+            {userName}
+          </Text>
         </Group>
         <Divider
           variant="solid"

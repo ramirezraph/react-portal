@@ -1,6 +1,7 @@
 // [IMPORT NEW CONTAINERSTATE ABOVE] < Needed for generating containers seamlessly
 
 import { ClassroomState } from 'app/pages/Class/slice/types';
+import { UserState } from 'store/userSlice/types';
 
 /* 
   Because the redux-injectors injects your reducers asynchronously somewhere in your code
@@ -9,4 +10,5 @@ import { ClassroomState } from 'app/pages/Class/slice/types';
 export interface RootState {
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for generating containers seamlessly
   classroom: ClassroomState;
+  user: UserState;
 }
