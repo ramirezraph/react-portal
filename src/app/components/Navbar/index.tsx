@@ -37,7 +37,7 @@ export function AppNavbar(props: Props) {
 
   React.useEffect(() => {
     setUserImageUrl(userSlice.currentUser.picture);
-    setUserName(userSlice.currentUser.nickname);
+    setUserName(userSlice.currentUser.name);
   }, [userSlice]);
 
   return (
@@ -62,7 +62,9 @@ export function AppNavbar(props: Props) {
             alt="John D. Doe"
             color={theme.primaryColor}
           />
-          <Text weight={'bold'}>{userName}</Text>
+          <Text weight={'bold'} className="w-3/4" lineClamp={1}>
+            {userName}
+          </Text>
         </Group>
         <Divider
           variant="solid"
