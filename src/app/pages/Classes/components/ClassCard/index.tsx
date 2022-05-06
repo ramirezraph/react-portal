@@ -4,6 +4,7 @@ import { Compass, User } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
+  id: string;
   classTitle: string;
   classCode: string;
   teacherName: string;
@@ -24,14 +25,14 @@ export enum CardColor {
 }
 
 export function ClassCard(props: Props) {
-  const { classTitle, classCode, teacherName, color } = props;
+  const { id, classTitle, classCode, teacherName, color } = props;
 
   const navigate = useNavigate();
 
   const cardBgColor = color ? color : CardColor.Sky;
 
   const onClicked = () => {
-    navigate('/class/1');
+    navigate(`/class/${id}`);
   };
 
   return (

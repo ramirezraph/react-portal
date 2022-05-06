@@ -29,15 +29,15 @@ export function AppNavbar(props: Props) {
 
   const userSlice = useSelector(selectUser);
   const [userImageUrl, setUserImageUrl] = React.useState(
-    userSlice.currentUser.picture,
+    userSlice.currentUser?.picture,
   );
   const [userName, setUserName] = React.useState(
-    userSlice.currentUser.nickname,
+    userSlice.currentUser?.nickname,
   );
 
   React.useEffect(() => {
-    setUserImageUrl(userSlice.currentUser.picture);
-    setUserName(userSlice.currentUser.name);
+    setUserImageUrl(userSlice.currentUser?.picture);
+    setUserName(userSlice.currentUser?.name);
   }, [userSlice]);
 
   return (
@@ -62,7 +62,7 @@ export function AppNavbar(props: Props) {
             alt="John D. Doe"
             color={theme.primaryColor}
           />
-          <Text weight={'bold'} className="w-3/4" lineClamp={1}>
+          <Text weight={'bold'} className="w-full" lineClamp={1}>
             {userName}
           </Text>
         </Group>

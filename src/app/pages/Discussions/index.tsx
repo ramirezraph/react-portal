@@ -115,6 +115,7 @@ export function Discussions() {
       },
     ]);
   }, []);
+
   return (
     <>
       <Helmet>

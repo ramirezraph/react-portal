@@ -79,6 +79,8 @@ export function ClassLessonAccordion(props: Props) {
       }}
       iconPosition="right"
       iconSize={24}
+      offsetIcon={true}
+      transitionDuration={500}
     >
       {renderLessonItems}
     </Accordion>

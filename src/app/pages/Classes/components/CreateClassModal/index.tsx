@@ -8,16 +8,10 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
-import {
-  addDoc,
-  collection,
-  doc,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
+import { addDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { db } from 'services/firebase';
+import { classesColRef, db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
 import { Check, Cross } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -39,7 +33,7 @@ export function CreateClassModal(props: Props) {
       name: '',
       code: '',
       shortDescription: '',
-      ownerId: userSlice.currentUser.sub,
+      ownerId: userSlice.currentUser?.sub,
     },
     validate: {
       name: value => (value.length > 0 ? null : 'Class name is required.'),
@@ -53,18 +47,18 @@ export function CreateClassModal(props: Props) {
     const data = {
       code: values.code,
       name: values.name,
-      ownerId: userSlice.currentUser.sub,
-      shorDescription: values.shortDescription,
-      usersList: [userSlice.currentUser.sub],
-      invideCode: uuidv4(),
+      ownerId: userSlice.currentUser?.sub,
+      shortDescription: values.shortDescription,
+      usersList: [userSlice.currentUser?.sub],
+      inviteCode: uuidv4(),
       color: 'blue',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
-    await addDoc(collection(db, 'classes'), data)
+    await addDoc(classesColRef, data)
       .then((newClassDoc: any) => {
         return setDoc(
-          doc(db, `${newClassDoc.path}/people`, userSlice.currentUser.sub!),
+          doc(db, `${newClassDoc.path}/people`, userSlice.currentUser?.sub!),
           {
             type: 'teacher',
           },
