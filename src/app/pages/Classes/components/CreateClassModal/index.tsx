@@ -19,7 +19,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-import { Check } from 'tabler-icons-react';
+import { Check, Cross } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
@@ -79,7 +79,12 @@ export function CreateClassModal(props: Props) {
         });
       })
       .catch(e => {
-        console.log(e);
+        showNotification({
+          title: 'Failed',
+          message: 'Create class failed.\n' + e,
+          color: 'red',
+          icon: <Cross />,
+        });
       })
       .finally(() => {
         form.reset();
