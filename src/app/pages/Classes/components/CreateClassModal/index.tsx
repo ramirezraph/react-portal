@@ -1,5 +1,17 @@
-import { Button, Group, Modal, Text, TextInput } from '@mantine/core';
+import {
+  Button,
+  Group,
+  LoadingOverlay,
+  Modal,
+  Text,
+  TextInput,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { collection, doc, setDoc } from 'firebase/firestore';
 import * as React from 'react';
+import { useSelector } from 'react-redux';
+import { db } from 'services/firebase';
+import { selectUser } from 'store/userSlice/selectors';
 
 interface Props {
   visible: boolean;
@@ -9,8 +21,49 @@ interface Props {
 export function CreateClassModal(props: Props) {
   const { visible, onToggle } = props;
 
-  const onCreate = () => {
-    console.log('create');
+  const userSlice = useSelector(selectUser);
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const form = useForm({
+    initialValues: {
+      name: '',
+      code: '',
+      shortDescription: '',
+      ownerId: userSlice.currentUser.sub,
+    },
+    validate: {
+      name: value => (value.length > 0 ? null : 'Class name is required.'),
+    },
+  });
+
+  type FormValues = typeof form.values;
+
+  const onCreate = async (values: FormValues) => {
+    setIsLoading(true);
+    const newClassRef = doc(collection(db, 'classes'));
+    const data = {
+      code: values.code,
+      name: values.name,
+      ownerId: userSlice.currentUser.sub,
+      shorDescription: values.shortDescription,
+      teachers: [userSlice.currentUser.sub],
+      color: 'blue',
+    };
+    await setDoc(newClassRef, data)
+      .catch(e => {
+        console.log(e);
+      })
+      .finally(() => {
+        form.reset();
+        setIsLoading(false);
+        onToggle(false);
+      });
+  };
+
+  const onCancel = () => {
+    form.reset();
+    onToggle(false);
   };
 
   return (
@@ -24,56 +77,62 @@ export function CreateClassModal(props: Props) {
       radius="md"
       size={600}
     >
-      <Group direction="column" spacing="xs">
-        <Text className="w-full" size="sm">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nisi
-          repellat quae vel aliquid commodi rerum!
-        </Text>
-        <TextInput
-          label={
-            <Text size="xs" className="text-gray-500">
-              Class name
-            </Text>
-          }
-          className="w-full"
-          size="md"
-        />
-        <TextInput
-          label={
-            <Text size="xs" className="text-gray-500">
-              Class code
-            </Text>
-          }
-          className="w-full"
-          size="md"
-        />
-        <TextInput
-          label={
-            <Text size="xs" className="text-gray-500">
-              Short description
-            </Text>
-          }
-          className="w-full"
-          size="md"
-        />
-        <Group className="mt-6">
-          <Button className="px-12" onClick={onCreate}>
-            <Text size="sm" weight={400}>
-              Create
-            </Text>
-          </Button>
-          <Button
-            variant="subtle"
-            color="dark"
-            className="px-12"
-            onClick={() => onToggle(false)}
-          >
-            <Text size="sm" weight={400}>
-              Cancel
-            </Text>
-          </Button>
+      <LoadingOverlay visible={isLoading} />
+      <form onSubmit={form.onSubmit(values => onCreate(values))}>
+        <Group direction="column" spacing="xs">
+          <Text className="w-full" size="sm">
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nisi
+            repellat quae vel aliquid commodi rerum!
+          </Text>
+          <TextInput
+            label={
+              <Text size="xs" className="text-gray-500">
+                Class name
+              </Text>
+            }
+            className="w-full"
+            size="md"
+            {...form.getInputProps('name')}
+          />
+          <TextInput
+            label={
+              <Text size="xs" className="text-gray-500">
+                Class code
+              </Text>
+            }
+            className="w-full"
+            size="md"
+            {...form.getInputProps('code')}
+          />
+          <TextInput
+            label={
+              <Text size="xs" className="text-gray-500">
+                Short description
+              </Text>
+            }
+            className="w-full"
+            size="md"
+            {...form.getInputProps('shortDescription')}
+          />
+          <Group className="mt-6">
+            <Button type="submit" className="px-12">
+              <Text size="sm" weight={400}>
+                Create
+              </Text>
+            </Button>
+            <Button
+              variant="subtle"
+              color="dark"
+              className="px-12"
+              onClick={onCancel}
+            >
+              <Text size="sm" weight={400}>
+                Cancel
+              </Text>
+            </Button>
+          </Group>
         </Group>
-      </Group>
+      </form>
     </Modal>
   );
 }
