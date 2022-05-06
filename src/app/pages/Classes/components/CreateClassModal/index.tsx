@@ -7,11 +7,20 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { showNotification } from '@mantine/notifications';
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
+import { Check } from 'tabler-icons-react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
   visible: boolean;
@@ -41,16 +50,34 @@ export function CreateClassModal(props: Props) {
 
   const onCreate = async (values: FormValues) => {
     setIsLoading(true);
-    const newClassRef = doc(collection(db, 'classes'));
     const data = {
       code: values.code,
       name: values.name,
       ownerId: userSlice.currentUser.sub,
       shorDescription: values.shortDescription,
-      teachers: [userSlice.currentUser.sub],
+      usersList: [userSlice.currentUser.sub],
+      invideCode: uuidv4(),
       color: 'blue',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     };
-    await setDoc(newClassRef, data)
+    await addDoc(collection(db, 'classes'), data)
+      .then((newClassDoc: any) => {
+        return setDoc(
+          doc(db, `${newClassDoc.path}/people`, userSlice.currentUser.sub!),
+          {
+            type: 'teacher',
+          },
+        );
+      })
+      .then(() => {
+        showNotification({
+          title: 'Sucess',
+          message: 'Created class successfully.',
+          color: 'green',
+          icon: <Check />,
+        });
+      })
       .catch(e => {
         console.log(e);
       })
