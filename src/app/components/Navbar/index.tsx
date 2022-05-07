@@ -18,6 +18,8 @@ import {
 import { NavButton } from './components/navButton';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
+import { selectClasses } from 'app/pages/Classes/slice/selectors';
+import { Class } from 'app/pages/Classes/slice/types';
 
 interface Props {
   hidden: boolean;
@@ -28,17 +30,24 @@ export function AppNavbar(props: Props) {
   const { hidden } = props;
 
   const userSlice = useSelector(selectUser);
+  const classesSlice = useSelector(selectClasses);
+
   const [userImageUrl, setUserImageUrl] = React.useState(
     userSlice.currentUser?.picture,
   );
   const [userName, setUserName] = React.useState(
     userSlice.currentUser?.nickname,
   );
+  const [classes, setClasses] = React.useState<Class[]>([]);
 
   React.useEffect(() => {
     setUserImageUrl(userSlice.currentUser?.picture);
     setUserName(userSlice.currentUser?.name);
   }, [userSlice]);
+
+  React.useEffect(() => {
+    setClasses(classesSlice.classes);
+  }, [classesSlice.classes]);
 
   return (
     <Navbar
@@ -83,10 +92,14 @@ export function AppNavbar(props: Props) {
           color={'dark'}
           className="my-2 w-8"
         />
-        <NavButton to="/class/1" text="RLW 101" icon={<Book />} />
-        <NavButton to="/class/2" text="PE 4" icon={<Book />} />
-        <NavButton to="/class/3" text="CPE 401" icon={<Book />} />
-        <NavButton to="/class/4" text="CPE 402" icon={<Book />} />
+        {classes.map(c => (
+          <NavButton
+            key={c.id}
+            to={`/class/${c.id}`}
+            text={c.code}
+            icon={<Book />}
+          />
+        ))}
       </Group>
     </Navbar>
   );
