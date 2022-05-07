@@ -79,7 +79,7 @@ export function PostCard(props: Prop) {
                 {moment(date).startOf('hour').fromNow()}
               </Text>
             </div>
-            <Menu position="right">
+            <Menu position="right" className="self-start">
               <Menu.Item icon={<Pin size={16} />}>Pin on top</Menu.Item>
               <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
               <Divider />
