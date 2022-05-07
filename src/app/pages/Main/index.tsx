@@ -77,6 +77,8 @@ export function Main() {
     );
 
     const unsubscribe = onSnapshot(classesQuery, querySnapshot => {
+      console.log('onSnapshot: classes');
+
       const classesList: Class[] = [];
       querySnapshot.forEach(result => {
         const data = result.data();
@@ -99,6 +101,8 @@ export function Main() {
     });
 
     return () => {
+      console.log('onSnapshot: classes - unsubsribe');
+
       unsubscribe();
     };
   }, [classesSliceActions, dispatch, userSlice.currentUser]);
