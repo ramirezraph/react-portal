@@ -33,10 +33,10 @@ import {
   PeopleTab,
   MeetingsTab,
 } from './pages/Class/components/ClassTabs/Loadable';
-import { LessonModal } from './components/LessonModal/Loadable';
-import { ClassworkModal } from './components/ClassworkModal';
 
 import * as JSURL from 'jsurl';
+import { ClassworkModal } from './components/ClassworkModal';
+import { LessonModal } from './components/LessonModal';
 
 export function useQueryParam<T>(
   key: string,

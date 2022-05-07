@@ -5,8 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { CardColor } from '../Classes/components/ClassCard';
-import { ClassCard } from '../Classes/components/ClassCard/Loadable';
+import { CardColor, ClassCard } from '../../components/ClassCard';
 import { selectClasses } from '../Classes/slice/selectors';
 import { Class as IClass } from '../Classes/slice/types';
 import { ClassTabs } from './components/ClassTabs/Loadable';

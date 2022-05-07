@@ -1,7 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { AppShell } from '@mantine/core';
-import { AppHeader } from 'app/components/Header/Loadable';
-import { AppNavbar } from 'app/components/Navbar/Loadable';
 import { useUserSlice } from 'store/userSlice';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -19,6 +17,8 @@ import { classesColRef, db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
 import { Class } from '../Classes/slice/types';
 import { useClassesSlice } from '../Classes/slice';
+import { AppNavbar } from 'app/components/Navbar';
+import { AppHeader } from 'app/components/Header';
 
 export function Main() {
   const [opened, setOpened] = React.useState(false);
