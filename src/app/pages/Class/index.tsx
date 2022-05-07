@@ -69,7 +69,7 @@ export function Class() {
                     id={openedClass.id}
                     classTitle={openedClass.name}
                     classCode={openedClass.code}
-                    teacherName="Guido van Rossum"
+                    teacherId={openedClass.ownerId}
                     color={CardColor.Sky}
                   />
                 </Skeleton>

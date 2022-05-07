@@ -76,10 +76,9 @@ export function Main() {
       where('usersList', 'array-contains', userSlice.currentUser.sub),
     );
 
-    // @Todo: Get teacher name
     const unsubscribe = onSnapshot(classesQuery, querySnapshot => {
       const classesList: Class[] = [];
-      querySnapshot.forEach(async result => {
+      querySnapshot.forEach(result => {
         const data = result.data();
         // get owner display name
         const newClass = {

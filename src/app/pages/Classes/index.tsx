@@ -94,7 +94,7 @@ export function Classes() {
               id={c.id}
               classTitle={c.name}
               classCode={c.code}
-              teacherName="Guido van Rossum"
+              teacherId={c.ownerId}
               color={CardColor.Sky}
             />
           ))}

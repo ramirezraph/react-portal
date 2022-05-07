@@ -2,12 +2,14 @@ import * as React from 'react';
 import { Box, Group, Space, Text } from '@mantine/core';
 import { Compass, User } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
+import { db } from 'services/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface Props {
   id: string;
   classTitle: string;
   classCode: string;
-  teacherName: string;
+  teacherId: string;
   color: CardColor;
 }
 
@@ -25,11 +27,26 @@ export enum CardColor {
 }
 
 export function ClassCard(props: Props) {
-  const { id, classTitle, classCode, teacherName, color } = props;
+  const { id, classTitle, classCode, teacherId, color } = props;
 
   const navigate = useNavigate();
 
   const cardBgColor = color ? color : CardColor.Sky;
+
+  const [teacherName, setTeacherName] = React.useState('');
+  React.useEffect(() => {
+    const getTeacherName = async () => {
+      const docRef = doc(db, 'users', teacherId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setTeacherName(`${data.firstName} ${data.lastName}`);
+      }
+    };
+
+    getTeacherName();
+  }, [teacherId]);
 
   const onClicked = () => {
     navigate(`/class/${id}`);
@@ -52,7 +69,15 @@ export function ClassCard(props: Props) {
         </Text>
         <Group noWrap className="rounded-md bg-white px-3 py-1 text-black">
           <User size={20} />
-          <Text size="sm">{teacherName}</Text>
+          <Text
+            size="sm"
+            style={{
+              maxWidth: '20ch',
+            }}
+            lineClamp={1}
+          >
+            {teacherName}
+          </Text>
         </Group>
       </Group>
     </Box>
