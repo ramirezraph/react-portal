@@ -23,9 +23,7 @@ interface Props {
 
 export function CreateClassModal(props: Props) {
   const { visible, onToggle } = props;
-
   const userSlice = useSelector(selectUser);
-
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm({
@@ -37,6 +35,7 @@ export function CreateClassModal(props: Props) {
     },
     validate: {
       name: value => (value.length > 0 ? null : 'Class name is required.'),
+      code: value => (value.length > 0 ? null : 'Class code is required.'),
     },
   });
 

@@ -1,4 +1,5 @@
 import { Box, Button, Group, Skeleton, Text } from '@mantine/core';
+import { CreateUnitModal } from 'app/components/CreateUnitModal/Loadable';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -24,6 +25,8 @@ export function Class() {
 
   const [openedClass, setOpenedClass] = React.useState<IClass | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [createUnitModalVisible, setCreateUnitModalVisible] =
+    React.useState(false);
 
   React.useEffect(() => {
     setLoading(true);
@@ -78,11 +81,21 @@ export function Class() {
                       Class materials
                     </Text>
                     <ClassUnitAccordion units={unitsList} />
-                    <Button className="mt-2" color="primary">
+                    <Button
+                      className="mt-2"
+                      color="primary"
+                      onClick={() => {
+                        setCreateUnitModalVisible(true);
+                      }}
+                    >
                       <Text size="sm" weight={400}>
                         Add new unit
                       </Text>
                     </Button>
+                    <CreateUnitModal
+                      visible={createUnitModalVisible}
+                      onToggle={setCreateUnitModalVisible}
+                    />
                   </Box>
                 </Skeleton>
               </Group>
