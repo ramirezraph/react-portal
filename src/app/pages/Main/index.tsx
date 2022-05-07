@@ -5,10 +5,20 @@ import { AppNavbar } from 'app/components/Navbar/Loadable';
 import { useUserSlice } from 'store/userSlice';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from 'services/firebase';
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  setDoc,
+  where,
+} from 'firebase/firestore';
+import { classesColRef, db } from 'services/firebase';
+import { selectUser } from 'store/userSlice/selectors';
+import { Class } from '../Classes/slice/types';
+import { useClassesSlice } from '../Classes/slice';
 
 export function Main() {
   const [opened, setOpened] = React.useState(false);
@@ -16,22 +26,25 @@ export function Main() {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const navigate = useNavigate();
 
+  const { actions: userSliceActions } = useUserSlice();
+  const { actions: classesSliceActions } = useClassesSlice();
+
+  const userSlice = useSelector(selectUser);
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) navigate('/welcome');
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  const { actions } = useUserSlice();
-  const dispatch = useDispatch();
-
   React.useEffect(() => {
     if (isAuthenticated) {
       if (user) {
-        dispatch(actions.fetchUserInformation({ user: user }));
+        dispatch(userSliceActions.fetchUserInformation({ user: user }));
       }
     }
-  }, [actions, dispatch, isAuthenticated, user]);
+  }, [userSliceActions, dispatch, isAuthenticated, user]);
 
   React.useEffect(() => {
     const storeUserData = async () => {
@@ -54,6 +67,45 @@ export function Main() {
 
     storeUserData().catch(console.error);
   }, [user]);
+
+  React.useEffect(() => {
+    if (!userSlice.currentUser?.sub) return;
+
+    const classesQuery = query(
+      classesColRef,
+      where('usersList', 'array-contains', userSlice.currentUser.sub),
+    );
+
+    const unsubscribe = onSnapshot(classesQuery, querySnapshot => {
+      console.log('onSnapshot: classes');
+
+      const classesList: Class[] = [];
+      querySnapshot.forEach(result => {
+        const data = result.data();
+        // get owner display name
+        const newClass = {
+          id: result.id,
+          code: data.code,
+          name: data.name,
+          ownerId: data.ownerId,
+          shortDescription: data.shortDescription,
+          usersList: data.usersList,
+          inviteCode: data.inviteCode,
+          color: data.color,
+          createdAt: data.createdAt.toDate().toString(),
+          updatedAt: data.updatedAt.toDate().toString(),
+        };
+        classesList.push(newClass);
+      });
+      dispatch(classesSliceActions.fetchClasses({ classes: classesList }));
+    });
+
+    return () => {
+      console.log('onSnapshot: classes - unsubsribe');
+
+      unsubscribe();
+    };
+  }, [classesSliceActions, dispatch, userSlice.currentUser]);
 
   return (
     <>

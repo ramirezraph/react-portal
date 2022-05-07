@@ -8,7 +8,9 @@
     "@fullcalendar/react": "5.10.1",
     "@fullcalendar/timegrid": "5.10.1",
     "@mantine/core": "4.0.4",
+    "@mantine/form": "4.2.2",
     "@mantine/hooks": "4.0.4",
+    "@mantine/notifications": "4.2.2",
     "@reduxjs/toolkit": "1.7.1",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
@@ -73,6 +75,7 @@
     "tabler-icons-react": "1.38.0",
     "ts-node": "10.4.0",
     "typescript": "4.5.4",
+    "uuid": "8.3.2",
     "web-vitals": "2.1.2"
   },
   "scripts": {

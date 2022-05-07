@@ -12,7 +12,7 @@ export function ClassTabs(props: Props) {
   // const { units } = props;
 
   return (
-    <div className="h-full w-2/3">
+    <div className="h-full w-full">
       <Group
         grow
         noWrap

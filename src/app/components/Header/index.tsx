@@ -32,10 +32,10 @@ export function AppHeader(props: Props) {
 
   const userSlice = useSelector(selectUser);
   const [userImageUrl, setUserImageUrl] = React.useState(
-    userSlice.currentUser.picture,
+    userSlice.currentUser?.picture,
   );
   React.useEffect(() => {
-    setUserImageUrl(userSlice.currentUser.picture);
+    setUserImageUrl(userSlice.currentUser?.picture);
   }, [userSlice]);
 
   return (

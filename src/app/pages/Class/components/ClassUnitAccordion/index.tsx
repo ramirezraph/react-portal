@@ -61,7 +61,7 @@ export function ClassUnitAccordion(props: Props) {
 
   return (
     <Accordion
-      className="mt-3"
+      className="mt-3 w-full"
       classNames={{
         label: 'text-white text-md py-0',
         content: 'outline outline-1 outline-stone-100',
@@ -70,6 +70,8 @@ export function ClassUnitAccordion(props: Props) {
       }}
       iconPosition="right"
       iconSize={24}
+      offsetIcon={true}
+      transitionDuration={500}
     >
       {renderUnitItems}
     </Accordion>
