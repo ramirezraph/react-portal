@@ -79,18 +79,16 @@ export function PostCard(props: Prop) {
                 {moment(date).startOf('hour').fromNow()}
               </Text>
             </div>
-            <ActionIcon className="self-start">
-              <Menu position="right">
-                <Menu.Item icon={<Pin size={16} />}>Pin on top</Menu.Item>
-                <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
-                <Divider />
-                <Menu.Item icon={<Trash size={16} color="red" />}>
-                  <Text size="sm" color="red">
-                    Delete
-                  </Text>
-                </Menu.Item>
-              </Menu>
-            </ActionIcon>
+            <Menu position="right" className="self-start">
+              <Menu.Item icon={<Pin size={16} />}>Pin on top</Menu.Item>
+              <Menu.Item icon={<Pencil size={16} />}>Edit</Menu.Item>
+              <Divider />
+              <Menu.Item icon={<Trash size={16} color="red" />}>
+                <Text size="sm" color="red">
+                  Delete
+                </Text>
+              </Menu.Item>
+            </Menu>
           </Group>
           {content && <Text size="sm">{content}</Text>}
           <PostImages images={images} />

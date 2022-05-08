@@ -13,7 +13,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { classesColRef, db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-import { Check, Cross } from 'tabler-icons-react';
+import { Check, X } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
@@ -23,9 +23,7 @@ interface Props {
 
 export function CreateClassModal(props: Props) {
   const { visible, onToggle } = props;
-
   const userSlice = useSelector(selectUser);
-
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm({
@@ -37,6 +35,7 @@ export function CreateClassModal(props: Props) {
     },
     validate: {
       name: value => (value.length > 0 ? null : 'Class name is required.'),
+      code: value => (value.length > 0 ? null : 'Class code is required.'),
     },
   });
 
@@ -66,7 +65,7 @@ export function CreateClassModal(props: Props) {
       })
       .then(() => {
         showNotification({
-          title: 'Sucess',
+          title: 'Success',
           message: 'Created class successfully.',
           color: 'green',
           icon: <Check />,
@@ -77,7 +76,7 @@ export function CreateClassModal(props: Props) {
           title: 'Failed',
           message: 'Create class failed.\n' + e,
           color: 'red',
-          icon: <Cross />,
+          icon: <X />,
         });
       })
       .finally(() => {
