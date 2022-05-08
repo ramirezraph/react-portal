@@ -18,13 +18,15 @@ import { Unit } from './slice/types';
 export function Class() {
   let { id } = useParams();
 
-  const { actions } = useClassroomSlice();
   const dispatch = useDispatch();
   const classroom = useSelector(selectClassroom);
   const classes = useSelector(selectClasses);
+  const { actions } = useClassroomSlice();
+  const { actions: classroomActions } = useClassroomSlice();
 
   const [openedClass, setOpenedClass] = React.useState<IClass | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
   const [createUnitModalVisible, setCreateUnitModalVisible] =
     React.useState(false);
 
@@ -36,17 +38,16 @@ export function Class() {
       const search = classes.classes.find(c => c.id === id);
       if (!search) return;
 
+      dispatch(classroomActions.setActiveClass({ activeClass: search }));
       setOpenedClass(search);
     };
 
     fetchClassData();
     setLoading(false);
-  }, [classes.classes, id]);
-
-  const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
+  }, [classes.classes, classroomActions, dispatch, id]);
 
   React.useEffect(() => {
-    dispatch(actions.fetchUnits());
+    // dispatch(actions.fetchUnits());
   }, [actions, dispatch]);
 
   React.useEffect(() => {
@@ -56,7 +57,7 @@ export function Class() {
   return (
     <>
       <Helmet>
-        <title>Class Code</title>
+        <title>{openedClass?.code}</title>
       </Helmet>
       <PageContainer>
         {openedClass && (
@@ -80,18 +81,43 @@ export function Class() {
                     <Text size="sm" weight={'bold'}>
                       Class materials
                     </Text>
-                    <ClassUnitAccordion units={unitsList} />
-                    <Button
-                      className="mt-2"
-                      color="primary"
-                      onClick={() => {
-                        setCreateUnitModalVisible(true);
-                      }}
-                    >
-                      <Text size="sm" weight={400}>
-                        Add new unit
-                      </Text>
-                    </Button>
+                    {unitsList.length > 0 && (
+                      <ClassUnitAccordion units={unitsList} />
+                    )}
+                    {unitsList.length > 0 && (
+                      <Button
+                        className="mt-2"
+                        color="primary"
+                        onClick={() => {
+                          setCreateUnitModalVisible(true);
+                        }}
+                      >
+                        <Text size="sm" weight={400}>
+                          Add new unit
+                        </Text>
+                      </Button>
+                    )}
+                    {unitsList.length === 0 && (
+                      <Group className="mt-3 py-2">
+                        <Text size="sm" color="gray">
+                          No unit for this class yet.
+                        </Text>
+                        <Button
+                          compact
+                          variant="subtle"
+                          size="sm"
+                          className="px-0"
+                          onClick={() => {
+                            setCreateUnitModalVisible(true);
+                          }}
+                        >
+                          <Text size="sm" color="primary">
+                            Create
+                          </Text>
+                        </Button>
+                      </Group>
+                    )}
+
                     <CreateUnitModal
                       visible={createUnitModalVisible}
                       onToggle={setCreateUnitModalVisible}

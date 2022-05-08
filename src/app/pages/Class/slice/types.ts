@@ -1,7 +1,9 @@
+import { Class } from 'app/pages/Classes/slice/types';
 import { Location } from 'react-router-dom';
 
 /* --- STATE --- */
 export interface ClassroomState {
+  activeClass: Class | null;
   units: Unit[];
   classworkModalBackground: Location | undefined;
 }

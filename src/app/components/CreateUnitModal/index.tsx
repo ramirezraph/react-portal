@@ -1,8 +1,3 @@
-/**
- *
- * CreateUnitModal
- *
- */
 import {
   Text,
   Modal,
@@ -13,9 +8,14 @@ import {
   Textarea,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { showNotification } from '@mantine/notifications';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
+import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
+import { Check, X } from 'tabler-icons-react';
 
 interface Props {
   visible: boolean;
@@ -25,8 +25,10 @@ interface Props {
 export function CreateUnitModal(props: Props) {
   const { visible, onToggle } = props;
 
-  const [isLoading, setIsLoading] = React.useState(false);
   const userSlice = useSelector(selectUser);
+  const classroomSlice = useSelector(selectClassroom);
+
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm({
     initialValues: {
@@ -34,10 +36,66 @@ export function CreateUnitModal(props: Props) {
       unitTitle: '',
       unitTextContent: '',
     },
-    validate: {},
+    validate: {
+      unitNumber: value =>
+        value.length > 0 ? null : 'Unit number is required',
+      unitTitle: value => (value.length > 0 ? null : 'Unit title is required'),
+    },
   });
   type FormValues = typeof form.values;
-  const onCreate = async (values: FormValues) => {};
+
+  const onCreate = async (values: FormValues) => {
+    setIsLoading(true);
+    if (!classroomSlice.activeClass?.id) return;
+
+    const unitSubColPath = `classes/${classroomSlice.activeClass.id}/units`;
+
+    // check if unit number is already in used.
+    const parseUnitNumber = parseInt(values.unitNumber);
+    const searchQuery = query(
+      collection(db, unitSubColPath),
+      where('number', '==', parseUnitNumber),
+    );
+    const searchQueryResult = await getDocs(searchQuery);
+    if (!searchQueryResult.empty) {
+      // duplicated unit number
+      showNotification({
+        title: 'Failed',
+        message: 'Unit number already in used.',
+        color: 'red',
+        icon: <X />,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const unitSubcolRef = collection(db, unitSubColPath);
+    await addDoc(unitSubcolRef, {
+      number: parseUnitNumber,
+      title: values.unitTitle,
+      textContent: values.unitTextContent,
+      isLive: false,
+    })
+      .then(() => {
+        showNotification({
+          title: 'Sucess',
+          message: 'Created unit successfully.',
+          color: 'green',
+          icon: <Check />,
+        });
+      })
+      .catch(e => {
+        showNotification({
+          title: 'Failed',
+          message: 'Create unit failed.\n' + e,
+          color: 'red',
+          icon: <X />,
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
   const onCancel = () => {
     form.reset();
     onToggle(false);
@@ -62,7 +120,7 @@ export function CreateUnitModal(props: Props) {
           </Text>
           <TextInput
             label={
-              <Text size="xs" className="text-gray-500">
+              <Text size="xs" className="w-full text-gray-500">
                 Unit number
               </Text>
             }
@@ -71,6 +129,7 @@ export function CreateUnitModal(props: Props) {
             type="number"
             {...form.getInputProps('unitNumber')}
           />
+
           <TextInput
             label={
               <Text size="xs" className="text-gray-500">
