@@ -65,7 +65,7 @@ export function CreateClassModal(props: Props) {
       })
       .then(() => {
         showNotification({
-          title: 'Sucess',
+          title: 'Success',
           message: 'Created class successfully.',
           color: 'green',
           icon: <Check />,

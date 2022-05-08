@@ -32,6 +32,7 @@ import { MantineProvider, MantineThemeOverride } from '@mantine/core';
 import { BrowserRouter } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { NotificationsProvider } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
 
 const store = configureAppStore();
 const MOUNT_NODE = document.getElementById('root') as HTMLElement;
@@ -65,11 +66,13 @@ ReactDOM.render(
       <HelmetProvider>
         <React.StrictMode>
           <MantineProvider theme={theme}>
-            <NotificationsProvider autoClose={4000}>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </NotificationsProvider>
+            <ModalsProvider>
+              <NotificationsProvider autoClose={4000}>
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </NotificationsProvider>
+            </ModalsProvider>
           </MantineProvider>
         </React.StrictMode>
       </HelmetProvider>

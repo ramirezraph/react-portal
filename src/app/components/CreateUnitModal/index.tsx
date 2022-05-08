@@ -84,7 +84,7 @@ export function CreateUnitModal(props: Props) {
     })
       .then(() => {
         showNotification({
-          title: 'Sucess',
+          title: 'Success',
           message: 'Created unit successfully.',
           color: 'green',
           icon: <Check />,
@@ -104,6 +104,7 @@ export function CreateUnitModal(props: Props) {
         onToggle(false);
       });
   };
+
   const onCancel = () => {
     form.reset();
     onToggle(false);

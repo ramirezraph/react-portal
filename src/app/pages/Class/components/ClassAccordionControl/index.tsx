@@ -19,16 +19,16 @@ interface Props {
   lessonId?: string;
   type: ClassAccordionType;
   live: boolean;
+  openDeleteModal?: (id: string) => void;
 }
 
 export function ClassAccordionControl(props: Props) {
-  const { unitId, lessonId, type, live } = props;
+  const { unitId, lessonId, type, live, openDeleteModal } = props;
 
   const navigate = useNavigate();
   let location = useLocation();
-
-  const { actions } = useClassroomSlice();
   const dispatch = useDispatch();
+  const { actions } = useClassroomSlice();
 
   const toggleSwitch = () => {
     if (type === ClassAccordionType.Unit) {
@@ -79,7 +79,12 @@ export function ClassAccordionControl(props: Props) {
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label="Delete" position="bottom" withArrow>
+          <Tooltip
+            label="Delete"
+            position="bottom"
+            onClick={() => (openDeleteModal ? openDeleteModal(unitId) : null)}
+            withArrow
+          >
             <ActionIcon color={'red'} variant="transparent">
               <Trash />
             </ActionIcon>
