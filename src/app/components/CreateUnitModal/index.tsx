@@ -36,8 +36,17 @@ export function CreateUnitModal(props: Props) {
       unitTextContent: '',
     },
     validate: {
-      unitNumber: value =>
-        value.length > 0 ? null : 'Unit number is required',
+      unitNumber: value => {
+        if (value.length > 0) {
+          if (parseInt(value) > 0) {
+            return null;
+          } else {
+            return 'Unit number must be greater than zero.';
+          }
+        } else {
+          return 'Unit number is required';
+        }
+      },
       unitTitle: value => (value.length > 0 ? null : 'Unit title is required'),
     },
   });
