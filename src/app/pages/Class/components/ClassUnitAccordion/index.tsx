@@ -46,7 +46,10 @@ export function ClassUnitAccordion(props: Props) {
       )}
 
       {/* Lessons Accordon */}
-      <ClassLessonAccordion unitId={unit.id} lessons={unit.lessons} />
+      <ClassLessonAccordion
+        unitId={unit.id}
+        lessons={unit.lessons ? unit.lessons : []}
+      />
 
       <Divider className="mt-6" />
 

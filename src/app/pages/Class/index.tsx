@@ -1,10 +1,12 @@
 import { Box, Button, Group, Skeleton, Text } from '@mantine/core';
 import { CreateUnitModal } from 'app/components/CreateUnitModal/Loadable';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { db } from 'services/firebase';
 
 import { CardColor, ClassCard } from '../../components/ClassCard';
 import { selectClasses } from '../Classes/slice/selectors';
@@ -13,7 +15,7 @@ import { ClassTabs } from './components/ClassTabs/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
 import { useClassroomSlice } from './slice';
 import { selectClassroom } from './slice/selectors';
-import { Unit } from './slice/types';
+import { Lesson, Unit } from './slice/types';
 
 export function Class() {
   let { id } = useParams();
@@ -32,13 +34,15 @@ export function Class() {
 
   React.useEffect(() => {
     setLoading(true);
-
     const fetchClassData = () => {
       if (!id) return;
       const search = classes.classes.find(c => c.id === id);
       if (!search) return;
 
       dispatch(classroomActions.setActiveClass({ activeClass: search }));
+
+      const unitsSubColPath = `classes/${search.id}/units`;
+      dispatch(classroomActions.updateUnitPath({ path: unitsSubColPath }));
       setOpenedClass(search);
     };
 
@@ -47,8 +51,37 @@ export function Class() {
   }, [classes.classes, classroomActions, dispatch, id]);
 
   React.useEffect(() => {
-    // dispatch(actions.fetchUnits());
-  }, [actions, dispatch]);
+    if (!classroom.unitPath) return;
+    console.log('onSnapshot: units');
+
+    const unitsQuery = query(collection(db, classroom.unitPath));
+    const unsubscribe = onSnapshot(unitsQuery, querySnapshot => {
+      const units: Unit[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const unit: Unit = {
+          id: doc.id,
+          isLive: data.isLive,
+          number: data.number,
+          title: data.title,
+          content: data.textContent,
+          lessons: [] as Lesson[],
+        };
+        console.log(unit);
+        units.push(unit);
+      });
+      // sort by unit number
+      units.sort((a, b) => (a.number > b.number ? 1 : -1));
+
+      dispatch(classroomActions.fetchUnits({ units: units }));
+    });
+
+    return () => {
+      console.log('onSnapshot: units - unsubsribe');
+
+      unsubscribe();
+    };
+  }, [actions, classroom.unitPath, classroomActions, dispatch]);
 
   React.useEffect(() => {
     setUnitsList(classroom.units);

@@ -14,7 +14,6 @@ import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
-import { selectUser } from 'store/userSlice/selectors';
 import { Check, X } from 'tabler-icons-react';
 
 interface Props {
@@ -25,7 +24,7 @@ interface Props {
 export function CreateUnitModal(props: Props) {
   const { visible, onToggle } = props;
 
-  const userSlice = useSelector(selectUser);
+  // const userSlice = useSelector(selectUser);
   const classroomSlice = useSelector(selectClassroom);
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -48,12 +47,10 @@ export function CreateUnitModal(props: Props) {
     setIsLoading(true);
     if (!classroomSlice.activeClass?.id) return;
 
-    const unitSubColPath = `classes/${classroomSlice.activeClass.id}/units`;
-
     // check if unit number is already in used.
     const parseUnitNumber = parseInt(values.unitNumber);
     const searchQuery = query(
-      collection(db, unitSubColPath),
+      collection(db, classroomSlice.unitPath),
       where('number', '==', parseUnitNumber),
     );
     const searchQueryResult = await getDocs(searchQuery);
@@ -69,7 +66,7 @@ export function CreateUnitModal(props: Props) {
       return;
     }
 
-    const unitSubcolRef = collection(db, unitSubColPath);
+    const unitSubcolRef = collection(db, classroomSlice.unitPath);
     await addDoc(unitSubcolRef, {
       number: parseUnitNumber,
       title: values.unitTitle,
@@ -93,7 +90,9 @@ export function CreateUnitModal(props: Props) {
         });
       })
       .finally(() => {
+        form.reset();
         setIsLoading(false);
+        onToggle(false);
       });
   };
   const onCancel = () => {

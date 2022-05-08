@@ -10,6 +10,7 @@ import { Class } from 'app/pages/Classes/slice/types';
 export const initialState: ClassroomState = {
   activeClass: null,
   units: [],
+  unitPath: '',
   classworkModalBackground: undefined,
 };
 
@@ -17,6 +18,9 @@ const slice = createSlice({
   name: 'classroom',
   initialState,
   reducers: {
+    updateUnitPath(state, action: PayloadAction<{ path: string }>) {
+      state.unitPath = action.payload.path;
+    },
     fetchUnits(state, action: PayloadAction<{ units: Unit[] }>) {
       state.units = action.payload.units;
     },
@@ -40,7 +44,7 @@ const slice = createSlice({
         return;
       }
 
-      const lesson = unit.lessons.find(x => x.id === action.payload.lessonId);
+      const lesson = unit.lessons?.find(x => x.id === action.payload.lessonId);
       if (!lesson) {
         // not found, do something
         return;
