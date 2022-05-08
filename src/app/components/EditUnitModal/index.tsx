@@ -14,7 +14,7 @@ interface Props {
   onToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function CreateUnitModal(props: Props) {
+export function EditUnitModal(props: Props) {
   const { visible, onToggle } = props;
 
   // const userSlice = useSelector(selectUser);
@@ -43,7 +43,7 @@ export function CreateUnitModal(props: Props) {
   });
   type FormValues = typeof form.values;
 
-  const onCreate = async (values: FormValues) => {
+  const onSubmitEdit = async (values: FormValues) => {
     if (!classroomSlice.activeClass?.id) return;
 
     // check if unit number is already in used.
@@ -64,9 +64,9 @@ export function CreateUnitModal(props: Props) {
       return;
     }
 
-    const createIdNotification = uuidv4();
+    const notificationId = uuidv4();
     showNotification({
-      id: createIdNotification,
+      id: notificationId,
       loading: true,
       title: 'In progress',
       message: `Creating Unit ${parseUnitNumber}: ${values.unitTitle} ...`,
@@ -74,31 +74,31 @@ export function CreateUnitModal(props: Props) {
       disallowClose: true,
     });
 
-    const unitSubcolRef = collection(db, classroomSlice.unitPath);
-    await addDoc(unitSubcolRef, {
-      number: parseUnitNumber,
-      title: values.unitTitle,
-      textContent: values.unitTextContent,
-      isLive: false,
-    })
-      .then(() => {
-        updateNotification({
-          id: createIdNotification,
-          title: 'Success',
-          message: `Unit ${parseUnitNumber}: ${values.unitTitle} created successfully.`,
-          color: 'green',
-          icon: <Check />,
-        });
-      })
-      .catch(e => {
-        updateNotification({
-          id: createIdNotification,
-          title: 'Failed',
-          message: `Unit ${parseUnitNumber}: ${values.unitTitle} create failed. \n${e}`,
-          color: 'red',
-          icon: <X />,
-        });
-      });
+    // const unitSubcolRef = collection(db, classroomSlice.unitPath);
+    // await addDoc(unitSubcolRef, {
+    //   number: parseUnitNumber,
+    //   title: values.unitTitle,
+    //   textContent: values.unitTextContent,
+    //   isLive: false,
+    // })
+    //   .then(() => {
+    //     updateNotification({
+    //       id: notificationId,
+    //       title: 'Success',
+    //       message: `Unit ${parseUnitNumber}: ${values.unitTitle} created successfully.`,
+    //       color: 'green',
+    //       icon: <Check />,
+    //     });
+    //   })
+    //   .catch(e => {
+    //     updateNotification({
+    //       id: notificationId,
+    //       title: 'Failed',
+    //       message: `Unit ${parseUnitNumber}: ${values.unitTitle} create failed. \n${e}`,
+    //       color: 'red',
+    //       icon: <X />,
+    //     });
+    //   });
 
     form.reset();
     onToggle(false);
@@ -113,14 +113,14 @@ export function CreateUnitModal(props: Props) {
     <Modal
       opened={visible}
       onClose={() => onToggle(false)}
-      title={<Text className="font-semibold">Create new unit</Text>}
+      title={<Text className="font-semibold">Edit unit</Text>}
       centered
       closeOnClickOutside={false}
       closeOnEscape={false}
       radius="md"
       size={500}
     >
-      <form onSubmit={form.onSubmit(values => onCreate(values))}>
+      <form onSubmit={form.onSubmit(values => onSubmitEdit(values))}>
         <Group direction="column" spacing="xs">
           <Text className="w-full" size="sm">
             Lorem, ipsum dolor sit amet consectetur adipisicing elit.

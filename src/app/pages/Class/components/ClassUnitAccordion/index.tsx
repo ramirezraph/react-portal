@@ -12,6 +12,7 @@ import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
 import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
 import { v4 as uuidv4 } from 'uuid';
+import { EditUnitModal } from 'app/components/EditUnitModal/Loadable';
 
 export enum ClassAccordionType {
   Unit,
@@ -27,9 +28,10 @@ export function ClassUnitAccordion(props: Props) {
   const { units } = props;
 
   const modals = useModals();
-  const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
-
   const classroom = useSelector(selectClassroom);
+
+  const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
+  const [editUnitModalVisible, setEditUnitModalVisible] = React.useState(false);
 
   React.useEffect(() => {
     if (units) {
@@ -98,6 +100,11 @@ export function ClassUnitAccordion(props: Props) {
       });
   };
 
+  const prepareEditUnitModal = (id: string) => {
+    console.log('editing ' + id);
+    setEditUnitModalVisible(true);
+  };
+
   const renderUnitItems = unitsList.map(unit => (
     <Accordion.Item
       label={
@@ -131,25 +138,32 @@ export function ClassUnitAccordion(props: Props) {
         live={unit.isLive}
         type={ClassAccordionType.Unit}
         openDeleteModal={displayDeleteUnitModal}
+        openEditModal={prepareEditUnitModal}
       />
     </Accordion.Item>
   ));
 
   return (
-    <Accordion
-      className="mt-3 w-full"
-      classNames={{
-        label: 'text-white text-md py-0',
-        content: 'outline outline-1 outline-stone-100',
-        icon: 'text-white',
-        control: 'bg-stone-800 hover:bg-stone-700',
-      }}
-      iconPosition="right"
-      iconSize={24}
-      offsetIcon={true}
-      transitionDuration={500}
-    >
-      {renderUnitItems}
-    </Accordion>
+    <>
+      <EditUnitModal
+        visible={editUnitModalVisible}
+        onToggle={setEditUnitModalVisible}
+      />
+      <Accordion
+        className="mt-3 w-full"
+        classNames={{
+          label: 'text-white text-md py-0',
+          content: 'outline outline-1 outline-stone-100',
+          icon: 'text-white',
+          control: 'bg-stone-800 hover:bg-stone-700',
+        }}
+        iconPosition="right"
+        iconSize={24}
+        offsetIcon={true}
+        transitionDuration={500}
+      >
+        {renderUnitItems}
+      </Accordion>
+    </>
   );
 }

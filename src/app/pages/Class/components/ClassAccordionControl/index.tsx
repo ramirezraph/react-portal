@@ -20,10 +20,12 @@ interface Props {
   type: ClassAccordionType;
   live: boolean;
   openDeleteModal?: (id: string) => void;
+  openEditModal?: (id: string) => void;
 }
 
 export function ClassAccordionControl(props: Props) {
-  const { unitId, lessonId, type, live, openDeleteModal } = props;
+  const { unitId, lessonId, type, live, openDeleteModal, openEditModal } =
+    props;
 
   const navigate = useNavigate();
   let location = useLocation();
@@ -74,18 +76,20 @@ export function ClassAccordionControl(props: Props) {
       {type === ClassAccordionType.Unit && (
         <Group className="gap-0" noWrap>
           <Tooltip label="Edit" position="bottom" withArrow>
-            <ActionIcon variant="transparent">
+            <ActionIcon
+              variant="transparent"
+              onClick={() => (openEditModal ? openEditModal(unitId) : null)}
+            >
               <Pencil />
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip
-            label="Delete"
-            position="bottom"
-            onClick={() => (openDeleteModal ? openDeleteModal(unitId) : null)}
-            withArrow
-          >
-            <ActionIcon color={'red'} variant="transparent">
+          <Tooltip label="Delete" position="bottom" withArrow>
+            <ActionIcon
+              color={'red'}
+              variant="transparent"
+              onClick={() => (openDeleteModal ? openDeleteModal(unitId) : null)}
+            >
               <Trash />
             </ActionIcon>
           </Tooltip>
