@@ -67,7 +67,6 @@ export function Class() {
           content: data.textContent,
           lessons: [] as Lesson[],
         };
-        console.log(unit);
         units.push(unit);
       });
       // sort by unit number

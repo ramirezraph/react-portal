@@ -75,7 +75,7 @@ export function CreateUnitModal(props: Props) {
     });
 
     const unitSubcolRef = collection(db, classroomSlice.unitPath);
-    await addDoc(unitSubcolRef, {
+    addDoc(unitSubcolRef, {
       number: parseUnitNumber,
       title: values.unitTitle,
       textContent: values.unitTextContent,

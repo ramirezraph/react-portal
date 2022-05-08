@@ -32,6 +32,7 @@ export function ClassUnitAccordion(props: Props) {
 
   const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
   const [editUnitModalVisible, setEditUnitModalVisible] = React.useState(false);
+  const [unitToEdit, setUnitToEdit] = React.useState<Unit | null>(null);
 
   React.useEffect(() => {
     if (units) {
@@ -101,8 +102,11 @@ export function ClassUnitAccordion(props: Props) {
   };
 
   const prepareEditUnitModal = (id: string) => {
-    console.log('editing ' + id);
-    setEditUnitModalVisible(true);
+    const found = classroom.units.find(x => x.id === id);
+    if (found) {
+      setUnitToEdit(found);
+      setEditUnitModalVisible(true);
+    }
   };
 
   const renderUnitItems = unitsList.map(unit => (
@@ -145,10 +149,16 @@ export function ClassUnitAccordion(props: Props) {
 
   return (
     <>
-      <EditUnitModal
-        visible={editUnitModalVisible}
-        onToggle={setEditUnitModalVisible}
-      />
+      {unitToEdit && (
+        <EditUnitModal
+          visible={editUnitModalVisible}
+          onToggle={setEditUnitModalVisible}
+          unitId={unitToEdit.id}
+          unitNumber={unitToEdit.number}
+          unitTitle={unitToEdit.title}
+          unitContent={unitToEdit.content}
+        />
+      )}
       <Accordion
         className="mt-3 w-full"
         classNames={{
