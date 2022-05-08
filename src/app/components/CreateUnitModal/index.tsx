@@ -1,20 +1,13 @@
-import {
-  Text,
-  Modal,
-  LoadingOverlay,
-  Group,
-  Button,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
+import { Text, Modal, Group, Button, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { showNotification } from '@mantine/notifications';
+import { showNotification, updateNotification } from '@mantine/notifications';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { Check, X } from 'tabler-icons-react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
   visible: boolean;
@@ -26,8 +19,6 @@ export function CreateUnitModal(props: Props) {
 
   // const userSlice = useSelector(selectUser);
   const classroomSlice = useSelector(selectClassroom);
-
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm({
     initialValues: {
@@ -53,7 +44,6 @@ export function CreateUnitModal(props: Props) {
   type FormValues = typeof form.values;
 
   const onCreate = async (values: FormValues) => {
-    setIsLoading(true);
     if (!classroomSlice.activeClass?.id) return;
 
     // check if unit number is already in used.
@@ -71,38 +61,47 @@ export function CreateUnitModal(props: Props) {
         color: 'red',
         icon: <X />,
       });
-      setIsLoading(false);
       return;
     }
 
+    const createIdNotification = uuidv4();
+    showNotification({
+      id: createIdNotification,
+      loading: true,
+      title: 'In progress',
+      message: `Creating Unit ${parseUnitNumber}: ${values.unitTitle} ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
     const unitSubcolRef = collection(db, classroomSlice.unitPath);
-    await addDoc(unitSubcolRef, {
+    addDoc(unitSubcolRef, {
       number: parseUnitNumber,
       title: values.unitTitle,
       textContent: values.unitTextContent,
       isLive: false,
     })
       .then(() => {
-        showNotification({
+        updateNotification({
+          id: createIdNotification,
           title: 'Success',
-          message: 'Created unit successfully.',
+          message: `Unit ${parseUnitNumber}: ${values.unitTitle} created successfully.`,
           color: 'green',
           icon: <Check />,
         });
       })
       .catch(e => {
-        showNotification({
+        updateNotification({
+          id: createIdNotification,
           title: 'Failed',
-          message: 'Create unit failed.\n' + e,
+          message: `Unit ${parseUnitNumber}: ${values.unitTitle} create failed. \n${e}`,
           color: 'red',
           icon: <X />,
         });
-      })
-      .finally(() => {
-        form.reset();
-        setIsLoading(false);
-        onToggle(false);
       });
+
+    form.reset();
+    onToggle(false);
   };
 
   const onCancel = () => {
@@ -121,7 +120,6 @@ export function CreateUnitModal(props: Props) {
       radius="md"
       size={500}
     >
-      <LoadingOverlay visible={isLoading} />
       <form onSubmit={form.onSubmit(values => onCreate(values))}>
         <Group direction="column" spacing="xs">
           <Text className="w-full" size="sm">

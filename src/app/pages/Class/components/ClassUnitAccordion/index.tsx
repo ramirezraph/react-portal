@@ -11,6 +11,7 @@ import { Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
 import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
+import { v4 as uuidv4 } from 'uuid';
 
 export enum ClassAccordionType {
   Unit,
@@ -67,8 +68,9 @@ export function ClassUnitAccordion(props: Props) {
     const unitToBeDeleted = unitsList.find(x => x.id === unitId);
     if (!unitToBeDeleted) return;
 
+    const notificationId = uuidv4();
     showNotification({
-      id: 'delete',
+      id: notificationId,
       loading: true,
       title: 'In progress',
       message: `Deleting Unit ${unitToBeDeleted.number}: ${unitToBeDeleted.title} ...`,
@@ -79,7 +81,7 @@ export function ClassUnitAccordion(props: Props) {
     await deleteDoc(doc(db, path, unitId))
       .then(() => {
         updateNotification({
-          id: 'delete',
+          id: notificationId,
           title: 'Success',
           message: `Unit ${unitToBeDeleted.number}: ${unitToBeDeleted.title} deleted successfully.`,
           color: 'green',
@@ -88,7 +90,7 @@ export function ClassUnitAccordion(props: Props) {
       })
       .catch(e => {
         updateNotification({
-          id: 'delete',
+          id: notificationId,
           title: 'Failed',
           message: `Unit ${unitToBeDeleted.number}: ${unitToBeDeleted.title} delete failed. ${e}`,
           color: 'red',
