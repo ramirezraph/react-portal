@@ -57,7 +57,6 @@ export function ClassUnitAccordion(props: Props) {
       ),
       labels: { confirm: 'Delete unit', cancel: "No don't delete it" },
       confirmProps: { color: 'red' },
-      onCancel: () => console.log('Cancel'),
       onConfirm: () => deleteUnit(id),
     });
   };

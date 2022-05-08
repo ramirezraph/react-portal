@@ -29,10 +29,10 @@ export function CreateUnitModal(props: Props) {
     validate: {
       unitNumber: value => {
         if (value.length > 0) {
-          if (parseInt(value) > 0) {
+          if (parseInt(value) >= 0) {
             return null;
           } else {
-            return 'Unit number must be greater than zero.';
+            return 'Unit number must be a positive number.';
           }
         } else {
           return 'Unit number is required';
