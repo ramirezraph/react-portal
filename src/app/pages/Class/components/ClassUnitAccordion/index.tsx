@@ -123,7 +123,7 @@ export function ClassUnitAccordion(props: Props) {
     >
       {/* Text Content */}
       {unit.content && (
-        <Text className="mt-3" size="sm">
+        <Text className="mt-3 w-full" size="sm">
           {unit.content}
         </Text>
       )}

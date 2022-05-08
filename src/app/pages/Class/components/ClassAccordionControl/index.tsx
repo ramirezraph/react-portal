@@ -1,8 +1,10 @@
 import { Group, ActionIcon, Button, Tooltip, Text } from '@mantine/core';
 import { LiveSwitch } from 'app/components/LiveSwitch/Loadable';
+import { doc, updateDoc } from 'firebase/firestore';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { db } from 'services/firebase';
 import {
   FileUpload,
   Maximize,
@@ -11,7 +13,7 @@ import {
   SquarePlus,
   Trash,
 } from 'tabler-icons-react';
-import { useClassroomSlice } from '../../slice';
+import { selectClassroom } from '../../slice/selectors';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
@@ -29,17 +31,17 @@ export function ClassAccordionControl(props: Props) {
 
   const navigate = useNavigate();
   let location = useLocation();
-  const dispatch = useDispatch();
-  const { actions } = useClassroomSlice();
+  const classroom = useSelector(selectClassroom);
 
-  const toggleSwitch = () => {
+  const toggleSwitch = async () => {
     if (type === ClassAccordionType.Unit) {
-      dispatch(actions.toggleUnitLive(unitId));
+      const unitDocRef = doc(db, classroom.unitPath, unitId);
+      await updateDoc(unitDocRef, {
+        isLive: !live,
+      });
     } else if (type === ClassAccordionType.Lesson) {
       if (lessonId) {
-        dispatch(
-          actions.toggleLessonLive({ unitId: unitId, lessonId: lessonId }),
-        );
+        console.log('Toggle a lesson.');
       }
     }
   };

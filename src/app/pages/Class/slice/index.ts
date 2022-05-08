@@ -24,34 +24,6 @@ const slice = createSlice({
     fetchUnits(state, action: PayloadAction<{ units: Unit[] }>) {
       state.units = action.payload.units;
     },
-    toggleUnitLive(state, action: PayloadAction<string>) {
-      const unit = state.units.find(x => x.id === action.payload);
-
-      if (!unit) {
-        // not found, do something
-        return;
-      }
-
-      unit.isLive = !unit.isLive;
-    },
-    toggleLessonLive(
-      state,
-      action: PayloadAction<{ unitId: string; lessonId: string }>,
-    ) {
-      const unit = state.units.find(x => x.id === action.payload.unitId);
-      if (!unit) {
-        // not found, do something
-        return;
-      }
-
-      const lesson = unit.lessons?.find(x => x.id === action.payload.lessonId);
-      if (!lesson) {
-        // not found, do something
-        return;
-      }
-
-      lesson.isLive = !lesson.isLive;
-    },
     setClassworkModalBackground(
       state,
       action: PayloadAction<{ backgroundLocation?: Location }>,

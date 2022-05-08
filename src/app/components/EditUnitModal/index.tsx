@@ -7,7 +7,7 @@ import {
   doc,
   getDocs,
   query,
-  setDoc,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import * as React from 'react';
@@ -100,11 +100,10 @@ export function EditUnitModal(props: Props) {
       disallowClose: true,
     });
 
-    setDoc(doc(db, classroom.unitPath, unitId), {
+    updateDoc(doc(db, classroom.unitPath, unitId), {
       number: parseUnitNumber,
       title: values.unitTitle,
       textContent: values.unitTextContent,
-      isLive: false,
     })
       .then(() => {
         updateNotification({
