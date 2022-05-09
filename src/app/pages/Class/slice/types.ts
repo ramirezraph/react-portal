@@ -5,6 +5,7 @@ import { Location } from 'react-router-dom';
 export interface ClassroomState {
   activeClass: Class | null;
   units: Unit[];
+  lessons: Lesson[];
   unitPath: string;
   classworkModalBackground: Location | undefined;
 }
@@ -15,7 +16,7 @@ export interface Unit {
   title: string;
   content: string;
   isLive: boolean;
-  lessons?: Lesson[];
+  lessons: Lesson[];
 }
 
 export interface LessonFile {

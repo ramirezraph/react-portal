@@ -2,7 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { classroomSaga } from './saga';
-import { ClassroomState, Unit } from './types';
+import { ClassroomState, Lesson, Unit } from './types';
 
 import { Location } from 'react-router-dom';
 import { Class } from 'app/pages/Classes/slice/types';
@@ -10,6 +10,7 @@ import { Class } from 'app/pages/Classes/slice/types';
 export const initialState: ClassroomState = {
   activeClass: null,
   units: [],
+  lessons: [],
   unitPath: '',
   classworkModalBackground: undefined,
 };
@@ -23,6 +24,15 @@ const slice = createSlice({
     },
     fetchUnits(state, action: PayloadAction<{ units: Unit[] }>) {
       state.units = action.payload.units;
+    },
+    fetchLessons(
+      state,
+      action: PayloadAction<{ unitId: string; lessons: Lesson[] }>,
+    ) {
+      const unit = state.units.find(x => x.id === action.payload.unitId);
+      if (unit) {
+        unit.lessons = action.payload.lessons;
+      }
     },
     setClassworkModalBackground(
       state,

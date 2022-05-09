@@ -8,21 +8,47 @@ import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   unitId: string;
-  lessons: Lesson[];
+  list: Lesson[];
 }
 
 export function ClassLessonAccordion(props: Props) {
-  const { unitId, lessons } = props;
+  const { unitId, list } = props;
 
-  const [lessonList, setLessonList] = React.useState<Lesson[]>([]);
+  const [lessons, setLessons] = React.useState<Lesson[]>([]);
+
+  // React.useEffect(() => {
+  //   console.log('onSnapshot: lessons');
+
+  //   const q = query(lessonsColRef, where('unitId', '==', unitId));
+  //   const unsubscribe = onSnapshot(q, snapshot => {
+  //     const list: Lesson[] = [];
+  //     snapshot.forEach(doc => {
+  //       const data = doc.data();
+  //       const lesson = {
+  //         id: doc.id,
+  //         number: data.number,
+  //         title: data.title,
+  //         content: data.content,
+  //         isLive: data.isLive,
+  //         files: [],
+  //       };
+  //       list.push(lesson);
+  //     });
+  //     setLessons(list);
+  //   });
+
+  //   return () => {
+  //     console.log('onSnapshot: lessons - unsubsribe');
+
+  //     unsubscribe();
+  //   };
+  // }, [unitId]);
 
   React.useEffect(() => {
-    if (lessons) {
-      setLessonList(lessons);
-    }
-  }, [lessons]);
+    setLessons(list);
+  }, [list]);
 
-  const renderLessonItems = lessonList.map(lesson => (
+  const renderLessonItems = lessons.map(lesson => (
     <Accordion.Item
       label={
         <ClassAccordionHeader
