@@ -1,6 +1,6 @@
 import { Group, ActionIcon, Button, Tooltip, Text } from '@mantine/core';
 import { LiveSwitch } from 'app/components/LiveSwitch/Loadable';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, Timestamp, updateDoc } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -38,10 +38,15 @@ export function ClassAccordionControl(props: Props) {
       const unitDocRef = doc(db, classroom.unitPath, unitId);
       await updateDoc(unitDocRef, {
         isLive: !live,
+        updatedAt: Timestamp.now(),
       });
     } else if (type === ClassAccordionType.Lesson) {
       if (lessonId) {
-        console.log('Toggle a lesson.');
+        const lessonDocRef = doc(db, 'lessons', lessonId);
+        await updateDoc(lessonDocRef, {
+          isLive: !live,
+          updatedAt: Timestamp.now(),
+        });
       }
     }
   };

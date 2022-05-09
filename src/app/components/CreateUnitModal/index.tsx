@@ -2,7 +2,14 @@ import { Text, Modal, Group, Button, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
@@ -84,6 +91,9 @@ export function CreateUnitModal(props: Props) {
       title: values.unitTitle,
       textContent: values.unitTextContent,
       isLive: false,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      deletedAt: null,
     })
       .then(() => {
         updateNotification({

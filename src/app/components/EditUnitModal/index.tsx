@@ -7,6 +7,7 @@ import {
   doc,
   getDocs,
   query,
+  Timestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
@@ -109,6 +110,7 @@ export function EditUnitModal(props: Props) {
       number: parseUnitNumber,
       title: values.unitTitle,
       textContent: values.unitTextContent,
+      updatedAt: Timestamp.now(),
     })
       .then(() => {
         updateNotification({
