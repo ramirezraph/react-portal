@@ -20,6 +20,8 @@ export function CreateUnitModal(props: Props) {
   // const userSlice = useSelector(selectUser);
   const classroomSlice = useSelector(selectClassroom);
 
+  const [createButtonLoading, setCreateButtonLoading] = React.useState(false);
+
   const form = useForm({
     initialValues: {
       unitNumber: '',
@@ -45,6 +47,7 @@ export function CreateUnitModal(props: Props) {
 
   const onCreate = async (values: FormValues) => {
     if (!classroomSlice.activeClass?.id) return;
+    setCreateButtonLoading(true);
 
     // check if unit number is already in used.
     const parseUnitNumber = parseInt(values.unitNumber);
@@ -55,6 +58,7 @@ export function CreateUnitModal(props: Props) {
     const searchQueryResult = await getDocs(searchQuery);
     if (!searchQueryResult.empty) {
       // duplicated unit number
+      setCreateButtonLoading(false);
       showNotification({
         title: 'Failed',
         message: 'Unit number already in used.',
@@ -98,6 +102,9 @@ export function CreateUnitModal(props: Props) {
           color: 'red',
           icon: <X />,
         });
+      })
+      .finally(() => {
+        setCreateButtonLoading(false);
       });
 
     form.reset();
@@ -159,7 +166,11 @@ export function CreateUnitModal(props: Props) {
             {...form.getInputProps('unitTextContent')}
           />
           <Group className="mt-6">
-            <Button type="submit" className="px-12">
+            <Button
+              type="submit"
+              className="px-12"
+              loading={createButtonLoading}
+            >
               <Text size="sm" weight={400}>
                 Create
               </Text>

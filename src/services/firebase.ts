@@ -19,5 +19,6 @@ const db = getFirestore(app);
 // collection references
 const classesColRef = collection(db, 'classes');
 const usersColRef = collection(db, 'users');
+const lessonsColRef = collection(db, 'lessons');
 
-export { app, db, classesColRef, usersColRef };
+export { app, db, classesColRef, usersColRef, lessonsColRef };

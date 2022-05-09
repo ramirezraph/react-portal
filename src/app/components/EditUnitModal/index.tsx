@@ -32,6 +32,8 @@ export function EditUnitModal(props: Props) {
   // const userSlice = useSelector(selectUser);
   const classroom = useSelector(selectClassroom);
 
+  const [editButtonLoading, setEditButtonLoading] = React.useState(false);
+
   const form = useForm({
     initialValues: {
       unitNumber: unitNumber.toString(),
@@ -67,6 +69,7 @@ export function EditUnitModal(props: Props) {
 
   const onSubmitEdit = async (values: FormValues) => {
     if (!classroom.activeClass?.id) return;
+    setEditButtonLoading(true);
 
     // check if unit number is already in used.
     const parseUnitNumber = parseInt(values.unitNumber);
@@ -81,6 +84,8 @@ export function EditUnitModal(props: Props) {
     });
     if (hasDuplicate) {
       // duplicated unit number
+      setEditButtonLoading(false);
+
       showNotification({
         title: 'Failed',
         message: 'Unit number already in used.',
@@ -122,6 +127,9 @@ export function EditUnitModal(props: Props) {
           color: 'red',
           icon: <X />,
         });
+      })
+      .finally(() => {
+        setEditButtonLoading(false);
       });
 
     form.reset();
@@ -183,7 +191,7 @@ export function EditUnitModal(props: Props) {
             {...form.getInputProps('unitTextContent')}
           />
           <Group className="mt-6">
-            <Button type="submit" className="px-12">
+            <Button type="submit" className="px-12" loading={editButtonLoading}>
               <Text size="sm" weight={400}>
                 Submit changes
               </Text>
