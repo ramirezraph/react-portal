@@ -62,6 +62,7 @@ export function ClassUnitAccordion(props: Props) {
       onConfirm: () => deleteUnit(id),
     });
   };
+
   const deleteUnit = async (unitId: string) => {
     const path = classroom.unitPath;
     if (!path) return;

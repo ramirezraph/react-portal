@@ -13,6 +13,7 @@ import {
 import { showNotification, updateNotification } from '@mantine/notifications';
 import {
   addDoc,
+  deleteDoc,
   doc,
   onSnapshot,
   Timestamp,
@@ -44,6 +45,7 @@ import { PostCard } from '../PostCard';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
+import { useModals } from '@mantine/modals';
 
 interface Prop {}
 
@@ -51,6 +53,7 @@ export function LessonModal(props: Prop) {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const modals = useModals();
 
   const onClose = () => {
     navigate(-1);
@@ -299,6 +302,63 @@ export function LessonModal(props: Prop) {
       });
   };
 
+  const displayDeleteLessonModal = () => {
+    if (!id) return;
+    navigate(-1);
+    return modals.openConfirmModal({
+      title: <Text weight="bold">Are you absolutely sure?</Text>,
+      centered: true,
+      closeOnClickOutside: false,
+      trapFocus: true,
+      children: (
+        <Text size="sm">
+          This action cannot be undone. This will permanently delete{' '}
+          <span className="font-bold">
+            {lessonNumber}: {title}
+          </span>
+          , along with other data associated with it.
+        </Text>
+      ),
+      labels: { confirm: 'Delete lesson', cancel: "No don't delete it" },
+      confirmProps: { color: 'red' },
+      onConfirm: () => onDelete(id),
+    });
+  };
+
+  const onDelete = (lessonId: string) => {
+    if (!lessonId) return;
+
+    const notificationId = uuidv4();
+    showNotification({
+      id: notificationId,
+      loading: true,
+      title: 'In progress',
+      message: `Deleting ${lessonNumber}: ${title} ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    deleteDoc(doc(db, 'lessons', lessonId))
+      .then(() => {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `${lessonNumber}: ${title} deleted successfully.`,
+          color: 'green',
+          icon: <Check />,
+        });
+      })
+      .catch(e => {
+        updateNotification({
+          id: notificationId,
+          title: 'Failed',
+          message: `${lessonNumber}: ${title} delete failed. ${e}`,
+          color: 'red',
+          icon: <X />,
+        });
+      });
+  };
+
   return (
     <Modal
       opened={true}
@@ -389,9 +449,16 @@ export function LessonModal(props: Prop) {
 
                   <LiveSwitch live={isLive} onToggle={onLiveToggle} />
                 </Group>
-                <ActionIcon size="lg" variant="filled" color="red">
-                  <Trash size={18} />
-                </ActionIcon>
+                {!lessonIsNew && (
+                  <ActionIcon
+                    size="lg"
+                    variant="filled"
+                    color="red"
+                    onClick={displayDeleteLessonModal}
+                  >
+                    <Trash size={18} />
+                  </ActionIcon>
+                )}
               </Group>
             </Card.Section>
             <Card.Section>
