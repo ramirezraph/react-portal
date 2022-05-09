@@ -64,6 +64,7 @@ export function LessonModal(props: Prop) {
   const [content, setContent] = React.useState('');
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
+  const [isLive, setIsLive] = React.useState(false);
 
   interface LocationState {
     backgroundLocation: Location;
@@ -111,6 +112,7 @@ export function LessonModal(props: Prop) {
       setIsOnEditMode(true);
       setLessonNumber('Lesson 1');
       setTitle('New Lesson');
+      setIsLive(false);
       return;
     }
 
@@ -125,6 +127,7 @@ export function LessonModal(props: Prop) {
         setLessonNumber(`Lesson ${lessonData.number}`);
         setTitle(lessonData.title);
         setContent(lessonData.content);
+        setIsLive(lessonData.isLive);
       }
     });
 
@@ -134,8 +137,14 @@ export function LessonModal(props: Prop) {
     };
   }, [id]);
 
-  const onLiveToggle = () => {
-    console.log('toggle live');
+  const onLiveToggle = async () => {
+    if (!id) return;
+
+    const lessonDocRef = doc(db, 'lessons', id);
+    await updateDoc(lessonDocRef, {
+      isLive: !isLive,
+      updatedAt: Timestamp.now(),
+    });
   };
 
   const onSubmitNewLesson = async () => {
@@ -378,7 +387,7 @@ export function LessonModal(props: Prop) {
                     </Button>
                   )}
 
-                  <LiveSwitch live={false} onToggle={onLiveToggle} />
+                  <LiveSwitch live={isLive} onToggle={onLiveToggle} />
                 </Group>
                 <ActionIcon size="lg" variant="filled" color="red">
                   <Trash size={18} />
