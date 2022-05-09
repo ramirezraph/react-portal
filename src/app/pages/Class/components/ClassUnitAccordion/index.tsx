@@ -1,26 +1,18 @@
-import { Accordion, AccordionState, Divider, Text } from '@mantine/core';
+import { Accordion, Divider, Text } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
-import {
-  deleteDoc,
-  doc,
-  onSnapshot,
-  query,
-  Unsubscribe,
-  where,
-} from 'firebase/firestore';
+import { deleteDoc, doc } from 'firebase/firestore';
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { db, lessonsColRef } from 'services/firebase';
+import { useSelector } from 'react-redux';
+import { db } from 'services/firebase';
 import { Check, X } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
-import { Lesson, Unit } from '../../slice/types';
+import { Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
 import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
 import { v4 as uuidv4 } from 'uuid';
 import { EditUnitModal } from 'app/components/EditUnitModal/Loadable';
-import { useClassroomSlice } from '../../slice';
 
 export enum ClassAccordionType {
   Unit,
@@ -32,14 +24,10 @@ interface Props {
   units: Unit[];
 }
 
-let LESSONS_LISTENER_UNSUBSCROBE: Unsubscribe | null = null;
-
 export function ClassUnitAccordion(props: Props) {
   const { units } = props;
   const modals = useModals();
   const classroom = useSelector(selectClassroom);
-  const dispatch = useDispatch();
-  const { actions: classroomActions } = useClassroomSlice();
 
   const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
   const [editUnitModalVisible, setEditUnitModalVisible] = React.useState(false);
@@ -47,8 +35,6 @@ export function ClassUnitAccordion(props: Props) {
 
   React.useEffect(() => {
     if (units) {
-      console.log('setunit called');
-
       setUnitsList(units);
     }
   }, [units]);
@@ -142,10 +128,7 @@ export function ClassUnitAccordion(props: Props) {
       )}
 
       {/* Lessons Accordon */}
-      <ClassLessonAccordion
-        unitId={unit.id}
-        list={unit.lessons ? unit.lessons : []}
-      />
+      <ClassLessonAccordion unitId={unit.id} />
 
       <Divider className="mt-6" />
 
@@ -159,39 +142,6 @@ export function ClassUnitAccordion(props: Props) {
       />
     </Accordion.Item>
   ));
-
-  const onAccordionChange = (state: AccordionState) => {
-    let activeUnitIndex = Object.keys(state).find(key => state[key] === true);
-    if (activeUnitIndex) {
-      if (LESSONS_LISTENER_UNSUBSCROBE) {
-        console.log('onSnapshot: lessons - unsubscribe');
-        LESSONS_LISTENER_UNSUBSCROBE();
-      }
-
-      console.log('onSnapshot: lessons');
-      const unit: Unit = unitsList[activeUnitIndex];
-      const q = query(lessonsColRef, where('unitId', '==', unit.id));
-      LESSONS_LISTENER_UNSUBSCROBE = onSnapshot(q, snapshot => {
-        const list: Lesson[] = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const lesson = {
-            id: doc.id,
-            number: data.number,
-            title: data.title,
-            content: data.content,
-            isLive: data.isLive,
-            files: [],
-          };
-          list.push(lesson);
-        });
-
-        dispatch(
-          classroomActions.fetchLessons({ unitId: unit.id, lessons: list }),
-        );
-      });
-    }
-  };
 
   return (
     <>
@@ -217,7 +167,6 @@ export function ClassUnitAccordion(props: Props) {
         iconSize={24}
         offsetIcon={true}
         transitionDuration={500}
-        onChange={onAccordionChange}
       >
         {renderUnitItems}
       </Accordion>

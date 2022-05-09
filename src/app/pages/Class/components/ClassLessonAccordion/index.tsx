@@ -1,6 +1,8 @@
 import { Accordion, Divider, Text } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
+import { query, where, onSnapshot } from 'firebase/firestore';
 import * as React from 'react';
+import { lessonsColRef } from 'services/firebase';
 import { Lesson } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
@@ -8,45 +10,40 @@ import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   unitId: string;
-  list: Lesson[];
 }
 
 export function ClassLessonAccordion(props: Props) {
-  const { unitId, list } = props;
+  const { unitId } = props;
 
   const [lessons, setLessons] = React.useState<Lesson[]>([]);
 
-  // React.useEffect(() => {
-  //   console.log('onSnapshot: lessons');
-
-  //   const q = query(lessonsColRef, where('unitId', '==', unitId));
-  //   const unsubscribe = onSnapshot(q, snapshot => {
-  //     const list: Lesson[] = [];
-  //     snapshot.forEach(doc => {
-  //       const data = doc.data();
-  //       const lesson = {
-  //         id: doc.id,
-  //         number: data.number,
-  //         title: data.title,
-  //         content: data.content,
-  //         isLive: data.isLive,
-  //         files: [],
-  //       };
-  //       list.push(lesson);
-  //     });
-  //     setLessons(list);
-  //   });
-
-  //   return () => {
-  //     console.log('onSnapshot: lessons - unsubsribe');
-
-  //     unsubscribe();
-  //   };
-  // }, [unitId]);
-
   React.useEffect(() => {
-    setLessons(list);
-  }, [list]);
+    console.log('onSnapshot: lessons');
+
+    const q = query(lessonsColRef, where('unitId', '==', unitId));
+    const unsubscribe = onSnapshot(q, snapshot => {
+      const list: Lesson[] = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const lesson = {
+          id: doc.id,
+          number: data.number,
+          title: data.title,
+          content: data.content,
+          isLive: data.isLive,
+          files: [],
+        };
+        list.push(lesson);
+      });
+      setLessons(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: lessons - unsubsribe');
+
+      unsubscribe();
+    };
+  }, [unitId]);
 
   const renderLessonItems = lessons.map(lesson => (
     <Accordion.Item
