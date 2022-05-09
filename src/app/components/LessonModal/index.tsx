@@ -11,7 +11,13 @@ import {
   TextInput,
 } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
-import { addDoc, getDocs, query, Timestamp, where } from 'firebase/firestore';
+import {
+  addDoc,
+  doc,
+  onSnapshot,
+  Timestamp,
+  updateDoc,
+} from 'firebase/firestore';
 import * as React from 'react';
 import {
   Location,
@@ -19,7 +25,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { lessonsColRef } from 'services/firebase';
+import { db, lessonsColRef } from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
@@ -36,7 +42,7 @@ import {
 import { LiveSwitch } from '../LiveSwitch/Loadable';
 import { PostCard } from '../PostCard';
 import { AttachedFile } from './components/AttachedFile/Loadable';
-import { getLessonNumber } from './utils';
+import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Prop {}
@@ -105,7 +111,27 @@ export function LessonModal(props: Prop) {
       setIsOnEditMode(true);
       setLessonNumber('Lesson 1');
       setTitle('New Lesson');
+      return;
     }
+
+    setLessonIsNew(false);
+    setIsOnEditMode(false);
+
+    // fetch lesson data
+    console.log('onSnapshot: LessonModal');
+    const unsubscribe = onSnapshot(doc(db, 'lessons', id), doc => {
+      const lessonData = doc.data();
+      if (lessonData) {
+        setLessonNumber(`Lesson ${lessonData.number}`);
+        setTitle(lessonData.title);
+        setContent(lessonData.content);
+      }
+    });
+
+    return () => {
+      console.log('onSnapshot: LessonModal - unsubscribe');
+      unsubscribe();
+    };
   }, [id]);
 
   const onLiveToggle = () => {
@@ -129,16 +155,8 @@ export function LessonModal(props: Prop) {
     }
 
     // check for duplicate lesson number
-    let searchQuery = query(lessonsColRef, where('number', '==', number));
-    const searchQueryResult = await getDocs(searchQuery);
-    let hasDuplicate = false;
-    searchQueryResult.forEach(doc => {
-      if (doc.data().unitId === unitId) {
-        hasDuplicate = true;
-        return;
-      }
-    });
-    if (hasDuplicate) {
+    const duplicateTest = await testForDuplicateLessonNumber(unitId, number);
+    if (!duplicateTest) {
       setSubmitLoading(false);
       showNotification({
         title: 'Failed',
@@ -194,6 +212,81 @@ export function LessonModal(props: Prop) {
       })
       .finally(() => {
         setSubmitLoading(false);
+      });
+  };
+
+  const onSubmitUpdateLesson = async () => {
+    if (!id) return;
+
+    setSubmitLoading(true);
+    const number = getLessonNumber(lessonNumber);
+
+    // simple validate
+    if (!title && !number) {
+      setSubmitLoading(false);
+      showNotification({
+        title: 'Failed',
+        message: 'Lesson number and title are required.',
+        color: 'red',
+        icon: <X />,
+      });
+      return;
+    }
+
+    // check for duplicate lesson number
+    const duplicateTest = await testForDuplicateLessonNumber(
+      unitId,
+      number,
+      id,
+    );
+    if (!duplicateTest) {
+      setSubmitLoading(false);
+      showNotification({
+        title: 'Failed',
+        message: 'Lesson number already in used.',
+        color: 'red',
+        icon: <X />,
+      });
+      return;
+    }
+
+    const notificationId = uuidv4();
+    showNotification({
+      id: notificationId,
+      loading: true,
+      title: 'In progress',
+      message: `Updating Lesson ${number}: ${title} ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    const lessonDocRef = doc(db, 'lessons', id);
+    await updateDoc(lessonDocRef, {
+      number: number,
+      title: title,
+      content: content,
+      updatedAt: Timestamp.now(),
+    })
+      .then(() => {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `Lesson ${number}: ${title} created successfully.`,
+          color: 'green',
+          icon: <Check />,
+        });
+      })
+      .catch(e => {
+        showNotification({
+          title: 'Failed',
+          message: `Lesson ${number}: ${title} update failed. \n${e}`,
+          color: 'red',
+          icon: <X />,
+        });
+      })
+      .finally(() => {
+        setSubmitLoading(false);
+        setIsOnEditMode(false);
       });
   };
 
@@ -264,8 +357,23 @@ export function LessonModal(props: Prop) {
                     >
                       <Text className="text-md font-normal">Submit</Text>
                     </Button>
+                  ) : isOnEditMode ? (
+                    <Button
+                      color="primary"
+                      leftIcon={<ArrowForward size={18} />}
+                      onClick={onSubmitUpdateLesson}
+                      loading={submitLoading}
+                    >
+                      <Text className="text-md font-normal">
+                        Submit changes
+                      </Text>
+                    </Button>
                   ) : (
-                    <Button color="orange" leftIcon={<Pencil size={18} />}>
+                    <Button
+                      color="orange"
+                      leftIcon={<Pencil size={18} />}
+                      onClick={() => setIsOnEditMode(true)}
+                    >
                       <Text className="text-md font-normal">Edit</Text>
                     </Button>
                   )}

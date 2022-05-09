@@ -61,8 +61,21 @@ export function ClassAccordionControl(props: Props) {
       },
     );
   };
+
   const displayLessonModalOnEdit = () => {
-    navigate('/lesson/123', { state: { backgroundLocation: location } });
+    const classId = location.pathname.split('/')[2];
+    navigate(
+      {
+        pathname: `/lesson/${lessonId}`,
+      },
+      {
+        state: {
+          backgroundLocation: location,
+          unitId: unitId,
+          classId: classId,
+        },
+      },
+    );
   };
 
   return (

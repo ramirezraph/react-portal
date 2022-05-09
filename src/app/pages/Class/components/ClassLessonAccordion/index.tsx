@@ -35,6 +35,8 @@ export function ClassLessonAccordion(props: Props) {
         };
         list.push(lesson);
       });
+
+      list.sort((a, b) => (a.number > b.number ? 1 : -1));
       setLessons(list);
     });
 
