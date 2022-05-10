@@ -2,8 +2,9 @@ import {
   ActionIcon,
   Button,
   Checkbox,
+  Divider,
   Group,
-  Menu,
+  Modal,
   NativeSelect,
   Text,
   TextInput,
@@ -13,9 +14,9 @@ import { useState } from 'react';
 import {
   ArrowsUpDown,
   Menu2,
-  Pencil,
   Search,
   UserPlus,
+  UserSearch,
 } from 'tabler-icons-react';
 import { PendingInvitesModal } from './components/PendingInvitesModal/loadable';
 import { PeopleItem } from './components/PeopleItem/Loadable';
@@ -27,31 +28,60 @@ interface Props {
 export function PeopleTab(props: Props) {
   // const { someProps } = props;
   const [opened, setOpened] = useState(false);
+  const [openedInvite, setOpenedInvite] = useState(false);
 
   return (
     <div className="bg-white p-6">
       <PendingInvitesModal opened={opened} setOpened={setOpened} />
+
       <Group position="apart">
-        <Menu
-          position="bottom"
-          control={
-            <Button
-              color="primary"
-              radius="xl"
-              leftIcon={<UserPlus size={19} />}
-              variant="filled"
-              size="md"
-            >
-              <Text weight={400} size="sm">
-                Send Invite
-              </Text>
-            </Button>
-          }
+        <Modal
+          withCloseButton={false}
+          opened={openedInvite}
+          onClose={() => setOpenedInvite(false)}
+          centered
+          size="lg"
         >
-          <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
-          <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
-          <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
-        </Menu>
+          <Group position="apart">
+            <Text size="xl" weight={600}>
+              Send Invite
+            </Text>
+            <Button variant="default" onClick={() => setOpenedInvite(false)}>
+              Close
+            </Button>
+          </Group>
+          <Divider my="sm" />
+          <Group className="mt-10">
+            <TextInput
+              className="w-full"
+              placeholder="Search people by email"
+              variant="default"
+              icon={<UserSearch size={18} />}
+            ></TextInput>
+            <Group position="apart">
+              <Text size="sm">Search Result:</Text>
+              <Text size="sm">0</Text>
+            </Group>
+          </Group>
+
+          <Button size="sm" className="mt-6 w-full">
+            {' '}
+            SEND INVITE
+          </Button>
+        </Modal>
+        <Button
+          onClick={() => setOpenedInvite(true)}
+          color="primary"
+          radius="xl"
+          leftIcon={<UserPlus size={19} />}
+          variant="filled"
+          size="md"
+        >
+          <Text weight={400} size="sm">
+            Send Invite
+          </Text>
+        </Button>
+
         <Group position="center">
           <Button
             size="sm"
