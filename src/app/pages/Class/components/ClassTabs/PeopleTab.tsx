@@ -57,15 +57,19 @@ export function PeopleTab(props: Props) {
               placeholder="Search people by email"
               variant="default"
               icon={<UserSearch size={18} />}
+              size="md"
             ></TextInput>
             <Group position="apart">
-              <Text size="sm">Search Result:</Text>
-              <Text size="sm">0</Text>
+              <Text color="gray" size="xs">
+                Search Result:
+              </Text>
+              <Text color="gray" size="xs">
+                0
+              </Text>
             </Group>
           </Group>
 
           <Button size="sm" className="mt-6 w-full">
-            {' '}
             SEND INVITE
           </Button>
         </Modal>
