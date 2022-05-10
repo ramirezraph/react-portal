@@ -15,6 +15,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  DocumentData,
   onSnapshot,
   Timestamp,
   updateDoc,
@@ -46,6 +47,8 @@ import { AttachedFile } from './components/AttachedFile/Loadable';
 import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
 import { useModals } from '@mantine/modals';
+import { useSelector } from 'react-redux';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
 
 interface Prop {}
 
@@ -59,6 +62,9 @@ export function LessonModal(props: Prop) {
     navigate(-1);
   };
 
+  const [originalDataCopy, setOriginalDataCopy] =
+    React.useState<DocumentData | null>(null);
+
   const [lessonIsNew, setLessonIsNew] = React.useState(false);
   const [isOnEditMode, setIsOnEditMode] = React.useState(false);
   const [submitLoading, setSubmitLoading] = React.useState(false);
@@ -68,6 +74,8 @@ export function LessonModal(props: Prop) {
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
+
+  const classroom = useSelector(selectClassroom);
 
   interface LocationState {
     backgroundLocation: Location;
@@ -103,8 +111,6 @@ export function LessonModal(props: Prop) {
 
   React.useEffect(() => {
     const locState = location.state as LocationState;
-    console.log(locState);
-
     setUnitId(locState.unitId);
     setClassId(locState.classId);
   }, [location.state]);
@@ -131,6 +137,8 @@ export function LessonModal(props: Prop) {
         setTitle(lessonData.title);
         setContent(lessonData.content);
         setIsLive(lessonData.isLive);
+
+        setOriginalDataCopy(lessonData);
       }
     });
 
@@ -195,14 +203,14 @@ export function LessonModal(props: Prop) {
       number: number,
       title: title,
       content: content,
-      isLive: false,
+      isLive: isLive,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
       deletedAt: null,
     };
 
     await addDoc(lessonsColRef, newLesson)
-      .then(() => {
+      .then(doc => {
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -210,8 +218,20 @@ export function LessonModal(props: Prop) {
           color: 'green',
           icon: <Check />,
         });
-        setLessonIsNew(false);
-        setIsOnEditMode(false);
+
+        navigate(
+          {
+            pathname: `/lesson/${doc.id}`,
+          },
+          {
+            state: {
+              backgroundLocation: classroom.lessonModalBackground,
+              unitId: unitId,
+              classId: classId,
+            },
+            replace: true,
+          },
+        );
       })
       .catch(e => {
         showNotification({
@@ -359,6 +379,20 @@ export function LessonModal(props: Prop) {
       });
   };
 
+  const onCancelCreate = () => {
+    navigate(-1);
+  };
+
+  const onCancelUpdate = () => {
+    if (originalDataCopy) {
+      setLessonNumber(`Lesson ${originalDataCopy.number}`);
+      setTitle(originalDataCopy.title);
+      setContent(originalDataCopy.content);
+
+      setIsOnEditMode(false);
+    }
+  };
+
   return (
     <Modal
       opened={true}
@@ -418,25 +452,43 @@ export function LessonModal(props: Prop) {
               <Group position="apart">
                 <Group>
                   {lessonIsNew ? (
-                    <Button
-                      color="green"
-                      leftIcon={<ArrowForward size={18} />}
-                      onClick={onSubmitNewLesson}
-                      loading={submitLoading}
-                    >
-                      <Text className="text-md font-normal">Submit</Text>
-                    </Button>
+                    <>
+                      <Button
+                        color="green"
+                        leftIcon={<ArrowForward size={18} />}
+                        onClick={onSubmitNewLesson}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">Submit</Text>
+                      </Button>
+                      <Button
+                        color="gray"
+                        onClick={onCancelCreate}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">Cancel</Text>
+                      </Button>
+                    </>
                   ) : isOnEditMode ? (
-                    <Button
-                      color="primary"
-                      leftIcon={<ArrowForward size={18} />}
-                      onClick={onSubmitUpdateLesson}
-                      loading={submitLoading}
-                    >
-                      <Text className="text-md font-normal">
-                        Submit changes
-                      </Text>
-                    </Button>
+                    <>
+                      <Button
+                        color="primary"
+                        leftIcon={<ArrowForward size={18} />}
+                        onClick={onSubmitUpdateLesson}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">
+                          Submit changes
+                        </Text>
+                      </Button>
+                      <Button
+                        color="gray"
+                        onClick={onCancelUpdate}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">Cancel</Text>
+                      </Button>
+                    </>
                   ) : (
                     <Button
                       color="orange"

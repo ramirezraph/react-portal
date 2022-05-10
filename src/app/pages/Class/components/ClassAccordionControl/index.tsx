@@ -2,7 +2,7 @@ import { Group, ActionIcon, Button, Tooltip, Text } from '@mantine/core';
 import { LiveSwitch } from 'app/components/LiveSwitch/Loadable';
 import { doc, Timestamp, updateDoc } from 'firebase/firestore';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { db } from 'services/firebase';
 import {
@@ -13,6 +13,7 @@ import {
   SquarePlus,
   Trash,
 } from 'tabler-icons-react';
+import { useClassroomSlice } from '../../slice';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
@@ -31,6 +32,8 @@ export function ClassAccordionControl(props: Props) {
 
   const navigate = useNavigate();
   let location = useLocation();
+  const dispatch = useDispatch();
+  const { actions: classroomActions } = useClassroomSlice();
   const classroom = useSelector(selectClassroom);
 
   const toggleSwitch = async () => {
@@ -53,6 +56,11 @@ export function ClassAccordionControl(props: Props) {
 
   const displayNewLessonModal = () => {
     const classId = location.pathname.split('/')[2];
+    dispatch(
+      classroomActions.setLessonModalBackground({
+        backgroundLocation: location,
+      }),
+    );
     navigate(
       {
         pathname: `/lesson/new`,

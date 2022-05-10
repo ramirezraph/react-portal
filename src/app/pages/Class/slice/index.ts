@@ -13,6 +13,7 @@ export const initialState: ClassroomState = {
   lessons: [],
   unitPath: '',
   classworkModalBackground: undefined,
+  lessonModalBackground: undefined,
 };
 
 const slice = createSlice({
@@ -38,8 +39,13 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ backgroundLocation?: Location }>,
     ) {
-      console.log(action.payload.backgroundLocation);
       state.classworkModalBackground = action.payload.backgroundLocation;
+    },
+    setLessonModalBackground(
+      state,
+      action: PayloadAction<{ backgroundLocation?: Location }>,
+    ) {
+      state.lessonModalBackground = action.payload.backgroundLocation;
     },
     setActiveClass(state, action: PayloadAction<{ activeClass: Class }>) {
       state.activeClass = action.payload.activeClass;

@@ -8,6 +8,7 @@ export interface ClassroomState {
   lessons: Lesson[];
   unitPath: string;
   classworkModalBackground: Location | undefined;
+  lessonModalBackground: Location | undefined;
 }
 
 export interface Unit {
