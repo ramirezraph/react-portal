@@ -4,6 +4,7 @@ import {
   Card,
   Divider,
   Group,
+  Menu,
   Modal,
   ScrollArea,
   Text,
@@ -31,14 +32,17 @@ import { db, lessonsColRef } from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
+  BrandGoogleDrive,
   Check,
   ChevronRight,
   Download,
+  Link,
   Minus,
   Pencil,
   Plus,
   Settings,
   Trash,
+  Upload,
   X,
 } from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
@@ -557,9 +561,29 @@ export function LessonModal(props: Prop) {
                       <Text size="lg" className="font-semibold">
                         Attachments
                       </Text>
-                      <Button variant="outline" leftIcon={<Plus />}>
-                        Add
-                      </Button>
+                      <Menu
+                        control={
+                          <Button variant="outline" leftIcon={<Plus />}>
+                            Add
+                          </Button>
+                        }
+                        position="right"
+                        placement="center"
+                      >
+                        <Menu.Item icon={<Upload size={16} />}>
+                          Upload file
+                        </Menu.Item>
+                        <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
+                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                          Google Drive
+                        </Menu.Item>
+                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                          OneDrive
+                        </Menu.Item>
+                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                          Dropbox
+                        </Menu.Item>
+                      </Menu>
                     </Group>
                     <Button
                       variant="outline"
