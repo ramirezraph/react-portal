@@ -26,7 +26,6 @@ interface Props {
 
 export function ClassUnitAccordion(props: Props) {
   const { units } = props;
-
   const modals = useModals();
   const classroom = useSelector(selectClassroom);
 
@@ -63,6 +62,7 @@ export function ClassUnitAccordion(props: Props) {
       onConfirm: () => deleteUnit(id),
     });
   };
+
   const deleteUnit = async (unitId: string) => {
     const path = classroom.unitPath;
     if (!path) return;
@@ -131,7 +131,7 @@ export function ClassUnitAccordion(props: Props) {
       {/* Lessons Accordon */}
       <ClassLessonAccordion
         unitId={unit.id}
-        lessons={unit.lessons ? unit.lessons : []}
+        unitNumber={`Unit ${unit.number}`}
       />
 
       <Divider className="mt-6" />
@@ -139,6 +139,7 @@ export function ClassUnitAccordion(props: Props) {
       {/* Controls */}
       <ClassAccordionControl
         unitId={unit.id}
+        unitNumber={`Unit ${unit.number}`}
         live={unit.isLive}
         type={ClassAccordionType.Unit}
         openDeleteModal={displayDeleteUnitModal}

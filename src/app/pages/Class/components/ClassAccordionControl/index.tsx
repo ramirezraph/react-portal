@@ -1,8 +1,8 @@
 import { Group, ActionIcon, Button, Tooltip, Text } from '@mantine/core';
 import { LiveSwitch } from 'app/components/LiveSwitch/Loadable';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, Timestamp, updateDoc } from 'firebase/firestore';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { db } from 'services/firebase';
 import {
@@ -13,11 +13,13 @@ import {
   SquarePlus,
   Trash,
 } from 'tabler-icons-react';
+import { useClassroomSlice } from '../../slice';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   unitId: string;
+  unitNumber?: string;
   lessonId?: string;
   type: ClassAccordionType;
   live: boolean;
@@ -26,11 +28,20 @@ interface Props {
 }
 
 export function ClassAccordionControl(props: Props) {
-  const { unitId, lessonId, type, live, openDeleteModal, openEditModal } =
-    props;
+  const {
+    unitId,
+    lessonId,
+    type,
+    live,
+    openDeleteModal,
+    openEditModal,
+    unitNumber,
+  } = props;
 
   const navigate = useNavigate();
   let location = useLocation();
+  const dispatch = useDispatch();
+  const { actions: classroomActions } = useClassroomSlice();
   const classroom = useSelector(selectClassroom);
 
   const toggleSwitch = async () => {
@@ -38,19 +49,61 @@ export function ClassAccordionControl(props: Props) {
       const unitDocRef = doc(db, classroom.unitPath, unitId);
       await updateDoc(unitDocRef, {
         isLive: !live,
+        updatedAt: Timestamp.now(),
       });
     } else if (type === ClassAccordionType.Lesson) {
       if (lessonId) {
-        console.log('Toggle a lesson.');
+        const lessonDocRef = doc(db, 'lessons', lessonId);
+        await updateDoc(lessonDocRef, {
+          isLive: !live,
+          updatedAt: Timestamp.now(),
+        });
       }
     }
   };
 
   const displayNewLessonModal = () => {
-    navigate('/lesson/new', { state: { backgroundLocation: location } });
+    const classId = location.pathname.split('/')[2];
+    dispatch(
+      classroomActions.setLessonModalBackground({
+        backgroundLocation: location,
+      }),
+    );
+    navigate(
+      {
+        pathname: `/lesson/new`,
+      },
+      {
+        state: {
+          backgroundLocation: location,
+          unitId: unitId,
+          classId: classId,
+          unitNumber: unitNumber,
+        },
+      },
+    );
   };
+
   const displayLessonModalOnEdit = () => {
-    navigate('/lesson/123', { state: { backgroundLocation: location } });
+    const classId = location.pathname.split('/')[2];
+    dispatch(
+      classroomActions.setLessonModalBackground({
+        backgroundLocation: location,
+      }),
+    );
+    navigate(
+      {
+        pathname: `/lesson/${lessonId}`,
+      },
+      {
+        state: {
+          backgroundLocation: location,
+          unitId: unitId,
+          classId: classId,
+          unitNumber: unitNumber,
+        },
+      },
+    );
   };
 
   return (

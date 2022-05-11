@@ -1,6 +1,8 @@
 import { Accordion, Divider, Text } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
+import { query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import * as React from 'react';
+import { lessonsColRef } from 'services/firebase';
 import { Lesson } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
@@ -8,21 +10,48 @@ import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   unitId: string;
-  lessons: Lesson[];
+  unitNumber: string;
 }
 
 export function ClassLessonAccordion(props: Props) {
-  const { unitId, lessons } = props;
+  const { unitId, unitNumber } = props;
 
-  const [lessonList, setLessonList] = React.useState<Lesson[]>([]);
+  const [lessons, setLessons] = React.useState<Lesson[]>([]);
 
   React.useEffect(() => {
-    if (lessons) {
-      setLessonList(lessons);
-    }
-  }, [lessons]);
+    console.log('onSnapshot: lessons');
 
-  const renderLessonItems = lessonList.map(lesson => (
+    const q = query(
+      lessonsColRef,
+      where('unitId', '==', unitId),
+      orderBy('number'),
+    );
+    const unsubscribe = onSnapshot(q, snapshot => {
+      const list: Lesson[] = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        const lesson: Lesson = {
+          id: doc.id,
+          number: data.number,
+          title: data.title,
+          content: data.content,
+          isLive: data.isLive,
+          files: [],
+        };
+        list.push(lesson);
+      });
+      setLessons(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: lessons - unsubsribe');
+
+      unsubscribe();
+    };
+  }, [unitId]);
+
+  const renderLessonItems = lessons.map(lesson => (
     <Accordion.Item
       label={
         <ClassAccordionHeader
@@ -47,7 +76,7 @@ export function ClassLessonAccordion(props: Props) {
           {lesson.files.map(item => (
             <AttachedFile
               key={item.id}
-              name={item.title}
+              name={item.name}
               downloadUrl={item.downloadUrl}
               compact
               className="mt-3"
@@ -64,6 +93,7 @@ export function ClassLessonAccordion(props: Props) {
         lessonId={lesson.id}
         live={lesson.isLive}
         type={ClassAccordionType.Lesson}
+        unitNumber={unitNumber}
       />
     </Accordion.Item>
   ));

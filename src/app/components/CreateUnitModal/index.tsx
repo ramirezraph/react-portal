@@ -2,7 +2,14 @@ import { Text, Modal, Group, Button, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
@@ -19,6 +26,8 @@ export function CreateUnitModal(props: Props) {
 
   // const userSlice = useSelector(selectUser);
   const classroomSlice = useSelector(selectClassroom);
+
+  const [createButtonLoading, setCreateButtonLoading] = React.useState(false);
 
   const form = useForm({
     initialValues: {
@@ -45,6 +54,7 @@ export function CreateUnitModal(props: Props) {
 
   const onCreate = async (values: FormValues) => {
     if (!classroomSlice.activeClass?.id) return;
+    setCreateButtonLoading(true);
 
     // check if unit number is already in used.
     const parseUnitNumber = parseInt(values.unitNumber);
@@ -55,6 +65,7 @@ export function CreateUnitModal(props: Props) {
     const searchQueryResult = await getDocs(searchQuery);
     if (!searchQueryResult.empty) {
       // duplicated unit number
+      setCreateButtonLoading(false);
       showNotification({
         title: 'Failed',
         message: 'Unit number already in used.',
@@ -80,6 +91,9 @@ export function CreateUnitModal(props: Props) {
       title: values.unitTitle,
       textContent: values.unitTextContent,
       isLive: false,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      deletedAt: null,
     })
       .then(() => {
         updateNotification({
@@ -98,6 +112,9 @@ export function CreateUnitModal(props: Props) {
           color: 'red',
           icon: <X />,
         });
+      })
+      .finally(() => {
+        setCreateButtonLoading(false);
       });
 
     form.reset();
@@ -159,7 +176,11 @@ export function CreateUnitModal(props: Props) {
             {...form.getInputProps('unitTextContent')}
           />
           <Group className="mt-6">
-            <Button type="submit" className="px-12">
+            <Button
+              type="submit"
+              className="px-12"
+              loading={createButtonLoading}
+            >
               <Text size="sm" weight={400}>
                 Create
               </Text>
