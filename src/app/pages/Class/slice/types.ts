@@ -22,8 +22,11 @@ export interface Unit {
 
 export interface LessonFile {
   id: string;
-  title: string;
+  name: string;
+  size: number;
+  type: string;
   downloadUrl: string;
+  lessonId: string;
 }
 
 export interface Lesson {

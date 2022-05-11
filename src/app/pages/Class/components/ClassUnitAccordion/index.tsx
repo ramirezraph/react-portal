@@ -129,13 +129,17 @@ export function ClassUnitAccordion(props: Props) {
       )}
 
       {/* Lessons Accordon */}
-      <ClassLessonAccordion unitId={unit.id} />
+      <ClassLessonAccordion
+        unitId={unit.id}
+        unitNumber={`Unit ${unit.number}`}
+      />
 
       <Divider className="mt-6" />
 
       {/* Controls */}
       <ClassAccordionControl
         unitId={unit.id}
+        unitNumber={`Unit ${unit.number}`}
         live={unit.isLive}
         type={ClassAccordionType.Unit}
         openDeleteModal={displayDeleteUnitModal}

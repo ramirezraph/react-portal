@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Button,
   Card,
+  Collapse,
   Divider,
   Group,
   Menu,
@@ -28,7 +29,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { db, lessonsColRef } from 'services/firebase';
+import { db, filesColRef, lessonsColRef } from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
@@ -47,12 +48,13 @@ import {
 } from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
 import { PostCard } from '../PostCard';
-import { AttachedFile } from './components/AttachedFile/Loadable';
 import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
 import { useModals } from '@mantine/modals';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
+import { FileDropzone } from './components/FileDropzone/Loadable';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 interface Prop {}
 
@@ -72,12 +74,16 @@ export function LessonModal(props: Prop) {
   const [lessonIsNew, setLessonIsNew] = React.useState(false);
   const [isOnEditMode, setIsOnEditMode] = React.useState(false);
   const [submitLoading, setSubmitLoading] = React.useState(false);
+  const [uploadFileMode, setUploadFileMode] = React.useState(false);
   const [lessonNumber, setLessonNumber] = React.useState('Lesson 1');
   const [title, setTitle] = React.useState('Why we program?');
   const [content, setContent] = React.useState('');
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
+  // header
+  const [unitNumber, setUnitNumber] = React.useState('');
+  const [classCode, setClassCode] = React.useState('');
 
   const classroom = useSelector(selectClassroom);
 
@@ -85,6 +91,7 @@ export function LessonModal(props: Prop) {
     backgroundLocation: Location;
     unitId: string;
     classId: string;
+    unitNumber: string;
   }
 
   const onLessonNumberChange = event => {
@@ -117,7 +124,12 @@ export function LessonModal(props: Prop) {
     const locState = location.state as LocationState;
     setUnitId(locState.unitId);
     setClassId(locState.classId);
-  }, [location.state]);
+    setUnitNumber(locState.unitNumber);
+
+    if (classroom.activeClass) {
+      setClassCode(classroom.activeClass.code);
+    }
+  }, [classroom.activeClass, location.state]);
 
   React.useEffect(() => {
     if (!id) {
@@ -232,6 +244,7 @@ export function LessonModal(props: Prop) {
               backgroundLocation: classroom.lessonModalBackground,
               unitId: unitId,
               classId: classId,
+              unitNumber: unitNumber,
             },
             replace: true,
           },
@@ -397,6 +410,33 @@ export function LessonModal(props: Prop) {
     }
   };
 
+  const onFileUpload = (files: File[]) => {
+    const storage = getStorage();
+    // perform a batch write
+    for (const file of files) {
+      const storageRef = ref(storage, `${id}/${file.name}`);
+      uploadBytes(storageRef, file).then(snapshot => {
+        const data = snapshot.ref;
+        getDownloadURL(ref(storage, data.fullPath)).then(url => {
+          // store data to firestore
+          addDoc(filesColRef, {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lessonId: id,
+            fullPath: data.fullPath,
+            downloadUrl: url,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+            deletedAt: null,
+          }).then(() => {
+            console.log('uploaded to firestore');
+          });
+        });
+      });
+    }
+  };
+
   return (
     <Modal
       opened={true}
@@ -415,10 +455,10 @@ export function LessonModal(props: Prop) {
           <Group>
             <Group className="gap-2 rounded-md bg-white py-1 px-2">
               <Text size="sm" weight="bold">
-                CPE 401
+                {classCode}
               </Text>
               <ChevronRight size={16} />
-              <Text size="sm">Unit 1</Text>
+              <Text size="sm">{unitNumber}</Text>
               <ChevronRight size={16} />
               <Text size="sm">
                 Lesson 1 <span className="opacity-50">of 4</span>
@@ -570,7 +610,10 @@ export function LessonModal(props: Prop) {
                         position="right"
                         placement="center"
                       >
-                        <Menu.Item icon={<Upload size={16} />}>
+                        <Menu.Item
+                          icon={<Upload size={16} />}
+                          onClick={() => setUploadFileMode(true)}
+                        >
                           Upload file
                         </Menu.Item>
                         <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
@@ -593,17 +636,33 @@ export function LessonModal(props: Prop) {
                       Download All
                     </Button>
                   </Group>
+                  <Collapse in={uploadFileMode}>
+                    <Group className="w-full items-center" direction="column">
+                      <FileDropzone
+                        visible={true}
+                        onFileUpload={onFileUpload}
+                        className="mt-6 w-full"
+                      />
+                      <Button
+                        className="w-1/3"
+                        color="gray"
+                        onClick={() => setUploadFileMode(false)}
+                      >
+                        Close
+                      </Button>
+                    </Group>
+                  </Collapse>
                   <Group position="apart" className="mt-3">
                     <Text size="sm">Name</Text>
                     <Text className="w-24" size="sm">
                       Actions
                     </Text>
                   </Group>
-                  <Group className="mt-6" spacing="sm">
-                    <AttachedFile name="Introduction.pdf" />
-                    <AttachedFile name="Test File.pdf" />
-                    <AttachedFile name="Test File.pdf" />
-                  </Group>
+                  {/* <Group className="mt-6" spacing="sm">
+                    {files.map(file => {
+                      return <AttachedFile name={file.name} />;
+                    })}
+                  </Group> */}
                 </div>
               </ScrollArea>
             </Card.Section>

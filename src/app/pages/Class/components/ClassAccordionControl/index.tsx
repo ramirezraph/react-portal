@@ -19,6 +19,7 @@ import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   unitId: string;
+  unitNumber?: string;
   lessonId?: string;
   type: ClassAccordionType;
   live: boolean;
@@ -27,8 +28,15 @@ interface Props {
 }
 
 export function ClassAccordionControl(props: Props) {
-  const { unitId, lessonId, type, live, openDeleteModal, openEditModal } =
-    props;
+  const {
+    unitId,
+    lessonId,
+    type,
+    live,
+    openDeleteModal,
+    openEditModal,
+    unitNumber,
+  } = props;
 
   const navigate = useNavigate();
   let location = useLocation();
@@ -70,6 +78,7 @@ export function ClassAccordionControl(props: Props) {
           backgroundLocation: location,
           unitId: unitId,
           classId: classId,
+          unitNumber: unitNumber,
         },
       },
     );
@@ -77,6 +86,11 @@ export function ClassAccordionControl(props: Props) {
 
   const displayLessonModalOnEdit = () => {
     const classId = location.pathname.split('/')[2];
+    dispatch(
+      classroomActions.setLessonModalBackground({
+        backgroundLocation: location,
+      }),
+    );
     navigate(
       {
         pathname: `/lesson/${lessonId}`,
@@ -86,6 +100,7 @@ export function ClassAccordionControl(props: Props) {
           backgroundLocation: location,
           unitId: unitId,
           classId: classId,
+          unitNumber: unitNumber,
         },
       },
     );

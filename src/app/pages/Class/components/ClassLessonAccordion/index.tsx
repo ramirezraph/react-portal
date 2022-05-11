@@ -10,10 +10,11 @@ import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
   unitId: string;
+  unitNumber: string;
 }
 
 export function ClassLessonAccordion(props: Props) {
-  const { unitId } = props;
+  const { unitId, unitNumber } = props;
 
   const [lessons, setLessons] = React.useState<Lesson[]>([]);
 
@@ -25,7 +26,8 @@ export function ClassLessonAccordion(props: Props) {
       const list: Lesson[] = [];
       snapshot.forEach(doc => {
         const data = doc.data();
-        const lesson = {
+
+        const lesson: Lesson = {
           id: doc.id,
           number: data.number,
           title: data.title,
@@ -72,7 +74,7 @@ export function ClassLessonAccordion(props: Props) {
           {lesson.files.map(item => (
             <AttachedFile
               key={item.id}
-              name={item.title}
+              name={item.name}
               downloadUrl={item.downloadUrl}
               compact
               className="mt-3"
@@ -89,6 +91,7 @@ export function ClassLessonAccordion(props: Props) {
         lessonId={lesson.id}
         live={lesson.isLive}
         type={ClassAccordionType.Lesson}
+        unitNumber={unitNumber}
       />
     </Accordion.Item>
   ));
