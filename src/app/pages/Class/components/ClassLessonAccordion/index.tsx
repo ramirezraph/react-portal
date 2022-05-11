@@ -1,6 +1,6 @@
 import { Accordion, Divider, Text } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
-import { query, where, onSnapshot } from 'firebase/firestore';
+import { query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import * as React from 'react';
 import { lessonsColRef } from 'services/firebase';
 import { Lesson } from '../../slice/types';
@@ -21,7 +21,11 @@ export function ClassLessonAccordion(props: Props) {
   React.useEffect(() => {
     console.log('onSnapshot: lessons');
 
-    const q = query(lessonsColRef, where('unitId', '==', unitId));
+    const q = query(
+      lessonsColRef,
+      where('unitId', '==', unitId),
+      orderBy('number'),
+    );
     const unsubscribe = onSnapshot(q, snapshot => {
       const list: Lesson[] = [];
       snapshot.forEach(doc => {
@@ -37,8 +41,6 @@ export function ClassLessonAccordion(props: Props) {
         };
         list.push(lesson);
       });
-
-      list.sort((a, b) => (a.number > b.number ? 1 : -1));
       setLessons(list);
     });
 
