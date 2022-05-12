@@ -1,7 +1,10 @@
 import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
+import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
+import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
+import { filesColRef } from 'services/firebase';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
-import { Lesson } from '../../slice/types';
+import { Lesson, LessonFile } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 
@@ -20,6 +23,45 @@ export function ClassLessonAccordionItem(props: Props) {
   const { lesson, unitId, unitNumber } = props;
 
   const [isOpened, setIsOpened] = React.useState(false);
+  const [files, setFiles] = React.useState<LessonFile[]>([]);
+
+  React.useEffect(() => {
+    if (!isOpened) {
+      return;
+    }
+    // fetch files
+    console.log('onSnapshot: Lesson Files');
+    const q = query(
+      filesColRef,
+      where('lessonId', '==', lesson.id),
+      orderBy('createdAt'),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: LessonFile[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const file = {
+          id: doc.id,
+          name: data.name,
+          size: data.size,
+          type: data.type,
+          downloadUrl: data.downloadUrl,
+          lessonId: data.lessonId,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          fullPath: data.fullPath,
+        };
+        list.push(file);
+      });
+
+      setFiles(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: Lesson Files - unsubscribe');
+      unsubscribe();
+    };
+  }, [isOpened, lesson.id]);
 
   return (
     <Stack className="outline outline-1 outline-stone-200" spacing={0}>
@@ -45,13 +87,20 @@ export function ClassLessonAccordionItem(props: Props) {
         transitionTimingFunction="linear"
         transitionDuration={150}
       >
-        <div className="p-4">
+        <Stack className="p-4">
           {lesson.content && (
-            <Text className="mt-3 w-full" size="sm">
+            <Text className="w-full" size="sm">
               {lesson.content}
             </Text>
           )}
-          <Divider className="mt-6" />
+          {files.length > 0 && (
+            <Stack className="w-ful mt-3" spacing="xs">
+              {files.map(file => (
+                <AttachedFile key={file.id} name={file.name} compact />
+              ))}
+            </Stack>
+          )}
+          <Divider className="mt-3" />
           <ClassAccordionControl
             unitId={unitId}
             lessonId={lesson.id}
@@ -59,7 +108,7 @@ export function ClassLessonAccordionItem(props: Props) {
             type={ClassAccordionType.Lesson}
             unitNumber={unitNumber}
           />
-        </div>
+        </Stack>
       </Collapse>
     </Stack>
   );

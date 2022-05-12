@@ -66,7 +66,11 @@ export function AttachedFile(props: Prop) {
         compact
         leftIcon={<File size={18} />}
       >
-        <Text weight={400} size="sm" lineClamp={1}>
+        <Text
+          weight={400}
+          size="sm"
+          className="inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch]"
+        >
           {name}
         </Text>
       </Button>
