@@ -1,6 +1,7 @@
 import { Group, ActionIcon, Text, Button } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
+import axios from 'axios';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import * as React from 'react';
@@ -104,8 +105,25 @@ export function AttachedFile(props: Prop) {
         });
       });
   };
-  const onDownload = () => {
-    console.log('download', downloadUrl);
+  const forceFileDownload = (response: any) => {
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', name); // or any other extension
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  const download = () => {
+    axios({
+      method: 'get',
+      url: downloadUrl,
+      responseType: 'arraybuffer',
+    })
+      .then(response => {
+        forceFileDownload(response);
+      })
+      .catch(() => console.log('error occured'));
   };
 
   const renderButtons = () => {
@@ -124,7 +142,7 @@ export function AttachedFile(props: Prop) {
       if (compact) {
         return (
           <Group position="center" spacing={compact ? 'xs' : 'md'} noWrap>
-            <ActionIcon size="sm" onClick={onDownload}>
+            <ActionIcon size="sm" onClick={download}>
               <Download />
             </ActionIcon>
             <ActionIcon color="red" size="sm" onClick={openConfirmDeleteModal}>
@@ -142,7 +160,7 @@ export function AttachedFile(props: Prop) {
           <ActionIcon size="sm">
             <At />
           </ActionIcon>
-          <ActionIcon size="sm" onClick={onDownload}>
+          <ActionIcon size="sm" onClick={download}>
             <Download />
           </ActionIcon>
           <ActionIcon color="red" size="sm" onClick={openConfirmDeleteModal}>
