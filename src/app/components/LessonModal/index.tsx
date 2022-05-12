@@ -33,7 +33,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { db, filesColRef, lessonsColRef } from 'services/firebase';
+import { db, filesColRef, lessonsColRef, storage } from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
@@ -58,7 +58,7 @@ import { useModals } from '@mantine/modals';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import { FileDropzone } from './components/FileDropzone/Loadable';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { LessonFile } from 'app/pages/Class/slice/types';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 
@@ -419,28 +419,63 @@ export function LessonModal(props: Prop) {
   };
 
   const onFileUpload = (files: File[]) => {
-    const storage = getStorage();
-    // perform a batch write
     for (const file of files) {
       const storageRef = ref(storage, `${id}/${file.name}`);
+
+      const notificationId = uuidv4();
+      showNotification({
+        id: notificationId,
+        loading: true,
+        title: 'In progress',
+        message: `Uploading ${file.name} ...`,
+        autoClose: false,
+        disallowClose: true,
+      });
+
       uploadBytes(storageRef, file).then(snapshot => {
         const data = snapshot.ref;
-        getDownloadURL(ref(storage, data.fullPath)).then(url => {
-          // store data to firestore
-          addDoc(filesColRef, {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            lessonId: id,
-            fullPath: data.fullPath,
-            downloadUrl: url,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-            deletedAt: null,
-          }).then(() => {
-            console.log('uploaded to firestore');
+        getDownloadURL(ref(storage, data.fullPath))
+          .then(url => {
+            // store data to firestore
+            addDoc(filesColRef, {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              lessonId: id,
+              fullPath: data.fullPath,
+              downloadUrl: url,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              deletedAt: null,
+            })
+              .then(() => {
+                updateNotification({
+                  id: notificationId,
+                  title: 'Success',
+                  message: `File ${file.name} uploaded successfully.`,
+                  color: 'green',
+                  icon: <Check />,
+                });
+              })
+              .catch(e => {
+                updateNotification({
+                  id: notificationId,
+                  title: 'Failed',
+                  message: `File ${file.name} upload failed.`,
+                  color: 'red',
+                  icon: <X />,
+                });
+              });
+          })
+          .catch(e => {
+            updateNotification({
+              id: notificationId,
+              title: 'Failed',
+              message: `File ${file.name} upload failed.`,
+              color: 'red',
+              icon: <X />,
+            });
           });
-        });
       });
     }
   };
