@@ -8,6 +8,7 @@ import {
   Menu,
   Modal,
   ScrollArea,
+  Stack,
   Text,
   Textarea,
   TextInput,
@@ -19,8 +20,11 @@ import {
   doc,
   DocumentData,
   onSnapshot,
+  orderBy,
+  query,
   Timestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 import * as React from 'react';
 import {
@@ -55,6 +59,8 @@ import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import { FileDropzone } from './components/FileDropzone/Loadable';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { LessonFile } from 'app/pages/Class/slice/types';
+import { AttachedFile } from './components/AttachedFile/Loadable';
 
 interface Prop {}
 
@@ -78,6 +84,7 @@ export function LessonModal(props: Prop) {
   const [lessonNumber, setLessonNumber] = React.useState('Lesson 1');
   const [title, setTitle] = React.useState('Why we program?');
   const [content, setContent] = React.useState('');
+  const [files, setFiles] = React.useState<LessonFile[]>([]);
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
@@ -437,6 +444,43 @@ export function LessonModal(props: Prop) {
     }
   };
 
+  React.useEffect(() => {
+    if (!id) return;
+
+    // fetch files
+    console.log('onSnapshot: LessonModal Lesson Files');
+    const q = query(
+      filesColRef,
+      where('lessonId', '==', id),
+      orderBy('createdAt'),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: LessonFile[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const file = {
+          id: doc.id,
+          name: data.name,
+          size: data.size,
+          type: data.type,
+          downloadUrl: data.downloadUrl,
+          lessonId: data.lessonId,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          fullPath: data.fullPath,
+        };
+        list.push(file);
+      });
+
+      setFiles(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: LessonModal Lesson Files - unsubscribe');
+      unsubscribe();
+    };
+  }, [id]);
+
   return (
     <Modal
       opened={true}
@@ -596,6 +640,7 @@ export function LessonModal(props: Prop) {
                     minRows={12}
                     readOnly={!isOnEditMode}
                   />
+
                   <Group position="apart" className="mt-6">
                     <Group>
                       <Text size="lg" className="font-semibold">
@@ -603,7 +648,11 @@ export function LessonModal(props: Prop) {
                       </Text>
                       <Menu
                         control={
-                          <Button variant="outline" leftIcon={<Plus />}>
+                          <Button
+                            disabled={lessonIsNew}
+                            variant="outline"
+                            leftIcon={<Plus />}
+                          >
                             Add
                           </Button>
                         }
@@ -629,6 +678,7 @@ export function LessonModal(props: Prop) {
                       </Menu>
                     </Group>
                     <Button
+                      disabled={lessonIsNew}
                       variant="outline"
                       color={'gray'}
                       leftIcon={<Download />}
@@ -658,11 +708,17 @@ export function LessonModal(props: Prop) {
                       Actions
                     </Text>
                   </Group>
-                  {/* <Group className="mt-6" spacing="sm">
+                  <Stack className="mt-6" spacing="sm">
                     {files.map(file => {
-                      return <AttachedFile name={file.name} />;
+                      return (
+                        <AttachedFile
+                          key={file.id}
+                          name={file.name}
+                          textClassName="w-[60ch] 2xl:w-[70ch]"
+                        />
+                      );
                     })}
-                  </Group> */}
+                  </Stack>
                 </div>
               </ScrollArea>
             </Card.Section>
