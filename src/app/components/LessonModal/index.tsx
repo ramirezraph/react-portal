@@ -348,12 +348,12 @@ export function LessonModal(props: Prop) {
 
   const displayDeleteLessonModal = () => {
     if (!id) return;
-    navigate(-1);
     return modals.openConfirmModal({
       title: <Text weight="bold">Are you absolutely sure?</Text>,
       centered: true,
-      closeOnClickOutside: false,
+      zIndex: 999,
       trapFocus: true,
+      closeOnClickOutside: false,
       children: (
         <Text size="sm">
           This action cannot be undone. This will permanently delete{' '}
@@ -373,6 +373,7 @@ export function LessonModal(props: Prop) {
     if (!lessonId) return;
 
     const notificationId = uuidv4();
+    navigate(-1);
     showNotification({
       id: notificationId,
       loading: true,

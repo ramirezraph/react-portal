@@ -1,18 +1,25 @@
 import { Collapse, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { useModals } from '@mantine/modals';
-import { showNotification } from '@mantine/notifications';
+import { showNotification, updateNotification } from '@mantine/notifications';
 import { EditUnitModal } from 'app/components/EditUnitModal/Loadable';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { ChevronDown, ChevronUp } from 'tabler-icons-react';
+import { Check, ChevronDown, ChevronUp, X } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
 import { Lesson, Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 import { v4 as uuidv4 } from 'uuid';
 import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
-import { lessonsColRef } from 'services/firebase';
-import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { db, lessonsColRef } from 'services/firebase';
+import {
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from 'firebase/firestore';
 
 export enum ClassAccordionType {
   Unit,
@@ -62,18 +69,35 @@ export function ClassUnitAccordionItem(props: Props) {
     const path = classroom.unitPath;
     if (!path) return;
 
-    const unitToBeDeleted = unit;
-    if (!unitToBeDeleted) return;
-
     const notificationId = uuidv4();
     showNotification({
       id: notificationId,
       loading: true,
       title: 'In progress',
-      message: `Deleting Unit ${unitToBeDeleted.number}: ${unitToBeDeleted.title} ...`,
+      message: `Deleting Unit ${unit.number}: ${unit.title} ...`,
       autoClose: false,
       disallowClose: true,
     });
+
+    deleteDoc(doc(db, path, unit.id))
+      .then(() => {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `Unit ${unit.number}: ${unit.title} deleted successfully.`,
+          color: 'green',
+          icon: <Check />,
+        });
+      })
+      .catch(e => {
+        updateNotification({
+          id: notificationId,
+          title: 'Failed',
+          message: `Unit ${unit.number}: ${unit.title} delete failed. ${e}`,
+          color: 'red',
+          icon: <X />,
+        });
+      });
   };
 
   const prepareEditUnitModal = () => {

@@ -60,7 +60,7 @@ export function AppNavbar(props: Props) {
       // viewport size > theme.breakpoints.sm – width is 300px
       // viewport size > theme.breakpoints.lg – width is 400px
       width={{ sm: 200, lg: 230 }}
-      className="bg-white p-6"
+      className="z-50 bg-white p-6"
     >
       <Group direction="column">
         <Group direction="column">
