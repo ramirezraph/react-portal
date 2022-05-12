@@ -1,4 +1,4 @@
-import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
+import { Collapse, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { EditUnitModal } from 'app/components/EditUnitModal/Loadable';
@@ -30,6 +30,7 @@ export function ClassUnitAccordionItem(props: Props) {
   const classroom = useSelector(selectClassroom);
 
   const [isOpened, setIsOpened] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
   const [lessons, setLessons] = React.useState<Lesson[]>([]);
   const [editUnitModalVisible, setEditUnitModalVisible] = React.useState(false);
 
@@ -85,6 +86,7 @@ export function ClassUnitAccordionItem(props: Props) {
     }
 
     console.log('onSnapshot: lessons');
+    setLoading(true);
 
     const q = query(
       lessonsColRef,
@@ -107,6 +109,7 @@ export function ClassUnitAccordionItem(props: Props) {
         list.push(lesson);
       });
       setLessons(list);
+      setLoading(false);
     });
 
     return () => {
@@ -144,23 +147,28 @@ export function ClassUnitAccordionItem(props: Props) {
             <ChevronDown size={20} color="white" />
           )}
         </Group>
-        <Collapse
-          in={isOpened}
-          transitionTimingFunction="linear"
-          transitionDuration={150}
-        >
+        <Collapse in={isOpened} transitionDuration={500}>
           <div className="p-4">
             {/* Text Content */}
-            {unit.content && (
-              <Text className="mt-3 w-full" size="sm">
-                {unit.content}
-              </Text>
-            )}
-            <ClassLessonAccordion
-              unitId={unit.id}
-              unitNumber={`Lesson ${unit.number}`}
-              lessons={lessons}
-            />
+            <Skeleton visible={loading}>
+              {unit.content && (
+                <Text className="mt-3 w-full" size="sm">
+                  {unit.content}
+                </Text>
+              )}
+              {lessons.length === 0 ? (
+                <Text color="gray" size="sm">
+                  No lesson found.
+                </Text>
+              ) : (
+                <ClassLessonAccordion
+                  unitId={unit.id}
+                  unitNumber={`Lesson ${unit.number}`}
+                  lessons={lessons}
+                />
+              )}
+            </Skeleton>
+
             <Divider className="mt-6" />
             <ClassAccordionControl
               unitId={unit.id}

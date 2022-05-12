@@ -82,11 +82,7 @@ export function ClassLessonAccordionItem(props: Props) {
           <ChevronDown size={20} color="white" />
         )}
       </Group>
-      <Collapse
-        in={isOpened}
-        transitionTimingFunction="linear"
-        transitionDuration={150}
-      >
+      <Collapse in={isOpened} transitionDuration={500}>
         <Stack className="p-4">
           {lesson.content && (
             <Text className="w-full" size="sm">
@@ -96,7 +92,19 @@ export function ClassLessonAccordionItem(props: Props) {
           {files.length > 0 && (
             <Stack className="w-ful mt-3" spacing="xs">
               {files.map(file => (
-                <AttachedFile key={file.id} name={file.name} compact />
+                <AttachedFile
+                  key={file.id}
+                  id={file.id}
+                  name={file.name}
+                  size={file.size}
+                  type={file.type}
+                  downloadUrl={file.downloadUrl}
+                  lessonId={file.lessonId}
+                  fullPath={file.fullPath}
+                  createdAt={file.createdAt}
+                  updatedAt={file.updatedAt}
+                  compact
+                />
               ))}
             </Stack>
           )}

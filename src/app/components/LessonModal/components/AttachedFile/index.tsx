@@ -3,8 +3,15 @@ import * as React from 'react';
 import { Pencil, At, Download, Trash, File } from 'tabler-icons-react';
 
 interface Prop {
+  id: string;
   name: string;
-  downloadUrl?: string;
+  size: number;
+  type: string;
+  downloadUrl: string;
+  lessonId: string;
+  fullPath: string;
+  createdAt: string;
+  updatedAt: string;
   compact?: boolean;
   className?: string;
   textClassName?: string;

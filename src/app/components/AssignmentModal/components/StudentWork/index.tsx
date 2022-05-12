@@ -7,7 +7,6 @@ import {
   ScrollArea,
   Text,
 } from '@mantine/core';
-import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
@@ -89,8 +88,8 @@ export function StudentWork(props: Props) {
               </Text>
             </Group>
             <Group direction="column" className="mt-3" spacing="md">
-              <AttachedFile name="Introduction.pdf" compact viewOnly />
-              <AttachedFile name="Welcome to the class.mp4" compact viewOnly />
+              {/* <AttachedFile name="Introduction.pdf" compact viewOnly />
+              <AttachedFile name="Welcome to the class.mp4" compact viewOnly /> */}
             </Group>
           </Box>
           <Box className="w-full rounded-md bg-white p-4">

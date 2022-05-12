@@ -713,7 +713,15 @@ export function LessonModal(props: Prop) {
                       return (
                         <AttachedFile
                           key={file.id}
+                          id={file.id}
                           name={file.name}
+                          size={file.size}
+                          type={file.type}
+                          downloadUrl={file.downloadUrl}
+                          lessonId={file.lessonId}
+                          fullPath={file.fullPath}
+                          createdAt={file.createdAt}
+                          updatedAt={file.updatedAt}
                           textClassName="w-[60ch] 2xl:w-[70ch]"
                         />
                       );
