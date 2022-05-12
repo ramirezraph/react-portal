@@ -7,11 +7,12 @@ interface Prop {
   downloadUrl?: string;
   compact?: boolean;
   className?: string;
+  textClassName?: string;
   viewOnly?: boolean;
 }
 
 export function AttachedFile(props: Prop) {
-  const { name, compact, className, viewOnly } = props;
+  const { name, compact, className, textClassName, viewOnly } = props;
 
   const renderButtons = () => {
     if (viewOnly) {
@@ -66,7 +67,11 @@ export function AttachedFile(props: Prop) {
         compact
         leftIcon={<File size={18} />}
       >
-        <Text weight={400} size="sm" lineClamp={1}>
+        <Text
+          weight={400}
+          size="sm"
+          className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
+        >
           {name}
         </Text>
       </Button>

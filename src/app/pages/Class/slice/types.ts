@@ -27,6 +27,9 @@ export interface LessonFile {
   type: string;
   downloadUrl: string;
   lessonId: string;
+  createdAt: string;
+  updatedAt: string;
+  fullPath: string;
 }
 
 export interface Lesson {
