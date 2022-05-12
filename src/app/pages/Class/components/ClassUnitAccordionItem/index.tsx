@@ -6,10 +6,13 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
-import { Unit } from '../../slice/types';
+import { Lesson, Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 import { v4 as uuidv4 } from 'uuid';
+import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
+import { lessonsColRef } from 'services/firebase';
+import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 
 export enum ClassAccordionType {
   Unit,
@@ -27,6 +30,7 @@ export function ClassUnitAccordionItem(props: Props) {
   const classroom = useSelector(selectClassroom);
 
   const [isOpened, setIsOpened] = React.useState(false);
+  const [lessons, setLessons] = React.useState<Lesson[]>([]);
   const [editUnitModalVisible, setEditUnitModalVisible] = React.useState(false);
 
   const displayDeleteUnitModal = () => {
@@ -75,6 +79,43 @@ export function ClassUnitAccordionItem(props: Props) {
     setEditUnitModalVisible(true);
   };
 
+  React.useEffect(() => {
+    if (!isOpened) {
+      return;
+    }
+
+    console.log('onSnapshot: lessons');
+
+    const q = query(
+      lessonsColRef,
+      where('unitId', '==', unit.id),
+      orderBy('number'),
+    );
+    const unsubscribe = onSnapshot(q, snapshot => {
+      const list: Lesson[] = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        const lesson: Lesson = {
+          id: doc.id,
+          number: data.number,
+          title: data.title,
+          content: data.content,
+          isLive: data.isLive,
+          files: [],
+        };
+        list.push(lesson);
+      });
+      setLessons(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: lessons - unsubsribe');
+
+      unsubscribe();
+    };
+  }, [isOpened, unit.id]);
+
   return (
     <>
       <EditUnitModal
@@ -115,6 +156,11 @@ export function ClassUnitAccordionItem(props: Props) {
                 {unit.content}
               </Text>
             )}
+            <ClassLessonAccordion
+              unitId={unit.id}
+              unitNumber={`Lesson ${unit.number}`}
+              lessons={lessons}
+            />
             <Divider className="mt-6" />
             <ClassAccordionControl
               unitId={unit.id}
