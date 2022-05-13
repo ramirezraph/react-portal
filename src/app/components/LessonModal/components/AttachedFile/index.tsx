@@ -1,4 +1,4 @@
-import { Group, ActionIcon, Text, Button, Tooltip } from '@mantine/core';
+import { Group, ActionIcon, Text, Button, Tooltip, Stack } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import axios from 'axios';
@@ -216,11 +216,16 @@ export function AttachedFile(props: Prop) {
     }
 
     return [
-      <div>
+      <Stack className="items-center">
         <Text className="text-center text-white">
           Cannot view the file. File type is not supported yet.
         </Text>
-      </div>,
+        <Button size="md" color="primary" className="py-3">
+          <Text weight={400} size="sm" onClick={download}>
+            Download instead
+          </Text>
+        </Button>
+      </Stack>,
     ];
   };
 
