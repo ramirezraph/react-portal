@@ -16,8 +16,11 @@ import {
   File,
   Check,
   X,
+  Photo,
+  Video,
 } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
+import { IMAGE_MIME_TYPE, MIME_TYPES } from '@mantine/dropzone';
 
 interface Prop {
   id: string;
@@ -50,6 +53,7 @@ export function AttachedFile(props: Prop) {
     viewOnly,
     downloadUrl,
     fullPath,
+    type,
   } = props;
 
   const openConfirmDeleteModal = () => {
@@ -200,14 +204,48 @@ export function AttachedFile(props: Prop) {
     }
   };
 
+  const getCorrectSource = () => {
+    const isImage = IMAGE_MIME_TYPE.some(x => x === type);
+    if (isImage) {
+      return [downloadUrl];
+    }
+
+    const isVideo = type === MIME_TYPES.mp4;
+    if (isVideo) {
+      return [downloadUrl];
+    }
+
+    return [
+      <div>
+        <Text className="text-center text-white">
+          Cannot view the file. File type is not supported yet.
+        </Text>
+      </div>,
+    ];
+  };
+
+  const renderIcon = () => {
+    const isImage = IMAGE_MIME_TYPE.some(x => x === type);
+    if (isImage) {
+      return <Photo size={18} />;
+    }
+
+    const isVideo = type === MIME_TYPES.mp4;
+    if (isVideo) {
+      return <Video size={18} />;
+    }
+
+    return <File size={18} />;
+  };
+
   return (
     <Group position="apart" className={`w-full ${className}`} noWrap>
-      <FsLightbox toggler={ligthBoxToggler} sources={[downloadUrl]} />
+      <FsLightbox toggler={ligthBoxToggler} sources={getCorrectSource()} />
       <Button
         className="px-0 text-blue-700"
         variant="subtle"
         compact
-        leftIcon={<File size={18} />}
+        leftIcon={renderIcon()}
       >
         <Tooltip
           position="bottom"
