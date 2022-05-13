@@ -3,17 +3,27 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button, Group, SimpleGrid, Text } from '@mantine/core';
 import { Calendar, Link, Plus } from 'tabler-icons-react';
-import { ClassCard } from './components/ClassCard/Loadable';
-import { CardColor } from './components/ClassCard';
+import { CardColor, ClassCard } from '../../components/ClassCard';
 import { useNavigate } from 'react-router-dom';
 import { JoinClassCollapseCard } from './components/JoinClassCollapseCard';
-import { CreateClassModal } from './components/CreateClassModal/Loadable';
+import { CreateClassModal } from '../../components/CreateClassModal/Loadable';
+import { useSelector } from 'react-redux';
+import { selectClasses } from './slice/selectors';
+import { Class } from './slice/types';
 
 export function Classes() {
   const navigate = useNavigate();
 
   const [joinClassVisible, setJoinClassVisible] = React.useState(false);
   const [createClassVisible, setCreateClassVisible] = React.useState(false);
+
+  const classesSlice = useSelector(selectClasses);
+
+  const [classes, setClasses] = React.useState<Class[]>([]);
+
+  React.useEffect(() => {
+    setClasses(classesSlice.classes);
+  }, [classesSlice]);
 
   return (
     <>
@@ -77,24 +87,16 @@ export function Classes() {
           className="mt-6"
         >
           {/* @Todo: Use map*/}
-          <ClassCard
-            classTitle="Python Programming"
-            classCode="CPE 401"
-            teacherName="Guido van Rossum"
-            color={CardColor.Sky}
-          />
-          <ClassCard
-            classTitle="Rizal Life and Works"
-            classCode="RLW 101"
-            teacherName="Jose P. Rizal"
-            color={CardColor.Orange}
-          />
-          <ClassCard
-            classTitle="Physical Education 4"
-            classCode="PE 4"
-            teacherName="Friedrich Jahn"
-            color={CardColor.Stone}
-          />
+          {classes.map(c => (
+            <ClassCard
+              key={c.id}
+              id={c.id}
+              classTitle={c.name}
+              classCode={c.code}
+              teacherId={c.ownerId}
+              color={CardColor.Sky}
+            />
+          ))}
         </SimpleGrid>
       </PageContainer>
     </>

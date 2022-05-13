@@ -7,7 +7,6 @@ import {
   Textarea,
   TextInput,
 } from '@mantine/core';
-import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile';
 import { LiveSwitch } from 'app/components/LiveSwitch';
 import * as React from 'react';
 import {
@@ -132,8 +131,8 @@ export function ClassworkDetails(props: Props) {
             </Text>
           </Group>
           <Group direction="column" className="w-full px-3">
-            <AttachedFile name={'Introduction.pdf'} />
-            <AttachedFile name={'Welcome to class.mp4'} />
+            {/* <AttachedFile name={'Introduction.pdf'} />
+            <AttachedFile name={'Welcome to class.mp4'} /> */}
           </Group>
         </Group>
       </ScrollArea>

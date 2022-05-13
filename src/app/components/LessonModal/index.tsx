@@ -2,54 +2,520 @@ import {
   ActionIcon,
   Button,
   Card,
+  Collapse,
   Divider,
   Group,
+  Menu,
   Modal,
   ScrollArea,
+  Stack,
   Text,
   Textarea,
   TextInput,
 } from '@mantine/core';
-import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { showNotification, updateNotification } from '@mantine/notifications';
 import {
+  addDoc,
+  deleteDoc,
+  doc,
+  DocumentData,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+import * as React from 'react';
+import {
+  Location,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
+import { db, filesColRef, lessonsColRef, storage } from 'services/firebase';
+import {
+  ArrowForward,
   ArrowNarrowRight,
+  BrandGoogleDrive,
+  Check,
   ChevronRight,
   Download,
+  Link,
   Minus,
   Pencil,
   Plus,
   Settings,
   Trash,
+  Upload,
   X,
 } from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
 import { PostCard } from '../PostCard';
+import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
+import { v4 as uuidv4 } from 'uuid';
+import { useModals } from '@mantine/modals';
+import { useSelector } from 'react-redux';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
+import { FileDropzone } from './components/FileDropzone/Loadable';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { LessonFile } from 'app/pages/Class/slice/types';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 
 interface Prop {}
 
 export function LessonModal(props: Prop) {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = useParams();
+  const modals = useModals();
 
   const onClose = () => {
     navigate(-1);
   };
 
-  const onLiveToggle = () => {
-    console.log('toggle live');
-  };
+  const [originalDataCopy, setOriginalDataCopy] =
+    React.useState<DocumentData | null>(null);
 
-  const [title, setTitle] = React.useState('Lesson 1: Why we program?');
+  const [lessonIsNew, setLessonIsNew] = React.useState(false);
+  const [isOnEditMode, setIsOnEditMode] = React.useState(false);
+  const [submitLoading, setSubmitLoading] = React.useState(false);
+  const [uploadFileMode, setUploadFileMode] = React.useState(false);
+  const [lessonNumber, setLessonNumber] = React.useState('Lesson 1');
+  const [title, setTitle] = React.useState('Why we program?');
   const [content, setContent] = React.useState('');
+  const [files, setFiles] = React.useState<LessonFile[]>([]);
+  const [classId, setClassId] = React.useState('');
+  const [unitId, setUnitId] = React.useState('');
+  const [isLive, setIsLive] = React.useState(false);
+  // header
+  const [unitNumber, setUnitNumber] = React.useState('');
+  const [classCode, setClassCode] = React.useState('');
+
+  const classroom = useSelector(selectClassroom);
+
+  interface LocationState {
+    backgroundLocation: Location;
+    unitId: string;
+    classId: string;
+    unitNumber: string;
+  }
+
+  const onLessonNumberChange = event => {
+    if (event.currentTarget.value.substring(0, 7) !== 'Lesson ') return;
+
+    // digits only, allows periods.
+    const regExp = /^[1-9][.\d]*(,\d+)?$/;
+    const number = getLessonNumber(event.currentTarget.value);
+
+    if (!number) {
+      // whitespace
+      setLessonNumber(event.currentTarget.value);
+      return;
+    }
+
+    if (regExp.test(number)) {
+      setLessonNumber(event.currentTarget.value);
+    }
+  };
 
   const onTitleChange = event => {
-    if (event.currentTarget.value.substring(0, 10) !== 'Lesson 1: ') return;
     setTitle(event.currentTarget.value);
   };
+
   const onContentChange = event => {
     setContent(event.currentTarget.value);
   };
+
+  React.useEffect(() => {
+    const locState = location.state as LocationState;
+    setUnitId(locState.unitId);
+    setClassId(locState.classId);
+    setUnitNumber(locState.unitNumber);
+
+    if (classroom.activeClass) {
+      setClassCode(classroom.activeClass.code);
+    }
+  }, [classroom.activeClass, location.state]);
+
+  React.useEffect(() => {
+    if (!id) {
+      setLessonIsNew(true);
+      setIsOnEditMode(true);
+      setLessonNumber('Lesson 1');
+      setTitle('New Lesson');
+      setIsLive(false);
+      return;
+    }
+
+    setLessonIsNew(false);
+    setIsOnEditMode(false);
+
+    // fetch lesson data
+    console.log('onSnapshot: LessonModal');
+    const unsubscribe = onSnapshot(doc(db, 'lessons', id), doc => {
+      const lessonData = doc.data();
+      if (lessonData) {
+        setLessonNumber(`Lesson ${lessonData.number}`);
+        setTitle(lessonData.title);
+        setContent(lessonData.content);
+        setIsLive(lessonData.isLive);
+
+        setOriginalDataCopy(lessonData);
+      }
+    });
+
+    return () => {
+      console.log('onSnapshot: LessonModal - unsubscribe');
+      unsubscribe();
+    };
+  }, [id]);
+
+  const onLiveToggle = async () => {
+    if (!id) return;
+
+    const lessonDocRef = doc(db, 'lessons', id);
+    await updateDoc(lessonDocRef, {
+      isLive: !isLive,
+      updatedAt: Timestamp.now(),
+    });
+  };
+
+  const onSubmitNewLesson = async () => {
+    setSubmitLoading(true);
+    const number = getLessonNumber(lessonNumber);
+
+    // simple validate
+    if (!title && !number) {
+      setSubmitLoading(false);
+      showNotification({
+        title: 'Failed',
+        message: 'Lesson number and title are required.',
+        color: 'red',
+        icon: <X />,
+      });
+      return;
+    }
+
+    // check for duplicate lesson number
+    const duplicateTest = await testForDuplicateLessonNumber(unitId, number);
+    if (!duplicateTest) {
+      setSubmitLoading(false);
+      showNotification({
+        title: 'Failed',
+        message: 'Lesson number already in used.',
+        color: 'red',
+        icon: <X />,
+      });
+      return;
+    }
+
+    const notificationId = uuidv4();
+    showNotification({
+      id: notificationId,
+      loading: true,
+      title: 'In progress',
+      message: `Creating Lesson ${number}: ${title} ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    const newLesson = {
+      classId: classId,
+      unitId: unitId,
+      number: number,
+      title: title,
+      content: content,
+      isLive: isLive,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      deletedAt: null,
+    };
+
+    await addDoc(lessonsColRef, newLesson)
+      .then(doc => {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `Lesson ${number}: ${title} created successfully.`,
+          color: 'green',
+          icon: <Check />,
+        });
+
+        navigate(
+          {
+            pathname: `/lesson/${doc.id}`,
+          },
+          {
+            state: {
+              backgroundLocation: classroom.lessonModalBackground,
+              unitId: unitId,
+              classId: classId,
+              unitNumber: unitNumber,
+            },
+            replace: true,
+          },
+        );
+      })
+      .catch(e => {
+        showNotification({
+          title: 'Failed',
+          message: `Lesson ${number}: ${title} create failed.`,
+          color: 'red',
+          icon: <X />,
+        });
+        return;
+      })
+      .finally(() => {
+        setSubmitLoading(false);
+      });
+  };
+
+  const onSubmitUpdateLesson = async () => {
+    if (!id) return;
+
+    setSubmitLoading(true);
+    const number = getLessonNumber(lessonNumber);
+
+    // simple validate
+    if (!title && !number) {
+      setSubmitLoading(false);
+      showNotification({
+        title: 'Failed',
+        message: 'Lesson number and title are required.',
+        color: 'red',
+        icon: <X />,
+      });
+      return;
+    }
+
+    // check for duplicate lesson number
+    const duplicateTest = await testForDuplicateLessonNumber(
+      unitId,
+      number,
+      id,
+    );
+    if (!duplicateTest) {
+      setSubmitLoading(false);
+      showNotification({
+        title: 'Failed',
+        message: 'Lesson number already in used.',
+        color: 'red',
+        icon: <X />,
+      });
+      return;
+    }
+
+    const notificationId = uuidv4();
+    showNotification({
+      id: notificationId,
+      loading: true,
+      title: 'In progress',
+      message: `Updating Lesson ${number}: ${title} ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    const lessonDocRef = doc(db, 'lessons', id);
+    await updateDoc(lessonDocRef, {
+      number: number,
+      title: title,
+      content: content,
+      updatedAt: Timestamp.now(),
+    })
+      .then(() => {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `Lesson ${number}: ${title} created successfully.`,
+          color: 'green',
+          icon: <Check />,
+        });
+      })
+      .catch(e => {
+        showNotification({
+          title: 'Failed',
+          message: `Lesson ${number}: ${title} update failed. \n${e}`,
+          color: 'red',
+          icon: <X />,
+        });
+      })
+      .finally(() => {
+        setSubmitLoading(false);
+        setIsOnEditMode(false);
+      });
+  };
+
+  const displayDeleteLessonModal = () => {
+    if (!id) return;
+    return modals.openConfirmModal({
+      title: <Text weight="bold">Are you absolutely sure?</Text>,
+      centered: true,
+      zIndex: 999,
+      trapFocus: true,
+      closeOnClickOutside: false,
+      children: (
+        <Text size="sm">
+          This action cannot be undone. This will permanently delete{' '}
+          <span className="font-bold">
+            {lessonNumber}: {title}
+          </span>
+          , along with other data associated with it.
+        </Text>
+      ),
+      labels: { confirm: 'Delete lesson', cancel: "No don't delete it" },
+      confirmProps: { color: 'red' },
+      onConfirm: () => onDelete(id),
+    });
+  };
+
+  const onDelete = (lessonId: string) => {
+    if (!lessonId) return;
+
+    const notificationId = uuidv4();
+    navigate(-1);
+    showNotification({
+      id: notificationId,
+      loading: true,
+      title: 'In progress',
+      message: `Deleting ${lessonNumber}: ${title} ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    deleteDoc(doc(db, 'lessons', lessonId))
+      .then(() => {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `${lessonNumber}: ${title} deleted successfully.`,
+          color: 'green',
+          icon: <Check />,
+        });
+      })
+      .catch(e => {
+        updateNotification({
+          id: notificationId,
+          title: 'Failed',
+          message: `${lessonNumber}: ${title} delete failed. ${e}`,
+          color: 'red',
+          icon: <X />,
+        });
+      });
+  };
+
+  const onCancelCreate = () => {
+    navigate(-1);
+  };
+
+  const onCancelUpdate = () => {
+    if (originalDataCopy) {
+      setLessonNumber(`Lesson ${originalDataCopy.number}`);
+      setTitle(originalDataCopy.title);
+      setContent(originalDataCopy.content);
+
+      setIsOnEditMode(false);
+    }
+  };
+
+  const onFileUpload = (files: File[]) => {
+    for (const file of files) {
+      const storageRef = ref(storage, `${id}/${file.name}`);
+
+      const notificationId = uuidv4();
+      showNotification({
+        id: notificationId,
+        loading: true,
+        title: 'In progress',
+        message: `Uploading ${file.name} ...`,
+        autoClose: false,
+        disallowClose: true,
+      });
+
+      uploadBytes(storageRef, file).then(snapshot => {
+        const data = snapshot.ref;
+        getDownloadURL(ref(storage, data.fullPath))
+          .then(url => {
+            // store data to firestore
+            addDoc(filesColRef, {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              lessonId: id,
+              fullPath: data.fullPath,
+              downloadUrl: url,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              deletedAt: null,
+            })
+              .then(() => {
+                updateNotification({
+                  id: notificationId,
+                  title: 'Success',
+                  message: `File ${file.name} uploaded successfully.`,
+                  color: 'green',
+                  icon: <Check />,
+                });
+              })
+              .catch(e => {
+                updateNotification({
+                  id: notificationId,
+                  title: 'Failed',
+                  message: `File ${file.name} upload failed.`,
+                  color: 'red',
+                  icon: <X />,
+                });
+              });
+          })
+          .catch(e => {
+            updateNotification({
+              id: notificationId,
+              title: 'Failed',
+              message: `File ${file.name} upload failed.`,
+              color: 'red',
+              icon: <X />,
+            });
+          });
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (!id) return;
+
+    // fetch files
+    console.log('onSnapshot: LessonModal Lesson Files');
+    const q = query(
+      filesColRef,
+      where('lessonId', '==', id),
+      orderBy('createdAt'),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: LessonFile[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const file = {
+          id: doc.id,
+          name: data.name,
+          size: data.size,
+          type: data.type,
+          downloadUrl: data.downloadUrl,
+          lessonId: data.lessonId,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          fullPath: data.fullPath,
+        };
+        list.push(file);
+      });
+
+      setFiles(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: LessonModal Lesson Files - unsubscribe');
+      unsubscribe();
+    };
+  }, [id]);
 
   return (
     <Modal
@@ -57,7 +523,7 @@ export function LessonModal(props: Prop) {
       onClose={onClose}
       withCloseButton={false}
       centered
-      size={1600}
+      size={lessonIsNew ? 800 : 1600}
       padding={0}
       radius="md"
     >
@@ -69,10 +535,10 @@ export function LessonModal(props: Prop) {
           <Group>
             <Group className="gap-2 rounded-md bg-white py-1 px-2">
               <Text size="sm" weight="bold">
-                CPE 401
+                {classCode}
               </Text>
               <ChevronRight size={16} />
-              <Text size="sm">Unit 1</Text>
+              <Text size="sm">{unitNumber}</Text>
               <ChevronRight size={16} />
               <Text size="sm">
                 Lesson 1 <span className="opacity-50">of 4</span>
@@ -109,14 +575,66 @@ export function LessonModal(props: Prop) {
             <Card.Section className="p-4">
               <Group position="apart">
                 <Group>
-                  <Button leftIcon={<Pencil size={18} />}>
-                    <Text className="text-md font-normal">Edit</Text>
-                  </Button>
-                  <LiveSwitch live={true} onToggle={onLiveToggle} />
+                  {lessonIsNew ? (
+                    <>
+                      <Button
+                        color="green"
+                        leftIcon={<ArrowForward size={18} />}
+                        onClick={onSubmitNewLesson}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">Submit</Text>
+                      </Button>
+                      <Button
+                        color="gray"
+                        onClick={onCancelCreate}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">Cancel</Text>
+                      </Button>
+                    </>
+                  ) : isOnEditMode ? (
+                    <>
+                      <Button
+                        color="primary"
+                        leftIcon={<ArrowForward size={18} />}
+                        onClick={onSubmitUpdateLesson}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">
+                          Submit changes
+                        </Text>
+                      </Button>
+                      <Button
+                        color="gray"
+                        onClick={onCancelUpdate}
+                        loading={submitLoading}
+                      >
+                        <Text className="text-md font-normal">Cancel</Text>
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      color="orange"
+                      leftIcon={<Pencil size={18} />}
+                      onClick={() => setIsOnEditMode(true)}
+                    >
+                      <Text className="text-md font-normal">Edit</Text>
+                    </Button>
+                  )}
+
+                  <LiveSwitch live={isLive} onToggle={onLiveToggle} />
                 </Group>
-                <ActionIcon size="lg" variant="filled" color="red">
-                  <Trash size={18} />
-                </ActionIcon>
+                {!lessonIsNew && (
+                  <ActionIcon
+                    size="lg"
+                    variant="filled"
+                    color="red"
+                    onClick={displayDeleteLessonModal}
+                  >
+                    <Trash size={18} />
+                  </ActionIcon>
+                )}
               </Group>
             </Card.Section>
             <Card.Section>
@@ -131,30 +649,72 @@ export function LessonModal(props: Prop) {
                 className="rounded-md"
               >
                 <div className="p-4">
-                  <TextInput
-                    value={title}
-                    onChange={onTitleChange}
-                    className="w-full"
-                    size="xl"
-                    placeholder="Lesson #: Title"
-                  />
+                  <Group noWrap spacing={4}>
+                    <TextInput
+                      value={lessonNumber}
+                      size="xl"
+                      placeholder="Lesson number"
+                      onChange={onLessonNumberChange}
+                      readOnly={!isOnEditMode}
+                      required
+                    />
+                    <TextInput
+                      value={title}
+                      className="w-full"
+                      size="xl"
+                      placeholder="Lesson title"
+                      onChange={onTitleChange}
+                      readOnly={!isOnEditMode}
+                      required
+                    />
+                  </Group>
                   <Textarea
                     value={content}
                     onChange={onContentChange}
                     placeholder={'Write something for this lesson here.'}
                     className="mt-1 w-full"
                     minRows={12}
+                    readOnly={!isOnEditMode}
                   />
+
                   <Group position="apart" className="mt-6">
                     <Group>
                       <Text size="lg" className="font-semibold">
                         Attachments
                       </Text>
-                      <Button variant="outline" leftIcon={<Plus />}>
-                        Add
-                      </Button>
+                      <Menu
+                        control={
+                          <Button
+                            disabled={lessonIsNew}
+                            variant="outline"
+                            leftIcon={<Plus />}
+                          >
+                            Add
+                          </Button>
+                        }
+                        position="right"
+                        placement="center"
+                      >
+                        <Menu.Item
+                          icon={<Upload size={16} />}
+                          onClick={() => setUploadFileMode(true)}
+                        >
+                          Upload file
+                        </Menu.Item>
+                        <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
+                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                          Google Drive
+                        </Menu.Item>
+                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                          OneDrive
+                        </Menu.Item>
+                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                          Dropbox
+                        </Menu.Item>
+                      </Menu>
                     </Group>
                     <Button
+                      disabled={lessonIsNew}
                       variant="outline"
                       color={'gray'}
                       leftIcon={<Download />}
@@ -162,56 +722,88 @@ export function LessonModal(props: Prop) {
                       Download All
                     </Button>
                   </Group>
+                  <Collapse in={uploadFileMode}>
+                    <Group className="w-full items-center" direction="column">
+                      <FileDropzone
+                        visible={true}
+                        onFileUpload={onFileUpload}
+                        className="mt-6 w-full"
+                      />
+                      <Button
+                        className="w-1/3"
+                        color="gray"
+                        onClick={() => setUploadFileMode(false)}
+                      >
+                        Close
+                      </Button>
+                    </Group>
+                  </Collapse>
                   <Group position="apart" className="mt-3">
                     <Text size="sm">Name</Text>
                     <Text className="w-24" size="sm">
                       Actions
                     </Text>
                   </Group>
-                  <Group className="mt-6" spacing="sm">
-                    <AttachedFile name="Introduction.pdf" />
-                    <AttachedFile name="Test File.pdf" />
-                    <AttachedFile name="Test File.pdf" />
-                  </Group>
+                  <Stack className="mt-6" spacing="sm">
+                    {files.map(file => {
+                      return (
+                        <AttachedFile
+                          key={file.id}
+                          id={file.id}
+                          name={file.name}
+                          size={file.size}
+                          type={file.type}
+                          downloadUrl={file.downloadUrl}
+                          lessonId={file.lessonId}
+                          fullPath={file.fullPath}
+                          createdAt={file.createdAt}
+                          updatedAt={file.updatedAt}
+                          textClassName="w-[55ch] 2xl:w-[65ch]"
+                        />
+                      );
+                    })}
+                  </Stack>
                 </div>
               </ScrollArea>
             </Card.Section>
           </Card>
-          <Card className="m-0 p-0" radius={0}>
-            <Card>
-              <Card.Section className="p-4">
-                <Group position="apart">
-                  <Text className="font-semibold">Comments</Text>
-                  <Group>
-                    <Button>Write a comment</Button>
-                    <ActionIcon size="lg">
-                      <Settings />
-                    </ActionIcon>
+          {!lessonIsNew && (
+            <Card className="m-0 p-0" radius={0}>
+              <Card>
+                <Card.Section className="p-4">
+                  <Group position="apart">
+                    <Text className="font-semibold">Comments</Text>
+                    <Group>
+                      <Button>Write a comment</Button>
+                      <ActionIcon size="lg">
+                        <Settings />
+                      </ActionIcon>
+                    </Group>
                   </Group>
-                </Group>
-              </Card.Section>
-              <Card.Section>
-                <Divider />
-              </Card.Section>
-              <Card.Section>
-                <ScrollArea
-                  style={{
-                    height: '70vh',
-                  }}
-                  className="bg-document"
-                >
-                  <div className="p-4">
-                    <PostCard
-                      id="asdfasdfa"
-                      ownerName="John Doe"
-                      date="2022-04-05T12:10"
-                      content="Hello, World!"
-                    />
-                  </div>
-                </ScrollArea>
-              </Card.Section>
+                </Card.Section>
+                <Card.Section>
+                  <Divider />
+                </Card.Section>
+                <Card.Section>
+                  <ScrollArea
+                    style={{
+                      height: '70vh',
+                    }}
+                    className="bg-document"
+                  >
+                    <div className="p-4">
+                      <PostCard
+                        id="asdfasdfa"
+                        ownerName="John Doe"
+                        date="2022-04-05T12:10"
+                        content="Hello, World!"
+                      />
+                    </div>
+                  </ScrollArea>
+                </Card.Section>
+              </Card>
             </Card>
-          </Card>
+          )}
         </Group>
       </Group>
     </Modal>

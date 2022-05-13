@@ -26,4 +26,23 @@ export const GlobalStyle = createGlobalStyle`
     font-family: inherit;
     font-size: inherit;
   }
+
+  *::-webkit-scrollbar {
+    width: 7px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: darkGray;
+  }
+
+  .fslightbox-fade-out-strong {
+  animation: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.25s, opacity 0.25s ease;
+}
 `;

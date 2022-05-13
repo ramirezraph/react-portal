@@ -1,9 +1,7 @@
-import { Accordion, Divider, Text } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import * as React from 'react';
 import { Unit } from '../../slice/types';
-import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
-import { ClassAccordionHeader } from '../ClassAccordionHeader/Loadable';
-import { ClassLessonAccordion } from '../ClassLessonAccordion/Loadable';
+import { ClassUnitAccordionItem } from '../ClassUnitAccordionItem';
 
 export enum ClassAccordionType {
   Unit,
@@ -26,52 +24,11 @@ export function ClassUnitAccordion(props: Props) {
     }
   }, [units]);
 
-  const renderUnitItems = unitsList.map(unit => (
-    <Accordion.Item
-      label={
-        <ClassAccordionHeader
-          type={ClassAccordionType.Unit}
-          number={unit.number}
-          title={unit.title}
-          live={unit.isLive}
-        />
-      }
-      key={unit.id}
-    >
-      {/* Text Content */}
-      {unit.content && (
-        <Text className="mt-3" size="sm">
-          {unit.content}
-        </Text>
-      )}
-
-      {/* Lessons Accordon */}
-      <ClassLessonAccordion unitId={unit.id} lessons={unit.lessons} />
-
-      <Divider className="mt-6" />
-
-      {/* Controls */}
-      <ClassAccordionControl
-        unitId={unit.id}
-        live={unit.isLive}
-        type={ClassAccordionType.Unit}
-      />
-    </Accordion.Item>
-  ));
-
   return (
-    <Accordion
-      className="mt-3"
-      classNames={{
-        label: 'text-white text-md py-0',
-        content: 'outline outline-1 outline-stone-100',
-        icon: 'text-white',
-        control: 'bg-stone-800 hover:bg-stone-700',
-      }}
-      iconPosition="right"
-      iconSize={24}
-    >
-      {renderUnitItems}
-    </Accordion>
+    <Stack spacing={0} className="mt-3">
+      {unitsList.map(unit => (
+        <ClassUnitAccordionItem key={unit.id} unit={unit} />
+      ))}
+    </Stack>
   );
 }

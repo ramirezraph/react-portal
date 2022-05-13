@@ -1,27 +1,86 @@
-import { Box, Button, Group, Text } from '@mantine/core';
+import { Box, Button, Group, Skeleton, Text } from '@mantine/core';
+import { CreateUnitModal } from 'app/components/CreateUnitModal/Loadable';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { db } from 'services/firebase';
 
-import { CardColor } from '../Classes/components/ClassCard';
-import { ClassCard } from '../Classes/components/ClassCard/Loadable';
+import { CardColor, ClassCard } from '../../components/ClassCard';
+import { selectClasses } from '../Classes/slice/selectors';
+import { Class as IClass } from '../Classes/slice/types';
 import { ClassTabs } from './components/ClassTabs/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
 import { useClassroomSlice } from './slice';
 import { selectClassroom } from './slice/selectors';
-import { Unit } from './slice/types';
+import { Lesson, Unit } from './slice/types';
 
 export function Class() {
-  const { actions } = useClassroomSlice();
+  let { id } = useParams();
+
   const dispatch = useDispatch();
   const classroom = useSelector(selectClassroom);
+  const classes = useSelector(selectClasses);
+  const { actions } = useClassroomSlice();
+  const { actions: classroomActions } = useClassroomSlice();
 
+  const [openedClass, setOpenedClass] = React.useState<IClass | null>(null);
+  const [loading, setLoading] = React.useState(true);
   const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
+  const [createUnitModalVisible, setCreateUnitModalVisible] =
+    React.useState(false);
 
   React.useEffect(() => {
-    dispatch(actions.fetchUnits());
-  }, [actions, dispatch]);
+    setLoading(true);
+    const fetchClassData = () => {
+      if (!id) return;
+      const search = classes.classes.find(c => c.id === id);
+      if (!search) return;
+
+      dispatch(classroomActions.setActiveClass({ activeClass: search }));
+
+      const unitsSubColPath = `classes/${search.id}/units`;
+      dispatch(classroomActions.updateUnitPath({ path: unitsSubColPath }));
+      setOpenedClass(search);
+    };
+
+    fetchClassData();
+    setLoading(false);
+  }, [classes.classes, classroomActions, dispatch, id]);
+
+  React.useEffect(() => {
+    if (!classroom.unitPath) return;
+    console.log('onSnapshot: units');
+
+    const unitsQuery = query(
+      collection(db, classroom.unitPath),
+      orderBy('number'),
+    );
+    const unsubscribe = onSnapshot(unitsQuery, querySnapshot => {
+      const units: Unit[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const unit: Unit = {
+          id: doc.id,
+          isLive: data.isLive,
+          number: data.number,
+          title: data.title,
+          content: data.textContent,
+          lessons: [] as Lesson[],
+        };
+        units.push(unit);
+      });
+      dispatch(classroomActions.fetchUnits({ units: units }));
+    });
+
+    return () => {
+      console.log('onSnapshot: units - unsubsribe');
+
+      unsubscribe();
+    };
+  }, [actions, classroom.unitPath, classroomActions, dispatch]);
 
   React.useEffect(() => {
     setUnitsList(classroom.units);
@@ -30,34 +89,80 @@ export function Class() {
   return (
     <>
       <Helmet>
-        <title>Class Code</title>
+        <title>{openedClass?.code}</title>
       </Helmet>
       <PageContainer>
-        <Text size="lg" weight={'bold'}>
-          Class
-        </Text>
-        <Group noWrap position="apart" className="mt-3 h-full items-start">
-          <Group spacing={'md'} className="w-1/3" direction="column">
-            <ClassCard
-              classTitle="Python Programmins"
-              classCode="CPE 401"
-              teacherName="Guido van Rossum"
-              color={CardColor.Sky}
-            />
-            <Box className="w-full rounded-md bg-white p-6">
-              <Text size="sm" weight={'bold'}>
-                Class materials
-              </Text>
-              <ClassUnitAccordion units={unitsList} />
-              <Button className="mt-2" color="primary">
-                <Text size="sm" weight={400}>
-                  Add new unit
-                </Text>
-              </Button>
-            </Box>
-          </Group>
-          <ClassTabs />
-        </Group>
+        {openedClass && (
+          <>
+            <Text size="lg" weight={'bold'}>
+              Class
+            </Text>
+            <Group noWrap position="apart" className="mt-3 h-full items-start">
+              <Group spacing={'md'} className="w-1/3" direction="column">
+                <Skeleton visible={loading} className="w-full">
+                  <ClassCard
+                    id={openedClass.id}
+                    classTitle={openedClass.name}
+                    classCode={openedClass.code}
+                    teacherId={openedClass.ownerId}
+                    color={CardColor.Sky}
+                  />
+                </Skeleton>
+                <Skeleton visible={loading} className="w-full">
+                  <Box className="w-full rounded-md bg-white p-6">
+                    <Text size="sm" weight={'bold'}>
+                      Class materials
+                    </Text>
+                    {unitsList.length > 0 && (
+                      <ClassUnitAccordion units={unitsList} />
+                    )}
+                    {unitsList.length > 0 && (
+                      <Button
+                        className="mt-2"
+                        color="primary"
+                        onClick={() => {
+                          setCreateUnitModalVisible(true);
+                        }}
+                      >
+                        <Text size="sm" weight={400}>
+                          Add new unit
+                        </Text>
+                      </Button>
+                    )}
+                    {unitsList.length === 0 && (
+                      <Group className="mt-3 py-2">
+                        <Text size="sm" color="gray">
+                          No unit for this class yet.
+                        </Text>
+                        <Button
+                          compact
+                          variant="subtle"
+                          size="sm"
+                          className="px-0"
+                          onClick={() => {
+                            setCreateUnitModalVisible(true);
+                          }}
+                        >
+                          <Text size="sm" color="primary">
+                            Create
+                          </Text>
+                        </Button>
+                      </Group>
+                    )}
+
+                    <CreateUnitModal
+                      visible={createUnitModalVisible}
+                      onToggle={setCreateUnitModalVisible}
+                    />
+                  </Box>
+                </Skeleton>
+              </Group>
+              <Skeleton visible={loading} className="w-2/3">
+                <ClassTabs />
+              </Skeleton>
+            </Group>
+          </>
+        )}
       </PageContainer>
     </>
   );

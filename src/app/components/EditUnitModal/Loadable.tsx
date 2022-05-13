@@ -1,6 +1,6 @@
 import { lazyLoad } from 'utils/loadable';
 
-export const AppHeader = lazyLoad(
+export const EditUnitModal = lazyLoad(
   () => import('./index'),
-  module => module.AppHeader,
+  module => module.EditUnitModal,
 );

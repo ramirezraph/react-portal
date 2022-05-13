@@ -1,9 +1,14 @@
+import { Class } from 'app/pages/Classes/slice/types';
 import { Location } from 'react-router-dom';
 
 /* --- STATE --- */
 export interface ClassroomState {
+  activeClass: Class | null;
   units: Unit[];
+  lessons: Lesson[];
+  unitPath: string;
   classworkModalBackground: Location | undefined;
+  lessonModalBackground: Location | undefined;
 }
 
 export interface Unit {
@@ -17,8 +22,14 @@ export interface Unit {
 
 export interface LessonFile {
   id: string;
-  title: string;
+  name: string;
+  size: number;
+  type: string;
   downloadUrl: string;
+  lessonId: string;
+  createdAt: string;
+  updatedAt: string;
+  fullPath: string;
 }
 
 export interface Lesson {

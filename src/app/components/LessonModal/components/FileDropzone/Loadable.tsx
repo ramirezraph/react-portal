@@ -4,7 +4,7 @@
 
 import { lazyLoad } from 'utils/loadable';
 
-export const LessonModal = lazyLoad(
+export const FileDropzone = lazyLoad(
   () => import('./index'),
-  module => module.LessonModal,
+  module => module.FileDropzone,
 );

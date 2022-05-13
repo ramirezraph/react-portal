@@ -7,7 +7,7 @@ import {
   Chip,
   Menu,
 } from '@mantine/core';
-import { Video, Settings, Pencil, Butterfly } from 'tabler-icons-react';
+import { Video, Settings, Link, Plus } from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
 
@@ -22,7 +22,8 @@ export function MeetingsTab(props: Props) {
     <div className="bg-white p-6">
       <Group>
         <Menu
-          position="bottom"
+          size={250}
+          position="right"
           control={
             <Button
               color="primary"
@@ -36,11 +37,13 @@ export function MeetingsTab(props: Props) {
             </Button>
           }
         >
-          <Menu.Item icon={<Pencil size={16} />}>
-            <Butterfly />
+          <Menu.Item icon={<Link size={20} />}>
+            Create a meeting for later
           </Menu.Item>
-          <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
-          <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
+
+          <Menu.Item icon={<Plus size={20} />}>
+            Start an instant meeting
+          </Menu.Item>
         </Menu>
         <Group className="ml-auto">
           <Chips color="violet" variant="filled" spacing={5} size="sm">
