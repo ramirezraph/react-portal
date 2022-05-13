@@ -38,4 +38,11 @@ export const GlobalStyle = createGlobalStyle`
   *::-webkit-scrollbar-thumb {
     background-color: darkGray;
   }
+
+  .fslightbox-fade-out-strong {
+  animation: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.25s, opacity 0.25s ease;
+}
 `;

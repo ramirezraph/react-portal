@@ -6,6 +6,8 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import * as React from 'react';
 import { db, storage } from 'services/firebase';
+import FsLightbox from 'fslightbox-react';
+
 import {
   Pencil,
   At,
@@ -31,10 +33,13 @@ interface Prop {
   className?: string;
   textClassName?: string;
   viewOnly?: boolean;
+  onTitleClicked?: () => void;
 }
 
 export function AttachedFile(props: Prop) {
   const modals = useModals();
+
+  const [ligthBoxToggler, setLigthBoxToggler] = React.useState(false);
 
   const {
     id,
@@ -126,6 +131,10 @@ export function AttachedFile(props: Prop) {
       .catch(() => console.log('error occured'));
   };
 
+  const onTitleClicked = () => {
+    setLigthBoxToggler(x => !x);
+  };
+
   const renderButtons = () => {
     if (viewOnly) {
       return (
@@ -191,10 +200,9 @@ export function AttachedFile(props: Prop) {
     }
   };
 
-  const onTextClick = () => {};
-
   return (
     <Group position="apart" className={`w-full ${className}`} noWrap>
+      <FsLightbox toggler={ligthBoxToggler} sources={[downloadUrl]} />
       <Button
         className="px-0 text-blue-700"
         variant="subtle"
@@ -212,7 +220,7 @@ export function AttachedFile(props: Prop) {
             weight={400}
             size="sm"
             className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
-            onClick={onTextClick}
+            onClick={onTitleClicked}
           >
             {name}
           </Text>

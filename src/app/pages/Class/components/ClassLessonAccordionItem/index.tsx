@@ -38,6 +38,7 @@ export function ClassLessonAccordionItem(props: Props) {
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
       const list: LessonFile[] = [];
+      const sourceList: string[] = [];
       querySnapshot.forEach(doc => {
         const data = doc.data();
         const file = {
@@ -52,8 +53,8 @@ export function ClassLessonAccordionItem(props: Props) {
           fullPath: data.fullPath,
         };
         list.push(file);
+        sourceList.push(file.downloadUrl);
       });
-
       setFiles(list);
     });
 
@@ -91,7 +92,7 @@ export function ClassLessonAccordionItem(props: Props) {
           )}
           {files.length > 0 && (
             <Stack className="w-ful mt-3" spacing="xs">
-              {files.map(file => (
+              {files.map((file, index) => (
                 <AttachedFile
                   key={file.id}
                   id={file.id}
