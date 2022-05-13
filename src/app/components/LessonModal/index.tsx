@@ -33,7 +33,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { db, filesColRef, lessonsColRef } from 'services/firebase';
+import { db, filesColRef, lessonsColRef, storage } from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
@@ -58,7 +58,7 @@ import { useModals } from '@mantine/modals';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import { FileDropzone } from './components/FileDropzone/Loadable';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { LessonFile } from 'app/pages/Class/slice/types';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 
@@ -348,12 +348,12 @@ export function LessonModal(props: Prop) {
 
   const displayDeleteLessonModal = () => {
     if (!id) return;
-    navigate(-1);
     return modals.openConfirmModal({
       title: <Text weight="bold">Are you absolutely sure?</Text>,
       centered: true,
-      closeOnClickOutside: false,
+      zIndex: 999,
       trapFocus: true,
+      closeOnClickOutside: false,
       children: (
         <Text size="sm">
           This action cannot be undone. This will permanently delete{' '}
@@ -373,6 +373,7 @@ export function LessonModal(props: Prop) {
     if (!lessonId) return;
 
     const notificationId = uuidv4();
+    navigate(-1);
     showNotification({
       id: notificationId,
       loading: true,
@@ -418,28 +419,63 @@ export function LessonModal(props: Prop) {
   };
 
   const onFileUpload = (files: File[]) => {
-    const storage = getStorage();
-    // perform a batch write
     for (const file of files) {
       const storageRef = ref(storage, `${id}/${file.name}`);
+
+      const notificationId = uuidv4();
+      showNotification({
+        id: notificationId,
+        loading: true,
+        title: 'In progress',
+        message: `Uploading ${file.name} ...`,
+        autoClose: false,
+        disallowClose: true,
+      });
+
       uploadBytes(storageRef, file).then(snapshot => {
         const data = snapshot.ref;
-        getDownloadURL(ref(storage, data.fullPath)).then(url => {
-          // store data to firestore
-          addDoc(filesColRef, {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            lessonId: id,
-            fullPath: data.fullPath,
-            downloadUrl: url,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-            deletedAt: null,
-          }).then(() => {
-            console.log('uploaded to firestore');
+        getDownloadURL(ref(storage, data.fullPath))
+          .then(url => {
+            // store data to firestore
+            addDoc(filesColRef, {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              lessonId: id,
+              fullPath: data.fullPath,
+              downloadUrl: url,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              deletedAt: null,
+            })
+              .then(() => {
+                updateNotification({
+                  id: notificationId,
+                  title: 'Success',
+                  message: `File ${file.name} uploaded successfully.`,
+                  color: 'green',
+                  icon: <Check />,
+                });
+              })
+              .catch(e => {
+                updateNotification({
+                  id: notificationId,
+                  title: 'Failed',
+                  message: `File ${file.name} upload failed.`,
+                  color: 'red',
+                  icon: <X />,
+                });
+              });
+          })
+          .catch(e => {
+            updateNotification({
+              id: notificationId,
+              title: 'Failed',
+              message: `File ${file.name} upload failed.`,
+              color: 'red',
+              icon: <X />,
+            });
           });
-        });
       });
     }
   };
@@ -713,8 +749,16 @@ export function LessonModal(props: Prop) {
                       return (
                         <AttachedFile
                           key={file.id}
+                          id={file.id}
                           name={file.name}
-                          textClassName="w-[60ch] 2xl:w-[70ch]"
+                          size={file.size}
+                          type={file.type}
+                          downloadUrl={file.downloadUrl}
+                          lessonId={file.lessonId}
+                          fullPath={file.fullPath}
+                          createdAt={file.createdAt}
+                          updatedAt={file.updatedAt}
+                          textClassName="w-[50ch] 2xl:w-[70ch]"
                         />
                       );
                     })}

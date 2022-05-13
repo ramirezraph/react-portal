@@ -1,0 +1,12 @@
+[
+  {
+    "origin": [
+      "http://localhost:3000",
+      "https://black-smoke-043078100.1.azurestaticapps.net",
+      "https://thankful-hill-0fb16e900.1.azurestaticapps.net",
+      "https://black-smoke-043078100-*.eastasia.1.azurestaticapps.net/"
+    ],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  }
+]

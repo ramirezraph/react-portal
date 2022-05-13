@@ -1,7 +1,7 @@
 import { Box, Button, Group, Skeleton, Text } from '@mantine/core';
 import { CreateUnitModal } from 'app/components/CreateUnitModal/Loadable';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,7 +27,7 @@ export function Class() {
   const { actions: classroomActions } = useClassroomSlice();
 
   const [openedClass, setOpenedClass] = React.useState<IClass | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
   const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
   const [createUnitModalVisible, setCreateUnitModalVisible] =
     React.useState(false);
@@ -54,7 +54,10 @@ export function Class() {
     if (!classroom.unitPath) return;
     console.log('onSnapshot: units');
 
-    const unitsQuery = query(collection(db, classroom.unitPath));
+    const unitsQuery = query(
+      collection(db, classroom.unitPath),
+      orderBy('number'),
+    );
     const unsubscribe = onSnapshot(unitsQuery, querySnapshot => {
       const units: Unit[] = [];
       querySnapshot.forEach(doc => {
@@ -69,9 +72,6 @@ export function Class() {
         };
         units.push(unit);
       });
-      // sort by unit number
-      units.sort((a, b) => (a.number > b.number ? 1 : -1));
-
       dispatch(classroomActions.fetchUnits({ units: units }));
     });
 
