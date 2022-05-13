@@ -42,8 +42,6 @@ interface Prop {
 export function AttachedFile(props: Prop) {
   const modals = useModals();
 
-  const [ligthBoxToggler, setLigthBoxToggler] = React.useState(false);
-
   const {
     id,
     name,
@@ -55,6 +53,8 @@ export function AttachedFile(props: Prop) {
     fullPath,
     type,
   } = props;
+
+  const [ligthBoxToggler, setLigthBoxToggler] = React.useState(false);
 
   const openConfirmDeleteModal = () => {
     modals.openConfirmModal({
@@ -213,6 +213,17 @@ export function AttachedFile(props: Prop) {
     const isVideo = type === MIME_TYPES.mp4;
     if (isVideo) {
       return [downloadUrl];
+    }
+
+    const isPdf = type === MIME_TYPES.pdf;
+    if (isPdf) {
+      return [
+        <Group position="center" className="overflow-y-scroll">
+          <object data={downloadUrl} className="h-screen w-screen">
+            Preview not supported.
+          </object>
+        </Group>,
+      ];
     }
 
     return [
