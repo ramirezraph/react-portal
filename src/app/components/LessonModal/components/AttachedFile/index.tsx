@@ -1,4 +1,4 @@
-import { Group, ActionIcon, Text, Button } from '@mantine/core';
+import { Group, ActionIcon, Text, Button, Tooltip } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import axios from 'axios';
@@ -130,46 +130,68 @@ export function AttachedFile(props: Prop) {
     if (viewOnly) {
       return (
         <Group position="center" spacing={compact ? 'xs' : 'md'} noWrap>
-          <ActionIcon size="sm">
-            <At />
-          </ActionIcon>
-          <ActionIcon size="sm">
-            <Download />
-          </ActionIcon>
+          <Tooltip position="bottom" label="Mention" withArrow>
+            <ActionIcon size="sm">
+              <At />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip position="bottom" label="Download" withArrow>
+            <ActionIcon size="sm" onClick={download}>
+              <Download />
+            </ActionIcon>
+          </Tooltip>
         </Group>
       );
     } else {
       if (compact) {
         return (
           <Group position="center" spacing={compact ? 'xs' : 'md'} noWrap>
-            <ActionIcon size="sm" onClick={download}>
-              <Download />
-            </ActionIcon>
-            <ActionIcon color="red" size="sm" onClick={openConfirmDeleteModal}>
-              <Trash />
-            </ActionIcon>
+            <Tooltip position="bottom" label="Download" withArrow>
+              <ActionIcon size="sm" onClick={download}>
+                <Download />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip position="bottom" label="Delete" withArrow>
+              <ActionIcon
+                color="red"
+                size="sm"
+                onClick={openConfirmDeleteModal}
+              >
+                <Trash />
+              </ActionIcon>
+            </Tooltip>
           </Group>
         );
       }
 
       return (
         <Group position="center" spacing={compact ? 'xs' : 'md'} noWrap>
-          <ActionIcon size="sm">
-            <Pencil />
-          </ActionIcon>
-          <ActionIcon size="sm">
-            <At />
-          </ActionIcon>
-          <ActionIcon size="sm" onClick={download}>
-            <Download />
-          </ActionIcon>
-          <ActionIcon color="red" size="sm" onClick={openConfirmDeleteModal}>
-            <Trash />
-          </ActionIcon>
+          <Tooltip position="bottom" label="Mention" withArrow>
+            <ActionIcon size="sm">
+              <At />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip position="bottom" label="Edit" withArrow>
+            <ActionIcon size="sm">
+              <Pencil />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip position="bottom" label="Download" withArrow>
+            <ActionIcon size="sm" onClick={download}>
+              <Download />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip position="bottom" label="Delete" withArrow>
+            <ActionIcon color="red" size="sm" onClick={openConfirmDeleteModal}>
+              <Trash />
+            </ActionIcon>
+          </Tooltip>
         </Group>
       );
     }
   };
+
+  const onTextClick = () => {};
 
   return (
     <Group position="apart" className={`w-full ${className}`} noWrap>
@@ -179,13 +201,22 @@ export function AttachedFile(props: Prop) {
         compact
         leftIcon={<File size={18} />}
       >
-        <Text
-          weight={400}
-          size="sm"
-          className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
+        <Tooltip
+          position="bottom"
+          placement="start"
+          label={name}
+          openDelay={500}
+          withArrow
         >
-          {name}
-        </Text>
+          <Text
+            weight={400}
+            size="sm"
+            className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
+            onClick={onTextClick}
+          >
+            {name}
+          </Text>
+        </Tooltip>
       </Button>
       {renderButtons()}
     </Group>
