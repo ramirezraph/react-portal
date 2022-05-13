@@ -758,7 +758,7 @@ export function LessonModal(props: Prop) {
                           fullPath={file.fullPath}
                           createdAt={file.createdAt}
                           updatedAt={file.updatedAt}
-                          textClassName="w-[50ch] 2xl:w-[70ch]"
+                          textClassName="w-[55ch] 2xl:w-[65ch]"
                         />
                       );
                     })}
