@@ -5,6 +5,7 @@ import { PostCard } from 'app/components/PostCard/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Adjustments, Search, Settings } from 'tabler-icons-react';
+import { v4 as uuidv4 } from 'uuid';
 
 export function Discussions() {
   const [posts, setPosts] = React.useState<Post[]>([]);
@@ -39,21 +40,33 @@ export function Discussions() {
         content: 'Post with 6 Photos',
         images: [
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/1100/1100',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/700/200',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/700/300',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/1200/700',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/1200/700',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/1200/700',
           },
         ],
@@ -66,9 +79,13 @@ export function Discussions() {
         content: 'Post with 2 Photos',
         images: [
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/1100/700',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/1280/768',
           },
         ],
@@ -81,12 +98,18 @@ export function Discussions() {
         content: 'Post with 3 Photos',
         images: [
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/700/600',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/700/200',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/600/200',
           },
         ],
@@ -99,15 +122,23 @@ export function Discussions() {
         content: 'Post with 4 Photos',
         images: [
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/700/600',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/700/200',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/600/200',
           },
           {
+            id: uuidv4(),
+            name: 'testImage',
             url: 'https://picsum.photos/600/200',
           },
         ],
@@ -177,7 +208,7 @@ export function Discussions() {
               ownerName={post.ownerName}
               content={post.content}
               date={post.date}
-              images={post.images}
+              images={post.images || []}
               files={post.files}
             />
           ))}

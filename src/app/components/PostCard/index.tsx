@@ -21,12 +21,10 @@ import {
   Trash,
   Pencil,
 } from 'tabler-icons-react';
-import { PostImages } from './PostImages';
+import { ImagesGrid } from '../ImagesGrid/Loadable';
 import { PostFiles } from './PostFiles';
+import { IImage } from '../ImagesGrid';
 
-interface PostImage {
-  url: string;
-}
 export interface IFile {
   id: string;
   downloadUrl: string;
@@ -39,7 +37,7 @@ export interface Post {
   ownerName: string;
   date: string;
   content: string;
-  images?: PostImage[];
+  images?: IImage[];
   files?: IFile[];
 }
 
@@ -48,7 +46,7 @@ interface Prop {
   ownerName: string;
   date: string;
   content?: string;
-  images?: PostImage[];
+  images: IImage[];
   files?: IFile[];
 }
 
@@ -91,7 +89,7 @@ export function PostCard(props: Prop) {
             </Menu>
           </Group>
           {content && <Text size="sm">{content}</Text>}
-          <PostImages images={images} />
+          <ImagesGrid images={images} />
           <Group className="w-full" position="apart" noWrap>
             <Group>
               <Button variant="subtle" compact color={'dark'} className="px-0">

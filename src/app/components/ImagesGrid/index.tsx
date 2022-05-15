@@ -1,30 +1,21 @@
-import { Text, Image, Box, SimpleGrid } from '@mantine/core';
+import { Text, SimpleGrid, Image, Box, ActionIcon } from '@mantine/core';
 import * as React from 'react';
+import { X } from 'tabler-icons-react';
 
-interface PostImage {
-  url: string;
-}
-interface File {
-  url: string;
-  name: string;
-  type: string;
-}
-
-export interface Post {
+export interface IImage {
   id: string;
-  ownerName: string;
-  date: string;
-  content: string;
-  images?: PostImage[];
-  files?: File[];
+  name: string;
+  url: string;
 }
 
-interface Prop {
-  images?: PostImage[];
+interface Props {
+  images: IImage[];
+  isOnEdit?: boolean;
+  onImageRemove?: (image: IImage) => void;
 }
 
-export function PostImages(props: Prop) {
-  const { images } = props;
+export function ImagesGrid(props: Props) {
+  const { images, isOnEdit, onImageRemove } = props;
 
   const [upperImageCols, setUpperImageCols] = React.useState(1);
   const [lowerImageCols, setLowerImageCols] = React.useState(1);
@@ -57,6 +48,36 @@ export function PostImages(props: Prop) {
     console.log('more image clicked');
   };
 
+  if (isOnEdit) {
+    return (
+      <SimpleGrid cols={3} className="-mt-1.5 w-full" spacing={'xs'}>
+        {images.map((image, index) => (
+          <div className="relative" key={image.id}>
+            <ActionIcon
+              variant="light"
+              radius="xl"
+              size="lg"
+              className="absolute right-3 top-3 z-10"
+              onClick={() => onImageRemove && onImageRemove(image)}
+            >
+              <X />
+            </ActionIcon>
+            <Image
+              key={index}
+              height={150}
+              fit="cover"
+              radius="md"
+              src={image.url}
+              alt="Post Image"
+              className="w-full cursor-pointer"
+              onClick={onImageClicked}
+            />
+          </div>
+        ))}
+      </SimpleGrid>
+    );
+  }
+
   return (
     <>
       {images && (
@@ -64,7 +85,7 @@ export function PostImages(props: Prop) {
           {images.slice(0, upperImageCols).map((image, index) => {
             return (
               <Image
-                key={index}
+                key={image.id}
                 height={300}
                 fit="cover"
                 radius="md"
@@ -87,7 +108,7 @@ export function PostImages(props: Prop) {
             if (images.length > 4 && index === 2) {
               return (
                 <Box
-                  key={index}
+                  key={image.id}
                   onClick={onMoreImageClicked}
                   className="relative cursor-pointer rounded-md bg-black"
                 >
@@ -107,7 +128,7 @@ export function PostImages(props: Prop) {
             } else {
               return (
                 <Image
-                  key={index}
+                  key={image.id}
                   height={150}
                   fit="cover"
                   radius="md"

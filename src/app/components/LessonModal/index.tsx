@@ -33,7 +33,12 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { db, filesColRef, lessonsColRef, storage } from 'services/firebase';
+import {
+  db,
+  lessonFilesColRef,
+  lessonsColRef,
+  storage,
+} from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
@@ -420,7 +425,7 @@ export function LessonModal(props: Prop) {
 
   const onFileUpload = (files: File[]) => {
     for (const file of files) {
-      const storageRef = ref(storage, `${id}/${file.name}`);
+      const storageRef = ref(storage, `lessons/${id}/${file.name}`);
 
       const notificationId = uuidv4();
       showNotification({
@@ -437,7 +442,7 @@ export function LessonModal(props: Prop) {
         getDownloadURL(ref(storage, data.fullPath))
           .then(url => {
             // store data to firestore
-            addDoc(filesColRef, {
+            addDoc(lessonFilesColRef, {
               name: file.name,
               type: file.type,
               size: file.size,
@@ -486,7 +491,7 @@ export function LessonModal(props: Prop) {
     // fetch files
     console.log('onSnapshot: LessonModal Lesson Files');
     const q = query(
-      filesColRef,
+      lessonFilesColRef,
       where('lessonId', '==', id),
       orderBy('createdAt'),
     );
@@ -797,6 +802,7 @@ export function LessonModal(props: Prop) {
                         ownerName="John Doe"
                         date="2022-04-05T12:10"
                         content="Hello, World!"
+                        images={[]}
                       />
                     </div>
                   </ScrollArea>
