@@ -4,9 +4,10 @@ import {
   Card,
   Group,
   ScrollArea,
-  TextInput,
   Text,
+  Button,
 } from '@mantine/core';
+import { CreatePostModal } from 'app/components/CreatePostModal/Loadable';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
 import * as React from 'react';
@@ -20,6 +21,7 @@ export function DiscussionTab(props: Props) {
   // const { someProps } = props;
 
   const [posts, setPosts] = React.useState<Post[]>([]);
+  const [postModalVisible, setPostModalVisible] = React.useState(false);
 
   React.useEffect(() => {
     setPosts([
@@ -130,25 +132,37 @@ export function DiscussionTab(props: Props) {
 
   return (
     <ScrollArea className="h-screen bg-transparent py-3" scrollbarSize={5}>
+      <CreatePostModal
+        visible={postModalVisible}
+        onToggle={setPostModalVisible}
+      />
       <Card>
         <Group noWrap className="rounded-md">
           <Avatar color={'primary'} radius="xl">
             JD
           </Avatar>
-          <TextInput
-            placeholder="Write something for the class"
+          <Button
             variant="filled"
+            className="flex flex-grow items-start bg-gray-100 hover:bg-gray-200"
             radius="xl"
-            required
-            className="flex-grow"
-          />
-          <ActionIcon>
+            onClick={() => setPostModalVisible(true)}
+          >
+            <Text
+              weight={400}
+              size="md"
+              color="gray"
+              className="w-full text-left"
+            >
+              Write something for the class
+            </Text>
+          </Button>
+          <ActionIcon onClick={() => setPostModalVisible(true)}>
             <Photo />
           </ActionIcon>
-          <ActionIcon>
+          <ActionIcon onClick={() => setPostModalVisible(true)}>
             <File />
           </ActionIcon>
-          <ActionIcon>
+          <ActionIcon onClick={() => setPostModalVisible(true)}>
             <At />
           </ActionIcon>
         </Group>
