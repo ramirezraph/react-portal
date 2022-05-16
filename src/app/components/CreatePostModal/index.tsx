@@ -39,6 +39,7 @@ export function CreatePostModal(props: Props) {
   const [imageDropzoneVisible, setImageDropzoneVisible] = React.useState(false);
   const [temporaryImages, setTemporaryImages] = React.useState<IFile[]>([]);
   const [images, setImages] = React.useState<{ id: string; file: File }[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
   const onImageDropReject = () => {};
 
@@ -83,6 +84,8 @@ export function CreatePostModal(props: Props) {
     if (!user) return;
     if (!classroom.activeClass) return;
 
+    setLoading(true);
+
     const notificationId = uuidv4();
     showNotification({
       id: notificationId,
@@ -105,6 +108,8 @@ export function CreatePostModal(props: Props) {
       };
 
       const newPostDoc = await addDoc(postsColRef, newPost);
+      onToggle(false);
+
       if (images.length === 0) {
         requestForUpdate(true);
         onToggle(false);
@@ -144,20 +149,19 @@ export function CreatePostModal(props: Props) {
           updatedAt: Timestamp.now(),
           deletedAt: null,
         });
-
-        requestForUpdate(true);
-        onToggle(false);
-
-        updateNotification({
-          id: notificationId,
-          title: 'Success',
-          message: `Your post is now live!`,
-          color: 'green',
-          icon: <Check />,
-        });
-
-        resetForm();
       }
+
+      requestForUpdate(true);
+
+      updateNotification({
+        id: notificationId,
+        title: 'Success',
+        message: `Your post is now live!`,
+        color: 'green',
+        icon: <Check />,
+      });
+
+      resetForm();
     } catch (e) {
       console.log(e);
 
@@ -168,6 +172,8 @@ export function CreatePostModal(props: Props) {
         color: 'red',
         icon: <X />,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -243,6 +249,7 @@ export function CreatePostModal(props: Props) {
           </Button>
         </Group>
         <Button
+          loading={loading}
           size="md"
           className="mt-3 w-full"
           onClick={() => onSubmitPost()}
