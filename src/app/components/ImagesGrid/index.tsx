@@ -1,17 +1,12 @@
 import { Text, SimpleGrid, Image, Box, ActionIcon } from '@mantine/core';
 import * as React from 'react';
 import { X } from 'tabler-icons-react';
-
-export interface IImage {
-  id: string;
-  name: string;
-  url: string;
-}
+import { IFile } from '../PostCard';
 
 interface Props {
-  images: IImage[];
+  images: IFile[];
   isOnEdit?: boolean;
-  onImageRemove?: (image: IImage) => void;
+  onImageRemove?: (image: IFile) => void;
 }
 
 export function ImagesGrid(props: Props) {
@@ -67,7 +62,7 @@ export function ImagesGrid(props: Props) {
               height={150}
               fit="cover"
               radius="md"
-              src={image.url}
+              src={image.downloadUrl}
               alt="Post Image"
               className="w-full cursor-pointer"
               onClick={onImageClicked}
@@ -89,7 +84,7 @@ export function ImagesGrid(props: Props) {
                 height={300}
                 fit="cover"
                 radius="md"
-                src={image.url}
+                src={image.downloadUrl}
                 alt="Post Image"
                 className="w-full cursor-pointer"
                 onClick={onImageClicked}
@@ -119,7 +114,7 @@ export function ImagesGrid(props: Props) {
                     height={150}
                     fit="cover"
                     radius="md"
-                    src={image.url}
+                    src={image.downloadUrl}
                     alt="Post Image"
                     className="opacity-60"
                   />
@@ -132,7 +127,7 @@ export function ImagesGrid(props: Props) {
                   height={150}
                   fit="cover"
                   radius="md"
-                  src={image.url}
+                  src={image.downloadUrl}
                   alt="Post Image"
                   className="w-full cursor-pointer"
                   onClick={onImageClicked}

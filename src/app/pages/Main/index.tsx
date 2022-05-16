@@ -92,8 +92,8 @@ export function Main() {
           usersList: data.usersList,
           inviteCode: data.inviteCode,
           color: data.color,
-          createdAt: data.createdAt.toDate().toString(),
-          updatedAt: data.updatedAt.toDate().toString(),
+          createdAt: data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt.toDate().toISOString(),
         };
         classesList.push(newClass);
       });

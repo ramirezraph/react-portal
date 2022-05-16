@@ -13,43 +13,57 @@ import { Photo, File, Check, X } from 'tabler-icons-react';
 import { ImageDropzone } from '../ImageDropzone/Loadable';
 import { ImagesGrid } from '../ImagesGrid/Loadable';
 import { v4 as uuidv4 } from 'uuid';
-import { IImage } from '../ImagesGrid';
-import { addDoc, Timestamp } from 'firebase/firestore';
+import { addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { postFilesColRef, postsColRef, storage } from 'services/firebase';
 import { useAuth0 } from '@auth0/auth0-react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
+import { setTokenSourceMapRange } from 'typescript';
+import { IFile } from '../PostCard';
 
 interface Props {
   visible: boolean;
   onToggle: React.Dispatch<React.SetStateAction<boolean>>;
+  requestForUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function CreatePostModal(props: Props) {
-  const { visible, onToggle } = props;
+  const { visible, onToggle, requestForUpdate } = props;
 
   const classroom = useSelector(selectClassroom);
 
   const { user } = useAuth0();
   const [value, onChange] = React.useState('');
   const [imageDropzoneVisible, setImageDropzoneVisible] = React.useState(false);
-  const [temporaryImages, setTemporaryImages] = React.useState<IImage[]>([]);
+  const [temporaryImages, setTemporaryImages] = React.useState<IFile[]>([]);
   const [images, setImages] = React.useState<{ id: string; file: File }[]>([]);
 
   const onImageDropReject = () => {};
 
+  interface IImage {
+    id: string;
+    name: string;
+    url: string;
+  }
+
   const onImageUpload = (files: File[]) => {
     // display image image grid
-    const list: IImage[] = [];
+    const list: IFile[] = [];
     const temp: { id: string; file: File }[] = [];
     for (const image of files) {
       const uuid = uuidv4();
       list.push({
         id: uuid,
         name: image.name,
-        url: URL.createObjectURL(image),
+        size: image.size,
+        type: image.type,
+        downloadUrl: URL.createObjectURL(image),
+        postId: '',
+        createdAt: '',
+        updatedAt: '',
+        fullPath: '',
       });
       temp.push({
         id: uuid,
@@ -60,7 +74,7 @@ export function CreatePostModal(props: Props) {
     setTemporaryImages([...temporaryImages, ...list]);
   };
 
-  const onImageRemove = (image: IImage) => {
+  const onImageRemove = (image: IFile) => {
     setTemporaryImages([...temporaryImages.filter(x => x.id !== image.id)]);
     setImages([...images.filter(x => x.id !== image.id)]);
   };
@@ -79,8 +93,6 @@ export function CreatePostModal(props: Props) {
       disallowClose: true,
     });
 
-    onToggle(false);
-
     try {
       const newPost = {
         classId: classroom.activeClass.id,
@@ -88,13 +100,15 @@ export function CreatePostModal(props: Props) {
         content: value,
         likes: 0,
         numberOfComments: 0,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       };
 
       const newPostDoc = await addDoc(postsColRef, newPost);
-
       if (images.length === 0) {
+        requestForUpdate(true);
+        onToggle(false);
+
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -102,6 +116,8 @@ export function CreatePostModal(props: Props) {
           color: 'green',
           icon: <Check />,
         });
+        resetForm();
+
         return;
       }
 
@@ -129,6 +145,9 @@ export function CreatePostModal(props: Props) {
           deletedAt: null,
         });
 
+        requestForUpdate(true);
+        onToggle(false);
+
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -137,11 +156,7 @@ export function CreatePostModal(props: Props) {
           icon: <Check />,
         });
 
-        // cleanup
-        onChange('');
-        setImageDropzoneVisible(false);
-        setTemporaryImages([]);
-        setImages([]);
+        resetForm();
       }
     } catch (e) {
       console.log(e);
@@ -154,6 +169,13 @@ export function CreatePostModal(props: Props) {
         icon: <X />,
       });
     }
+  };
+
+  const resetForm = () => {
+    onChange('');
+    setImageDropzoneVisible(false);
+    setTemporaryImages([]);
+    setImages([]);
   };
 
   return (

@@ -93,6 +93,8 @@ export function LessonModal(props: Prop) {
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
+  const [_, setPostsNeedsUpdate] = React.useState(true);
+
   // header
   const [unitNumber, setUnitNumber] = React.useState('');
   const [classCode, setClassCode] = React.useState('');
@@ -799,10 +801,16 @@ export function LessonModal(props: Prop) {
                     <div className="p-4">
                       <PostCard
                         id="asdfasdfa"
-                        ownerName="John Doe"
-                        date="2022-04-05T12:10"
+                        ownerId="John Doe"
                         content="Hello, World!"
+                        classId={''}
+                        numberOfComments={0}
+                        createdAt={''}
+                        updatedAt={''}
+                        files={[]}
                         images={[]}
+                        likes={0}
+                        requestForUpdate={setPostsNeedsUpdate}
                       />
                     </div>
                   </ScrollArea>

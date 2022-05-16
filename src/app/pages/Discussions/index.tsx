@@ -5,147 +5,10 @@ import { PostCard } from 'app/components/PostCard/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Adjustments, Search, Settings } from 'tabler-icons-react';
-import { v4 as uuidv4 } from 'uuid';
 
 export function Discussions() {
-  const [posts, setPosts] = React.useState<Post[]>([]);
-
-  React.useEffect(() => {
-    setPosts([
-      {
-        id: '0',
-        ownerName: 'John Doe',
-        date: '2022-04-05T12:10',
-        content: 'Post with no photos',
-        images: [],
-        files: [
-          {
-            id: 'asdsa',
-            downloadUrl: '',
-            name: 'Sample File 1',
-            type: 'pdf',
-          },
-          {
-            id: 'asdsadad',
-            downloadUrl: '',
-            name: 'Sample File 2',
-            type: 'pdf',
-          },
-        ],
-      },
-      {
-        id: '1',
-        ownerName: 'John Doe',
-        date: '2022-04-05T12:10',
-        content: 'Post with 6 Photos',
-        images: [
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/1100/1100',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/700/300',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/1200/700',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/1200/700',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/1200/700',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '2',
-        ownerName: 'John Doe',
-        date: '2022-04-05T07:10',
-        content: 'Post with 2 Photos',
-        images: [
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/1100/700',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/1280/768',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '3',
-        ownerName: 'John Doe',
-        date: '2022-04-05T06:10',
-        content: 'Post with 3 Photos',
-        images: [
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/700/600',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/600/200',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '4',
-        ownerName: 'John Doe',
-        date: '2022-04-04T12:10',
-        content: 'Post with 4 Photos',
-        images: [
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/700/600',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/600/200',
-          },
-          {
-            id: uuidv4(),
-            name: 'testImage',
-            url: 'https://picsum.photos/600/200',
-          },
-        ],
-        files: [],
-      },
-    ]);
-  }, []);
+  const [posts] = React.useState<Post[]>([]);
+  const [_, setPostsNeedsUpdate] = React.useState(true);
 
   return (
     <>
@@ -204,12 +67,17 @@ export function Discussions() {
           {posts.map(post => (
             <PostCard
               key={post.id}
+              classId={''}
               id={post.id}
-              ownerName={post.ownerName}
+              ownerId={post.ownerId}
               content={post.content}
-              date={post.date}
+              likes={0}
+              numberOfComments={0}
+              createdAt={''}
+              updatedAt={''}
               images={post.images || []}
               files={post.files}
+              requestForUpdate={setPostsNeedsUpdate}
             />
           ))}
         </div>
