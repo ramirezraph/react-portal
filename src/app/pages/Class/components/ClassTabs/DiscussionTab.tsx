@@ -11,7 +11,7 @@ import {
 import { CreatePostModal } from 'app/components/CreatePostModal/Loadable';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
-import { getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import { getDocs, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { postsColRef } from 'services/firebase';
@@ -67,7 +67,7 @@ export function DiscussionTab(props: Props) {
     };
 
     fetchPosts();
-  }, [postsNeedsUpdate]);
+  }, [postsNeedsUpdate, classroom.activeClass]);
 
   const onSeeMorePosts = () => {};
 

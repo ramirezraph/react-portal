@@ -8,6 +8,7 @@ import { Adjustments, Search, Settings } from 'tabler-icons-react';
 
 export function Discussions() {
   const [posts] = React.useState<Post[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setPostsNeedsUpdate] = React.useState(true);
 
   return (

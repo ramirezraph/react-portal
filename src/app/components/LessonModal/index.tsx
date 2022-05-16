@@ -93,6 +93,7 @@ export function LessonModal(props: Prop) {
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setPostsNeedsUpdate] = React.useState(true);
 
   // header

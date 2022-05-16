@@ -20,7 +20,6 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { setTokenSourceMapRange } from 'typescript';
 import { IFile } from '../PostCard';
 
 interface Props {
@@ -42,12 +41,6 @@ export function CreatePostModal(props: Props) {
   const [loading, setLoading] = React.useState(false);
 
   const onImageDropReject = () => {};
-
-  interface IImage {
-    id: string;
-    name: string;
-    url: string;
-  }
 
   const onImageUpload = (files: File[]) => {
     // display image image grid

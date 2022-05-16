@@ -33,7 +33,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { db, postFilesColRef, storage, usersColRef } from 'services/firebase';
+import { db, postFilesColRef, storage } from 'services/firebase';
 import RichTextEditor from '@mantine/rte';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
@@ -144,13 +144,13 @@ export function PostCard(props: Prop) {
     };
 
     fetchImages();
-  }, []);
+  }, [id]);
 
   React.useEffect(() => {
     if (currentUser?.sub === ownerId) {
       setIsEditable(true);
     }
-  });
+  }, [currentUser?.sub, ownerId, setIsEditable]);
 
   const onEdit = () => {};
 
