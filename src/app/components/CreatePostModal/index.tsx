@@ -7,17 +7,20 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { showNotification, updateNotification } from '@mantine/notifications';
 import RichTextEditor from '@mantine/rte';
-import { addDoc, Timestamp } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import * as React from 'react';
-import { postFilesColRef, storage } from 'services/firebase';
 import { Photo, File, Check, X } from 'tabler-icons-react';
 import { ImageDropzone } from '../ImageDropzone/Loadable';
 import { ImagesGrid } from '../ImagesGrid/Loadable';
 import { v4 as uuidv4 } from 'uuid';
 import { IImage } from '../ImagesGrid';
+import { addDoc, Timestamp } from 'firebase/firestore';
+import { postFilesColRef, postsColRef, storage } from 'services/firebase';
+import { useAuth0 } from '@auth0/auth0-react';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { showNotification, updateNotification } from '@mantine/notifications';
+import { useSelector } from 'react-redux';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
 
 interface Props {
   visible: boolean;
@@ -26,8 +29,11 @@ interface Props {
 
 export function CreatePostModal(props: Props) {
   const { visible, onToggle } = props;
-  const [value, onChange] = React.useState('');
 
+  const classroom = useSelector(selectClassroom);
+
+  const { user } = useAuth0();
+  const [value, onChange] = React.useState('');
   const [imageDropzoneVisible, setImageDropzoneVisible] = React.useState(false);
   const [temporaryImages, setTemporaryImages] = React.useState<IImage[]>([]);
   const [images, setImages] = React.useState<{ id: string; file: File }[]>([]);
@@ -59,9 +65,95 @@ export function CreatePostModal(props: Props) {
     setImages([...images.filter(x => x.id !== image.id)]);
   };
 
-  const onSubmitPost = () => {
-    // upload files
-    // save on firestore
+  const onSubmitPost = async () => {
+    if (!user) return;
+    if (!classroom.activeClass) return;
+
+    const notificationId = uuidv4();
+    showNotification({
+      id: notificationId,
+      loading: true,
+      title: 'In progress',
+      message: `Creating the post ...`,
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    onToggle(false);
+
+    try {
+      const newPost = {
+        classId: classroom.activeClass.id,
+        ownerId: user.sub,
+        content: value,
+        likes: 0,
+        numberOfComments: 0,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      };
+
+      const newPostDoc = await addDoc(postsColRef, newPost);
+
+      if (images.length === 0) {
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `Your post is now live!`,
+          color: 'green',
+          icon: <Check />,
+        });
+        return;
+      }
+
+      for (const image of images) {
+        const storageRef = ref(
+          storage,
+          `posts/${newPostDoc.id}/${image.file.name}`,
+        );
+
+        const fileStorageSnapshot = await uploadBytes(storageRef, image.file);
+        const fileData = fileStorageSnapshot.ref;
+        const downloadUrl = await getDownloadURL(
+          ref(storage, fileData.fullPath),
+        );
+
+        await addDoc(postFilesColRef, {
+          name: image.file.name,
+          type: image.file.type,
+          size: image.file.size,
+          postId: newPostDoc.id,
+          fullPath: fileData.fullPath,
+          downloadUrl: downloadUrl,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          deletedAt: null,
+        });
+
+        updateNotification({
+          id: notificationId,
+          title: 'Success',
+          message: `Your post is now live!`,
+          color: 'green',
+          icon: <Check />,
+        });
+
+        // cleanup
+        onChange('');
+        setImageDropzoneVisible(false);
+        setTemporaryImages([]);
+        setImages([]);
+      }
+    } catch (e) {
+      console.log(e);
+
+      updateNotification({
+        id: notificationId,
+        title: 'Failed',
+        message: `Post create failed.`,
+        color: 'red',
+        icon: <X />,
+      });
+    }
   };
 
   return (
@@ -128,7 +220,11 @@ export function CreatePostModal(props: Props) {
             Attach a file
           </Button>
         </Group>
-        <Button size="md" className="mt-3 w-full" onClick={onSubmitPost}>
+        <Button
+          size="md"
+          className="mt-3 w-full"
+          onClick={() => onSubmitPost()}
+        >
           POST
         </Button>
       </Stack>

@@ -22,6 +22,7 @@ const storage = getStorage(app);
 const classesColRef = collection(db, 'classes');
 const usersColRef = collection(db, 'users');
 const lessonsColRef = collection(db, 'lessons');
+const postsColRef = collection(db, 'posts');
 const lessonFilesColRef = collection(db, 'lesson-files');
 const postFilesColRef = collection(db, 'post-files');
 
@@ -31,6 +32,7 @@ export {
   storage,
   classesColRef,
   usersColRef,
+  postsColRef,
   lessonsColRef,
   lessonFilesColRef,
   postFilesColRef,
