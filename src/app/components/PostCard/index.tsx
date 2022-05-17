@@ -354,7 +354,7 @@ export function PostCard(props: Prop) {
               value={value}
               readOnly
               onChange={onChange}
-              className="w-full border-none text-xl"
+              className="w-full border-none text-lg"
             />
           )}
           <ImagesGrid images={imageList} />
