@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Avatar,
   Card,
   Group,
   ScrollArea,
@@ -11,6 +10,7 @@ import {
 import { CreatePostModal } from 'app/components/CreatePostModal/Loadable';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
+import { UserAvatar } from 'app/components/UserAvatar';
 import { getDocs, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
@@ -80,9 +80,7 @@ export function DiscussionTab(props: Props) {
       />
       <Card>
         <Group noWrap className="rounded-md">
-          <Avatar color={'primary'} radius="xl">
-            JD
-          </Avatar>
+          <UserAvatar currentUser radius="xl" size="md" />
           <Button
             variant="filled"
             className="flex flex-grow items-start bg-gray-100 hover:bg-gray-200"
