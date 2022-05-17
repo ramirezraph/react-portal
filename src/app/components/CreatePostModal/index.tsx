@@ -211,7 +211,7 @@ export function CreatePostModal(props: Props) {
               ['alignLeft', 'alignCenter', 'alignRight'],
               ['blockquote', 'codeBlock'],
             ]}
-            className="text-xl"
+            className="text-lg"
             sticky
             placeholder="Write something for the class"
           />

@@ -1,6 +1,6 @@
 import {
   Card,
-  Group,
+  Stack,
   Avatar,
   ActionIcon,
   Button,
@@ -9,6 +9,9 @@ import {
   Tooltip,
   Menu,
   Divider,
+  Group,
+  Textarea,
+  Collapse,
 } from '@mantine/core';
 import moment from 'moment';
 import * as React from 'react';
@@ -22,15 +25,25 @@ import {
   Pencil,
   Check,
   X,
+  Send,
 } from 'tabler-icons-react';
 import { ImagesGrid } from '../ImagesGrid/Loadable';
 import { PostFiles } from './PostFiles';
 import {
+  addDoc,
+  collection,
   deleteDoc,
   doc,
+  DocumentData,
+  DocumentReference,
   getDoc,
   getDocs,
+  increment,
+  onSnapshot,
+  orderBy,
   query,
+  serverTimestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { db, postFilesColRef, storage } from 'services/firebase';
@@ -41,6 +54,8 @@ import { deleteObject, ref } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useModals } from '@mantine/modals';
+import { UserAvatar } from '../UserAvatar/Loadable';
+import { Comment } from '../Comment';
 
 export interface IFile {
   id: string;
@@ -65,6 +80,16 @@ export interface Post {
   updatedAt: string;
   images: IFile[];
   files: IFile[];
+}
+
+interface IComment {
+  id: string;
+  ownerId: string;
+  postId: string;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+  docRef: DocumentReference<DocumentData>;
 }
 
 interface Prop {
@@ -101,6 +126,9 @@ export function PostCard(props: Prop) {
   const [imageList, setImageList] = React.useState<IFile[]>([]);
   const [ownerFullname, setOwnerFullname] = React.useState(content);
   const [isEditable, setIsEditable] = React.useState(false);
+  const [isCommentsVisible, setCommentsVisible] = React.useState(false);
+  const [newComment, setNewComment] = React.useState('');
+  const [comments, setComments] = React.useState<IComment[]>([]);
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
@@ -151,6 +179,40 @@ export function PostCard(props: Prop) {
       setIsEditable(true);
     }
   }, [currentUser?.sub, ownerId, setIsEditable]);
+
+  React.useEffect(() => {
+    if (!currentUser) return;
+    if (!isCommentsVisible) return;
+
+    console.log('onSnapshot: comments');
+
+    const q = query(
+      collection(db, `posts/${id}/comments`),
+      orderBy('createdAt', 'asc'),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: IComment[] = [];
+      querySnapshot.forEach(commentDoc => {
+        const data = commentDoc.data();
+        const obj: IComment = {
+          id: commentDoc.id,
+          ownerId: data.ownerId,
+          postId: data.postId,
+          comment: data.comment,
+          createdAt: data.createdAt && data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt && data.createdAt.toDate().toISOString(),
+          docRef: commentDoc.ref,
+        };
+        list.push(obj);
+      });
+      setComments(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: comments - unsubscribe');
+      unsubscribe();
+    };
+  }, [currentUser, currentUser?.sub, id, isCommentsVisible]);
 
   const onEdit = () => {};
 
@@ -222,6 +284,41 @@ export function PostCard(props: Prop) {
     }
   };
 
+  const onCommentChange = (text: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNewComment(text.target.value);
+  };
+
+  const onComment = async () => {
+    if (!currentUser) return;
+    if (!newComment) return;
+
+    const comment = {
+      ownerId: currentUser.sub,
+      postId: id,
+      comment: newComment,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, `posts/${id}/comments`), comment);
+      const postDocRef = doc(db, 'posts', id);
+      await updateDoc(postDocRef, {
+        numberOfComments: increment(1),
+      });
+
+      // reset
+      setNewComment('');
+    } catch (e) {
+      showNotification({
+        title: 'Failed',
+        message: `Failed to comment. \n${e}`,
+        color: 'red',
+        icon: <X />,
+      });
+    }
+  };
+
   return (
     <Card className="mt-3 rounded-md">
       <Group direction="row" noWrap>
@@ -257,7 +354,7 @@ export function PostCard(props: Prop) {
               value={value}
               readOnly
               onChange={onChange}
-              className="w-full border-none text-xl"
+              className="w-full border-none text-lg"
             />
           )}
           <ImagesGrid images={imageList} />
@@ -267,7 +364,13 @@ export function PostCard(props: Prop) {
                 <ThumbUp />
                 {likes > 0 && <Text className="ml-2">{likes}</Text>}
               </Button>
-              <Button variant="subtle" compact color={'dark'} className="px-0">
+              <Button
+                variant="subtle"
+                compact
+                color={isCommentsVisible ? 'primary' : 'dark'}
+                className="px-0"
+                onClick={() => setCommentsVisible(x => !x)}
+              >
                 <Message />
                 {numberOfComments > 0 && (
                   <Text className="ml-2">{numberOfComments}</Text>
@@ -311,6 +414,48 @@ export function PostCard(props: Prop) {
               </Group>
             )}
           </Group>
+          <Collapse in={isCommentsVisible} className="w-full">
+            <Stack className="w-full">
+              <Button
+                variant="subtle"
+                color="dark"
+                size="xs"
+                compact
+                className="w-fit"
+              >
+                <Text size="sm" weight="bold">
+                  View more comments
+                </Text>
+              </Button>
+              <Stack spacing="xs">
+                {comments.map(comment => (
+                  <Comment
+                    key={comment.id}
+                    id={comment.id}
+                    comment={comment.comment}
+                    ownerId={comment.ownerId}
+                    createdAt={comment.createdAt}
+                    docRef={comment.docRef}
+                  />
+                ))}
+              </Stack>
+              <Divider />
+              <Group spacing="xs" className="w-full" noWrap>
+                <UserAvatar currentUser radius="xl" size="md" />
+                <Textarea
+                  placeholder="Write a comment"
+                  radius="xl"
+                  className="flex-grow"
+                  autosize
+                  value={newComment}
+                  onChange={onCommentChange}
+                />
+                <ActionIcon onClick={onComment}>
+                  <Send />
+                </ActionIcon>
+              </Group>
+            </Stack>
+          </Collapse>
         </Group>
       </Group>
     </Card>
