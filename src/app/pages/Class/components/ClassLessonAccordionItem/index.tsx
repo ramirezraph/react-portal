@@ -2,7 +2,7 @@ import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
-import { filesColRef } from 'services/firebase';
+import { lessonFilesColRef } from 'services/firebase';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
 import { Lesson, LessonFile } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
@@ -32,7 +32,7 @@ export function ClassLessonAccordionItem(props: Props) {
     // fetch files
     console.log('onSnapshot: Lesson Files');
     const q = query(
-      filesColRef,
+      lessonFilesColRef,
       where('lessonId', '==', lesson.id),
       orderBy('createdAt'),
     );

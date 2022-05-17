@@ -13,6 +13,7 @@
     "@mantine/hooks": "4.2.4",
     "@mantine/modals": "4.2.2",
     "@mantine/notifications": "4.2.2",
+    "@mantine/rte": "4.2.5",
     "@reduxjs/toolkit": "1.7.1",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",

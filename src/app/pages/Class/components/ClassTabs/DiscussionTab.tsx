@@ -4,13 +4,19 @@ import {
   Card,
   Group,
   ScrollArea,
-  TextInput,
   Text,
+  Button,
+  Center,
 } from '@mantine/core';
+import { CreatePostModal } from 'app/components/CreatePostModal/Loadable';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
+import { getDocs, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
+import { useSelector } from 'react-redux';
+import { postsColRef } from 'services/firebase';
 import { ArrowsSort, At, Clock, File, Photo } from 'tabler-icons-react';
+import { selectClassroom } from '../../slice/selectors';
 
 interface Props {
   // someProps: string
@@ -19,136 +25,86 @@ interface Props {
 export function DiscussionTab(props: Props) {
   // const { someProps } = props;
 
+  const classroom = useSelector(selectClassroom);
+
   const [posts, setPosts] = React.useState<Post[]>([]);
+  const [postModalVisible, setPostModalVisible] = React.useState(false);
+  const [postsNeedsUpdate, setPostsNeedsUpdate] = React.useState(true);
 
   React.useEffect(() => {
-    setPosts([
-      {
-        id: '0',
-        ownerName: 'John Doe',
-        date: '2022-04-05T12:10',
-        content: 'Post with no photos',
-        images: [],
-        files: [
-          {
-            id: 'asdsa',
-            downloadUrl: '',
-            name: 'Sample File 1',
-            type: 'pdf',
-          },
-          {
-            id: 'asdsadad',
-            downloadUrl: '',
-            name: 'Sample File 2',
-            type: 'pdf',
-          },
-        ],
-      },
-      {
-        id: '1',
-        ownerName: 'John Doe',
-        date: '2022-04-05T12:10',
-        content: 'Post with 6 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/1100/1100',
-          },
-          {
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            url: 'https://picsum.photos/700/300',
-          },
-          {
-            url: 'https://picsum.photos/1200/700',
-          },
-          {
-            url: 'https://picsum.photos/1200/700',
-          },
-          {
-            url: 'https://picsum.photos/1200/700',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '2',
-        ownerName: 'John Doe',
-        date: '2022-04-05T07:10',
-        content: 'Post with 2 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/1100/700',
-          },
-          {
-            url: 'https://picsum.photos/1280/768',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '3',
-        ownerName: 'John Doe',
-        date: '2022-04-05T06:10',
-        content: 'Post with 3 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/700/600',
-          },
-          {
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            url: 'https://picsum.photos/600/200',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '4',
-        ownerName: 'John Doe',
-        date: '2022-04-04T12:10',
-        content: 'Post with 4 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/700/600',
-          },
-          {
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            url: 'https://picsum.photos/600/200',
-          },
-          {
-            url: 'https://picsum.photos/600/200',
-          },
-        ],
-        files: [],
-      },
-    ]);
-  }, []);
+    const fetchPosts = async () => {
+      if (!classroom.activeClass) return;
+      if (!postsNeedsUpdate) return;
+
+      // fetch posts with pagination
+      const first = query(
+        postsColRef,
+        where('classId', '==', classroom.activeClass.id),
+        orderBy('updatedAt', 'desc'),
+        orderBy('createdAt', 'desc'),
+        // limit(100),
+      );
+      const postsDocSnapshot = await getDocs(first);
+      const list: Post[] = [];
+      postsDocSnapshot.forEach(postDoc => {
+        const data = postDoc.data();
+        const post = {
+          id: postDoc.id,
+          classId: data.classId,
+          ownerId: data.ownerId,
+          content: data.content,
+          likes: data.likes,
+          numberOfComments: data.numberOfComments,
+          createdAt: data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt.toDate().toISOString(),
+          images: [],
+          files: [],
+        };
+        list.push(post);
+      });
+      setPosts(list);
+      setPostsNeedsUpdate(false);
+    };
+
+    fetchPosts();
+  }, [postsNeedsUpdate, classroom.activeClass]);
+
+  const onSeeMorePosts = () => {};
 
   return (
     <ScrollArea className="h-screen bg-transparent py-3" scrollbarSize={5}>
+      <CreatePostModal
+        visible={postModalVisible}
+        onToggle={setPostModalVisible}
+        requestForUpdate={setPostsNeedsUpdate}
+      />
       <Card>
         <Group noWrap className="rounded-md">
           <Avatar color={'primary'} radius="xl">
             JD
           </Avatar>
-          <TextInput
-            placeholder="Write something for the class"
+          <Button
             variant="filled"
+            className="flex flex-grow items-start bg-gray-100 hover:bg-gray-200"
             radius="xl"
-            required
-            className="flex-grow"
-          />
-          <ActionIcon>
+            onClick={() => setPostModalVisible(true)}
+          >
+            <Text
+              weight={400}
+              size="md"
+              color="gray"
+              className="w-full text-left"
+            >
+              Write something for the class
+            </Text>
+          </Button>
+          <ActionIcon onClick={() => setPostModalVisible(true)}>
             <Photo />
           </ActionIcon>
-          <ActionIcon>
+          <ActionIcon onClick={() => setPostModalVisible(true)}>
             <File />
           </ActionIcon>
-          <ActionIcon>
+          <ActionIcon onClick={() => setPostModalVisible(true)}>
             <At />
           </ActionIcon>
         </Group>
@@ -167,17 +123,37 @@ export function DiscussionTab(props: Props) {
         </Group>
       </div>
       <div>
-        {posts.map(post => (
-          <PostCard
-            key={post.id}
-            id={post.id}
-            ownerName={post.ownerName}
-            content={post.content}
-            date={post.date}
-            images={post.images}
-            files={post.files}
-          />
-        ))}
+        {posts.length === 0 && (
+          <div className="p-6">
+            <Text size="sm" color="gray">
+              No discussions yet.
+            </Text>
+          </div>
+        )}
+        {posts.length > 0 &&
+          posts.map(post => (
+            <PostCard
+              key={post.id}
+              classId={post.classId}
+              id={post.id}
+              ownerId={post.ownerId}
+              content={post.content}
+              numberOfComments={post.numberOfComments}
+              likes={post.likes}
+              createdAt={post.createdAt}
+              updatedAt={post.updatedAt}
+              images={post.images || []}
+              files={post.files || []}
+              requestForUpdate={setPostsNeedsUpdate}
+            />
+          ))}
+        {posts.length > 0 && (
+          <Center className="mt-3">
+            <Button color="dark" variant="subtle" onClick={onSeeMorePosts}>
+              See more
+            </Button>
+          </Center>
+        )}
       </div>
     </ScrollArea>
   );

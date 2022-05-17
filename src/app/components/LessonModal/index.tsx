@@ -33,7 +33,12 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { db, filesColRef, lessonsColRef, storage } from 'services/firebase';
+import {
+  db,
+  lessonFilesColRef,
+  lessonsColRef,
+  storage,
+} from 'services/firebase';
 import {
   ArrowForward,
   ArrowNarrowRight,
@@ -88,6 +93,9 @@ export function LessonModal(props: Prop) {
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setPostsNeedsUpdate] = React.useState(true);
+
   // header
   const [unitNumber, setUnitNumber] = React.useState('');
   const [classCode, setClassCode] = React.useState('');
@@ -420,7 +428,7 @@ export function LessonModal(props: Prop) {
 
   const onFileUpload = (files: File[]) => {
     for (const file of files) {
-      const storageRef = ref(storage, `${id}/${file.name}`);
+      const storageRef = ref(storage, `lessons/${id}/${file.name}`);
 
       const notificationId = uuidv4();
       showNotification({
@@ -437,7 +445,7 @@ export function LessonModal(props: Prop) {
         getDownloadURL(ref(storage, data.fullPath))
           .then(url => {
             // store data to firestore
-            addDoc(filesColRef, {
+            addDoc(lessonFilesColRef, {
               name: file.name,
               type: file.type,
               size: file.size,
@@ -486,7 +494,7 @@ export function LessonModal(props: Prop) {
     // fetch files
     console.log('onSnapshot: LessonModal Lesson Files');
     const q = query(
-      filesColRef,
+      lessonFilesColRef,
       where('lessonId', '==', id),
       orderBy('createdAt'),
     );
@@ -794,9 +802,16 @@ export function LessonModal(props: Prop) {
                     <div className="p-4">
                       <PostCard
                         id="asdfasdfa"
-                        ownerName="John Doe"
-                        date="2022-04-05T12:10"
+                        ownerId="John Doe"
                         content="Hello, World!"
+                        classId={''}
+                        numberOfComments={0}
+                        createdAt={''}
+                        updatedAt={''}
+                        files={[]}
+                        images={[]}
+                        likes={0}
+                        requestForUpdate={setPostsNeedsUpdate}
                       />
                     </div>
                   </ScrollArea>
