@@ -367,7 +367,7 @@ export function PostCard(props: Prop) {
               <Button
                 variant="subtle"
                 compact
-                color={'dark'}
+                color={isCommentsVisible ? 'primary' : 'dark'}
                 className="px-0"
                 onClick={() => setCommentsVisible(x => !x)}
               >

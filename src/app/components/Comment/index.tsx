@@ -1,4 +1,5 @@
 import { Group, Text, Stack, Menu, Textarea } from '@mantine/core';
+import { useModals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import {
   deleteDoc,
@@ -28,9 +29,10 @@ interface Props {
 export function Comment(props: Props) {
   const { comment, ownerId, createdAt, docRef } = props;
 
-  const [name, setName] = React.useState('');
-
+  const modals = useModals();
   const { currentUser } = useSelector(selectUser);
+
+  const [name, setName] = React.useState('');
 
   React.useEffect(() => {
     const fullname = async () => {
@@ -40,6 +42,24 @@ export function Comment(props: Props) {
 
     fullname();
   }, [ownerId]);
+
+  const openConfirmDeleteModal = () => {
+    modals.openConfirmModal({
+      title: `Delete comment?`,
+      centered: true,
+      confirmProps: { color: 'red' },
+      zIndex: 999,
+      trapFocus: true,
+      closeOnClickOutside: false,
+      children: (
+        <div className="pb-3">
+          <Text size="sm">Are you sure you want to delete this comment?</Text>
+        </div>
+      ),
+      labels: { confirm: 'Delete', cancel: 'No' },
+      onConfirm: () => deleteComment(),
+    });
+  };
 
   const deleteComment = async () => {
     try {
@@ -73,7 +93,7 @@ export function Comment(props: Props) {
             </Text>
             {currentUser && currentUser.sub === ownerId && (
               <Menu size="sm">
-                <Menu.Item color="red" onClick={deleteComment}>
+                <Menu.Item color="red" onClick={openConfirmDeleteModal}>
                   Delete
                 </Menu.Item>
               </Menu>
