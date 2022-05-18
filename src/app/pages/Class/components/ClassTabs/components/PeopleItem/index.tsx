@@ -1,24 +1,37 @@
 import { Group, Avatar, ActionIcon, Text, Checkbox } from '@mantine/core';
 import * as React from 'react';
 import { Mail, UserCircle, UserX } from 'tabler-icons-react';
+import { getNameAndPicture } from 'utils/userUtils';
 
 interface Prop {
-  name: string;
+  userId: string;
 }
 
 export function PeopleItem(props: Prop) {
-  const { name } = props;
+  const { userId } = props;
+
+  const [fullname, setFullname] = React.useState('');
+  const [picture, setPicture] = React.useState('');
+
+  React.useEffect(() => {
+    const fetchInfo = async () => {
+      const result = await getNameAndPicture(userId);
+      if (result) {
+        const { fullname, picture } = result;
+        setFullname(fullname);
+        setPicture(picture);
+      }
+    };
+
+    fetchInfo();
+  });
 
   return (
     <Group position="apart" className="mt-4 w-full">
       <Group>
         <Checkbox />
-        <Avatar
-          radius="xl"
-          src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80"
-          size="md"
-        />
-        <Text size="md">{name}</Text>
+        <Avatar radius="xl" src={picture} size="md" />
+        <Text size="md">{fullname}</Text>
       </Group>
       <Group>
         <ActionIcon>
