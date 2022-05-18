@@ -5,46 +5,105 @@ import {
   ActionIcon,
   Chips,
   Chip,
-  Menu,
+  Modal,
+  Divider,
+  Stack,
+  TextInput,
+  Textarea,
 } from '@mantine/core';
-import { Video, Settings, Link, Plus } from 'tabler-icons-react';
+import {
+  Video,
+  Settings,
+  Link,
+  Pencil,
+  CalendarEvent,
+  Clock,
+} from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
+import { useState } from 'react';
+import { DatePicker, TimeInput } from '@mantine/dates';
 
 interface Props {
   // someProps: string
 }
 
 export function MeetingsTab(props: Props) {
-  // const { someProps } = props;
+  const [NewMeetingOpened, NewMeetingsetOpened] = useState(false);
 
   return (
     <div className="bg-white p-6">
       <Group>
-        <Menu
-          size={250}
-          position="right"
-          control={
-            <Button
-              color="primary"
-              radius="xl"
-              size="md"
-              leftIcon={<Video size={20} />}
-            >
-              <Text weight={400} size="sm">
-                New Meeting
-              </Text>
-            </Button>
-          }
+        <Modal
+          centered
+          size="lg"
+          opened={NewMeetingOpened}
+          onClose={() => NewMeetingsetOpened(false)}
+          withCloseButton={false}
         >
-          <Menu.Item icon={<Link size={20} />}>
-            Create a meeting for later
-          </Menu.Item>
+          <Group position="apart">
+            <Text size="xl" weight={600}>
+              Create Meeting
+            </Text>
+            <Button variant="default">
+              <Text>Cancel</Text>
+            </Button>
+          </Group>
+          <Divider className="mt-6" />
 
-          <Menu.Item icon={<Plus size={20} />}>
-            Start an instant meeting
-          </Menu.Item>
-        </Menu>
+          <Stack className="mt-6">
+            <TextInput
+              size="md"
+              placeholder="Link"
+              icon={<Link color="gray" />}
+            />
+            <TextInput
+              size="md"
+              icon={<Pencil color="gray" />}
+              placeholder="Title"
+            />
+            <Textarea
+              size="md"
+              icon={<Pencil color="gray" className="mt-2.5 self-start" />}
+              placeholder="Description"
+              required
+            />
+            <DatePicker
+              size="md"
+              icon={<CalendarEvent color="gray" />}
+              label="Date"
+              required
+            />
+            <TimeInput
+              icon={<Clock color="gray" />}
+              size="md"
+              label="Time start"
+              format="12"
+              defaultValue={new Date()}
+              required
+            />
+            <TimeInput
+              icon={<Clock color="gray" />}
+              size="md"
+              label="Time end"
+              format="12"
+              defaultValue={new Date()}
+              required
+            />
+          </Stack>
+        </Modal>
+        <Button
+          onClick={() => NewMeetingsetOpened(true)}
+          color="primary"
+          radius="xl"
+          size="md"
+          leftIcon={<Video size={20} />}
+        >
+          <Text weight={400} size="sm">
+            New Meeting
+          </Text>
+        </Button>
+
         <Group className="ml-auto">
           <Chips color="violet" variant="filled" spacing={5} size="sm">
             <Chip value={'today'}>Today</Chip>
