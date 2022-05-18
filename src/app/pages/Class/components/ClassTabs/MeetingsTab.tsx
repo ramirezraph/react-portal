@@ -1,50 +1,36 @@
-import {
-  Text,
-  Button,
-  Group,
-  ActionIcon,
-  Chips,
-  Chip,
-  Menu,
-} from '@mantine/core';
-import { Video, Settings, Link, Plus } from 'tabler-icons-react';
+import { Text, Button, Group, ActionIcon, Chips, Chip } from '@mantine/core';
+import { Video, Settings } from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
+import { useState } from 'react';
+import { CreateMeetingModal } from 'app/components/CreateMeetingModal/Loadable';
 
 interface Props {
   // someProps: string
 }
 
 export function MeetingsTab(props: Props) {
-  // const { someProps } = props;
+  const [NewMeetingOpened, NewMeetingsetOpened] = useState(false);
 
   return (
     <div className="bg-white p-6">
+      <CreateMeetingModal
+        visible={NewMeetingOpened}
+        onToggle={NewMeetingsetOpened}
+      />
       <Group>
-        <Menu
-          size={250}
-          position="right"
-          control={
-            <Button
-              color="primary"
-              radius="xl"
-              size="md"
-              leftIcon={<Video size={20} />}
-            >
-              <Text weight={400} size="sm">
-                New Meeting
-              </Text>
-            </Button>
-          }
+        <Button
+          onClick={() => NewMeetingsetOpened(true)}
+          color="primary"
+          radius="xl"
+          size="md"
+          leftIcon={<Video size={20} />}
         >
-          <Menu.Item icon={<Link size={20} />}>
-            Create a meeting for later
-          </Menu.Item>
+          <Text weight={400} size="sm">
+            New Meeting
+          </Text>
+        </Button>
 
-          <Menu.Item icon={<Plus size={20} />}>
-            Start an instant meeting
-          </Menu.Item>
-        </Menu>
         <Group className="ml-auto">
           <Chips color="violet" variant="filled" spacing={5} size="sm">
             <Chip value={'today'}>Today</Chip>
