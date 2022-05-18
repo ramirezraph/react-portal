@@ -1,28 +1,9 @@
-import {
-  Text,
-  Button,
-  Group,
-  ActionIcon,
-  Chips,
-  Chip,
-  Modal,
-  Divider,
-  Stack,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
-import {
-  Video,
-  Settings,
-  Link,
-  Pencil,
-  CalendarEvent,
-  Clock,
-} from 'tabler-icons-react';
+import { Text, Button, Group, ActionIcon, Chips, Chip } from '@mantine/core';
+import { Video, Settings } from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
 import { useState } from 'react';
-import { DatePicker, TimeInput } from '@mantine/dates';
+import { CreateMeetingModal } from 'app/components/CreateMeetingModal/Loadable';
 
 interface Props {
   // someProps: string
@@ -33,65 +14,11 @@ export function MeetingsTab(props: Props) {
 
   return (
     <div className="bg-white p-6">
+      <CreateMeetingModal
+        visible={NewMeetingOpened}
+        onToggle={NewMeetingsetOpened}
+      />
       <Group>
-        <Modal
-          centered
-          size="lg"
-          opened={NewMeetingOpened}
-          onClose={() => NewMeetingsetOpened(false)}
-          withCloseButton={false}
-        >
-          <Group position="apart">
-            <Text size="xl" weight={600}>
-              Create Meeting
-            </Text>
-            <Button variant="default">
-              <Text>Cancel</Text>
-            </Button>
-          </Group>
-          <Divider className="mt-6" />
-
-          <Stack className="mt-6">
-            <TextInput
-              size="md"
-              placeholder="Link"
-              icon={<Link color="gray" />}
-            />
-            <TextInput
-              size="md"
-              icon={<Pencil color="gray" />}
-              placeholder="Title"
-            />
-            <Textarea
-              size="md"
-              icon={<Pencil color="gray" className="mt-2.5 self-start" />}
-              placeholder="Description"
-              required
-            />
-            <DatePicker
-              size="md"
-              icon={<CalendarEvent color="gray" />}
-              label="Date"
-              required
-            />
-            <TimeInput
-              icon={<Clock color="gray" />}
-              size="md"
-              label="Time start"
-              format="12"
-              defaultValue={new Date()}
-              required
-            />
-            <TimeInput
-              icon={<Clock color="gray" />}
-              size="md"
-              label="Time end"
-              format="12"
-              defaultValue={new Date()}
-              required
-            />
-          </Stack>
-        </Modal>
         <Button
           onClick={() => NewMeetingsetOpened(true)}
           color="primary"
