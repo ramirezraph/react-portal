@@ -9,8 +9,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadable';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
-import { string } from 'prop-types';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
