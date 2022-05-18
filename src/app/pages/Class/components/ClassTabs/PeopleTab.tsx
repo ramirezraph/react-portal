@@ -11,7 +11,7 @@ import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadab
 import * as React from 'react';
 import { useState } from 'react';
 import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
-import { PendingInvitesModal } from './components/PendingInvitesModal/loadable';
+import { PendingInvitesModal } from './components/PendingInvitesModal/Loadable';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
