@@ -4,26 +4,26 @@ import * as React from 'react';
 import { PendingInviteItem } from './components/PendingInviteItem';
 
 interface Prop {
-  opened: boolean;
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  visible: boolean;
+  onToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function PendingInvitesModal(props: Prop) {
-  const { opened, setOpened } = props;
+  const { visible, onToggle } = props;
 
   return (
     <Modal
       withCloseButton={false}
       size="xl"
       centered
-      opened={opened}
-      onClose={() => setOpened(false)}
+      opened={visible}
+      onClose={() => onToggle(false)}
     >
       <Group position="apart">
         <Text size="xl" weight={600}>
           Pending Invites
         </Text>
-        <Button variant="default" onClick={() => setOpened(false)}>
+        <Button variant="default" onClick={() => onToggle(false)}>
           Close
         </Button>
       </Group>

@@ -26,3 +26,12 @@ export interface Auth0User {
   sub?: string;
   [key: string]: any;
 }
+
+export enum NotificationType {
+  ClassInvite = 'ClassInvite',
+  ClassInviteResult = 'ClassInviteResult',
+  Assignment = 'Assignment',
+  Regular = 'Regular',
+  Post = 'Post',
+  Comment = 'Comment',
+}

@@ -2,22 +2,15 @@ import {
   ActionIcon,
   Button,
   Checkbox,
-  Divider,
   Group,
-  Modal,
   NativeSelect,
   Text,
   TextInput,
 } from '@mantine/core';
+import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadable';
 import * as React from 'react';
 import { useState } from 'react';
-import {
-  ArrowsUpDown,
-  Menu2,
-  Search,
-  UserPlus,
-  UserSearch,
-} from 'tabler-icons-react';
+import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
 import { PendingInvitesModal } from './components/PendingInvitesModal/loadable';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
@@ -27,54 +20,23 @@ interface Props {
 
 export function PeopleTab(props: Props) {
   // const { someProps } = props;
-  const [opened, setOpened] = useState(false);
-  const [openedInvite, setOpenedInvite] = useState(false);
+  const [openedPendingInvite, setOpenedPendingInvite] = useState(false);
+  const [openedSendInvite, setOpenedSendInvite] = useState(false);
 
   return (
     <div className="bg-white p-6">
-      <PendingInvitesModal opened={opened} setOpened={setOpened} />
+      <PendingInvitesModal
+        visible={openedPendingInvite}
+        onToggle={setOpenedPendingInvite}
+      />
+      <SendClassInviteModal
+        visible={openedSendInvite}
+        onToggle={setOpenedSendInvite}
+      />
 
       <Group position="apart">
-        <Modal
-          withCloseButton={false}
-          opened={openedInvite}
-          onClose={() => setOpenedInvite(false)}
-          centered
-          size="lg"
-        >
-          <Group position="apart">
-            <Text size="xl" weight={600}>
-              Send Invite
-            </Text>
-            <Button variant="default" onClick={() => setOpenedInvite(false)}>
-              Close
-            </Button>
-          </Group>
-          <Divider my="sm" />
-          <Group className="mt-10">
-            <TextInput
-              className="w-full"
-              placeholder="Search people by email"
-              variant="default"
-              icon={<UserSearch size={18} />}
-              size="md"
-            ></TextInput>
-            <Group position="apart">
-              <Text color="gray" size="xs">
-                Search Result:
-              </Text>
-              <Text color="gray" size="xs">
-                0
-              </Text>
-            </Group>
-          </Group>
-
-          <Button size="sm" className="mt-6 w-full">
-            SEND INVITE
-          </Button>
-        </Modal>
         <Button
-          onClick={() => setOpenedInvite(true)}
+          onClick={() => setOpenedSendInvite(true)}
           color="primary"
           radius="xl"
           leftIcon={<UserPlus size={19} />}
@@ -91,7 +53,7 @@ export function PeopleTab(props: Props) {
             size="sm"
             leftIcon={<Menu2 color="black" size={19} />}
             variant="subtle"
-            onClick={() => setOpened(true)}
+            onClick={() => setOpenedPendingInvite(true)}
           >
             <Text weight={400} color="black">
               Pending Invites

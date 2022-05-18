@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
 import { X } from 'tabler-icons-react';
-import { getFullname } from 'utils/fullname';
+import { getFullname } from 'utils/userUtils';
 import { UserAvatar } from '../UserAvatar';
 
 interface Props {
@@ -81,7 +81,7 @@ export function Comment(props: Props) {
 
   return (
     <Group className="w-full items-start" noWrap>
-      <UserAvatar radius="xl" size="md" />
+      <UserAvatar userId={ownerId} radius="xl" size="md" />
       <Stack className="w-full" spacing={0}>
         <Group position="apart" className="items-start">
           <Text size="sm" className="font-semibold">

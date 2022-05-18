@@ -36,7 +36,6 @@ import {
   doc,
   DocumentData,
   DocumentReference,
-  getDoc,
   getDocs,
   increment,
   onSnapshot,
@@ -56,6 +55,7 @@ import { showNotification, updateNotification } from '@mantine/notifications';
 import { useModals } from '@mantine/modals';
 import { UserAvatar } from '../UserAvatar/Loadable';
 import { Comment } from '../Comment';
+import { getNameAndPicture } from 'utils/userUtils';
 
 export interface IFile {
   id: string;
@@ -124,7 +124,8 @@ export function PostCard(props: Prop) {
   const [opened, setOpened] = React.useState(false);
   const [value, onChange] = React.useState(content);
   const [imageList, setImageList] = React.useState<IFile[]>([]);
-  const [ownerFullname, setOwnerFullname] = React.useState(content);
+  const [ownerFullname, setOwnerFullname] = React.useState('');
+  const [ownerPicture, setOwnerPicture] = React.useState('');
   const [isEditable, setIsEditable] = React.useState(false);
   const [isCommentsVisible, setCommentsVisible] = React.useState(false);
   const [newComment, setNewComment] = React.useState('');
@@ -132,13 +133,12 @@ export function PostCard(props: Prop) {
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
-      // get post owner info
-      const userDocRef = doc(db, 'users', ownerId);
-      const userDocSnap = await getDoc(userDocRef);
-      if (userDocSnap.exists()) {
-        const firstName = userDocSnap.data().firstName;
-        const lastName = userDocSnap.data().lastName;
-        setOwnerFullname(`${firstName} ${lastName}`);
+      const nameAndPicture = await getNameAndPicture(ownerId);
+      if (nameAndPicture) {
+        const { fullname, picture } = nameAndPicture;
+
+        setOwnerFullname(fullname);
+        setOwnerPicture(picture);
       }
     };
 
@@ -322,7 +322,12 @@ export function PostCard(props: Prop) {
   return (
     <Card className="mt-3 rounded-md">
       <Group direction="row" noWrap>
-        <Avatar color={'primary'} radius="xl" className="self-start" />
+        <Avatar
+          src={ownerPicture}
+          color={'primary'}
+          radius="xl"
+          className="self-start"
+        />
         <Group direction="column" className="flex-grow" noWrap>
           <Group direction="row" position="apart" className="w-full" noWrap>
             <div className="flex-grow">
