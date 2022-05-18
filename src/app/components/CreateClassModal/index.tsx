@@ -49,6 +49,7 @@ export function CreateClassModal(props: Props) {
       ownerId: userSlice.currentUser?.sub,
       shortDescription: values.shortDescription,
       usersList: [userSlice.currentUser?.sub],
+      pendingInvites: [],
       inviteCode: uuidv4(),
       color: 'blue',
       createdAt: serverTimestamp(),
