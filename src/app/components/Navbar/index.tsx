@@ -1,12 +1,5 @@
 import * as React from 'react';
-import {
-  Avatar,
-  Divider,
-  Group,
-  Navbar,
-  Text,
-  useMantineTheme,
-} from '@mantine/core';
+import { Divider, Group, Navbar, Text } from '@mantine/core';
 import {
   Book,
   Calendar,
@@ -20,28 +13,24 @@ import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
 import { selectClasses } from 'app/pages/Classes/slice/selectors';
 import { Class } from 'app/pages/Classes/slice/types';
+import { UserAvatar } from '../UserAvatar';
 
 interface Props {
   hidden: boolean;
 }
 
 export function AppNavbar(props: Props) {
-  const theme = useMantineTheme();
   const { hidden } = props;
 
   const userSlice = useSelector(selectUser);
   const classesSlice = useSelector(selectClasses);
 
-  const [userImageUrl, setUserImageUrl] = React.useState(
-    userSlice.currentUser?.picture,
-  );
   const [userName, setUserName] = React.useState(
     userSlice.currentUser?.nickname,
   );
   const [classes, setClasses] = React.useState<Class[]>([]);
 
   React.useEffect(() => {
-    setUserImageUrl(userSlice.currentUser?.picture);
     setUserName(userSlice.currentUser?.name);
   }, [userSlice]);
 
@@ -64,13 +53,7 @@ export function AppNavbar(props: Props) {
     >
       <Group direction="column">
         <Group direction="column">
-          <Avatar
-            size={'lg'}
-            src={userImageUrl}
-            radius="lg"
-            alt="John D. Doe"
-            color={theme.primaryColor}
-          />
+          <UserAvatar currentUser />
           <Text weight={'bold'} className="w-full" lineClamp={1}>
             {userName}
           </Text>

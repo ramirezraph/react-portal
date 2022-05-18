@@ -17,6 +17,9 @@ module.exports = {
         'loading-bounce-3': 'bounce 1.5s ease-in-out',
         'loading-bounce-4': 'bounce 1.75s ease-in-out',
       },
+      fontFamily: {
+        openSans: ["'Open Sans'", "'sans-serif'"],
+      },
     },
   },
   plugins: [],
