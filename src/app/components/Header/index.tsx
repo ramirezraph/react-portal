@@ -50,7 +50,7 @@ export function AppHeader(props: Props) {
 
     const q = query(
       collection(db, `users/${currentUser.sub}/notifications`),
-      orderBy('createdAt'),
+      orderBy('createdAt', 'desc'),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
       const list: AppNotification[] = [];

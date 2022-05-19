@@ -83,6 +83,12 @@ export function PopoverNotification(props: Prop) {
       placement="end"
       gutter={30}
       withArrow
+      styles={{
+        inner: {
+          overflowY: 'auto',
+          maxHeight: 600,
+        },
+      }}
     >
       <Group position="apart">
         <Text>Earlier</Text>
@@ -104,9 +110,11 @@ export function PopoverNotification(props: Prop) {
             return (
               <ClassInviteNotification
                 key={index}
+                id={notification.id}
                 fromUserId={notification.fromUserId}
                 classId={notification.classId!}
                 createdAt={notification.createdAt}
+                result={notification.result}
               />
             );
           }
@@ -114,9 +122,11 @@ export function PopoverNotification(props: Prop) {
           return (
             <ClassInviteNotification
               key={index}
+              id={notification.id}
               fromUserId={notification.fromUserId}
               classId={notification.classId!}
               createdAt={notification.createdAt}
+              result={notification.result}
             />
           );
         })}
