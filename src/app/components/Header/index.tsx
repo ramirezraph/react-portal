@@ -57,6 +57,7 @@ export function AppHeader(props: Props) {
       querySnapshot.forEach(doc => {
         const data = doc.data();
         const notification: AppNotification = {
+          id: doc.id,
           fromUserId: data.fromUserId,
           read: data.read,
           type: data.type,

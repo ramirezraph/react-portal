@@ -42,6 +42,7 @@ export enum ClassInviteResult {
 }
 
 export interface AppNotification {
+  id: string;
   createdAt: string;
   fromUserId: string;
   read: boolean;
