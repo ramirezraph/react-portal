@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
+import { ClassRole } from '../../slice/types';
 import { PendingInvitesModal } from './components/PendingInvitesModal/Loadable';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
@@ -41,7 +42,7 @@ export function PeopleTab(props: Props) {
 
     const q = query(
       collection(db, `classes/${activeClass.id}/people`),
-      where('type', '==', 'teacher'),
+      where('type', '==', ClassRole.Teacher),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
       const list: string[] = [];
@@ -64,7 +65,7 @@ export function PeopleTab(props: Props) {
 
     const q = query(
       collection(db, `classes/${activeClass.id}/people`),
-      where('type', '==', 'students'),
+      where('type', '==', ClassRole.Student),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
       const list: string[] = [];

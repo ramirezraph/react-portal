@@ -11,6 +11,7 @@ import { arrayRemove, arrayUnion, doc, writeBatch } from 'firebase/firestore';
 import { db } from 'services/firebase';
 import { showNotification } from '@mantine/notifications';
 import { X } from 'tabler-icons-react';
+import { ClassRole } from 'app/pages/Class/slice/types';
 
 interface Props {
   id: string;
@@ -43,7 +44,7 @@ export function ClassInviteNotification(props: Props) {
         usersList: arrayUnion(currentUser.sub),
       });
       batch.set(doc(db, `${classDocRef.path}/people`, currentUser.sub), {
-        type: 'Student',
+        type: ClassRole.Student,
       });
       // remove the user from pending invites
       batch.update(classDocRef, {

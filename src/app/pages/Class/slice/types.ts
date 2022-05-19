@@ -11,6 +11,11 @@ export interface ClassroomState {
   lessonModalBackground: Location | undefined;
 }
 
+export enum ClassRole {
+  Student = 'Student',
+  Teacher = 'Teacher',
+}
+
 export interface Unit {
   id: string;
   number: number;
