@@ -35,3 +35,27 @@ export enum NotificationType {
   Post = 'Post',
   Comment = 'Comment',
 }
+
+export enum ClassInviteResult {
+  Accepted = 'Accepted',
+  Rejected = 'Rejected',
+}
+
+export interface AppNotification {
+  createdAt: string;
+  fromUserId: string;
+  read: boolean;
+  type: NotificationType;
+
+  // class invite
+  classId?: string;
+
+  // class invite result
+  result?: ClassInviteResult;
+
+  // post
+  postId?: string;
+
+  // assignment
+  classworkId?: string;
+}

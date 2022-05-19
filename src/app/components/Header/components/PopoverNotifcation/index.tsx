@@ -1,14 +1,26 @@
-import { Popover, Group, Button, Divider, Text } from '@mantine/core';
+import { Popover, Group, Button, Divider, Text, Stack } from '@mantine/core';
+import { ClassInviteNotification } from 'app/components/Notifications';
 import * as React from 'react';
-import { useState } from 'react';
+import { AppNotification, NotificationType } from 'store/userSlice/types';
 import { Bell } from 'tabler-icons-react';
-import { NotificationItems } from '../NotificationItems/loadable';
 
-interface Prop {}
+interface Prop {
+  notifications: AppNotification[];
+}
 
 export function PopoverNotification(props: Prop) {
+  const { notifications } = props;
+
   const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
+    React.useState(false);
+  const [notificationsList, setNotificationsList] = React.useState<
+    AppNotification[]
+  >([]);
+
+  React.useEffect(() => {
+    setNotificationsList(notifications);
+  }, [notifications]);
+
   return (
     <Popover
       opened={notificationModalVisible}
@@ -28,19 +40,37 @@ export function PopoverNotification(props: Prop) {
           VIEW ALL
         </Button>
       </Group>
-      <Divider />
-      <NotificationItems
-        name="Genesis Diaz"
-        imageUrl="https://i.pravatar.cc/150"
-        subject="Python"
-        date="10 months ago"
-      />
-      <NotificationItems
-        name="Hanz Cruz"
-        imageUrl="https://scontent.fmnl17-3.fna.fbcdn.net/v/t39.30808-6/275215941_5295957080448286_5224006195072843048_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_eui2=AeFB46Q75bZBa0lwGxi0ESEc4ukXJUc7J8Di6RclRzsnwF7O92Butm3Wu_QY5_jkB5bN_Zj_bBCjfeOcSyZj_5x-&_nc_ohc=fzGRQj-i_0AAX86DogB&_nc_ht=scontent.fmnl17-3.fna&oh=00_AT8sUufdW3eUGcB7mKAa4z7w4JkXk4_SwCCQ0Sq6sAsNug&oe=62767843"
-        subject="Recess"
-        date="10 months ago"
-      />
+      <Divider className="mt-1" />
+      <Stack>
+        {notificationsList.length === 0 && (
+          <div className="py-3">
+            <Text size="sm" color="gray">
+              You have no notifications.
+            </Text>
+          </div>
+        )}
+        {notificationsList.map((notification, index) => {
+          if (notification.type === NotificationType.ClassInvite) {
+            return (
+              <ClassInviteNotification
+                key={index}
+                fromUserId={notification.fromUserId}
+                classId={notification.classId!}
+                createdAt={notification.createdAt}
+              />
+            );
+          }
+
+          return (
+            <ClassInviteNotification
+              key={index}
+              fromUserId={notification.fromUserId}
+              classId={notification.classId!}
+              createdAt={notification.createdAt}
+            />
+          );
+        })}
+      </Stack>
     </Popover>
   );
 }
