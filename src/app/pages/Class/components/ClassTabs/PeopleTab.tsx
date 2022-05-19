@@ -55,6 +55,7 @@ export function PeopleTab(props: Props) {
     return () => {
       console.log('onSnapshot: Teachers - unsubscribe');
       unsubscribe();
+      setTeachers([]);
     };
   }, [activeClass?.id]);
 
@@ -78,6 +79,7 @@ export function PeopleTab(props: Props) {
     return () => {
       console.log('onSnapshot: Students - unsubscribe');
       unsubscribe();
+      setStudents([]);
     };
   }, [activeClass?.id]);
 
