@@ -1,26 +1,94 @@
-import { Popover, Group, Button, Divider, Text } from '@mantine/core';
+import {
+  Popover,
+  Group,
+  Button,
+  Divider,
+  Text,
+  Stack,
+  Indicator,
+} from '@mantine/core';
+import { ClassInviteNotification } from 'app/components/Notifications';
+import { doc, updateDoc } from 'firebase/firestore';
 import * as React from 'react';
-import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { db } from 'services/firebase';
+import { selectUser } from 'store/userSlice/selectors';
+import { AppNotification, NotificationType } from 'store/userSlice/types';
 import { Bell } from 'tabler-icons-react';
-import { NotificationItems } from '../NotificationItems/loadable';
 
-interface Prop {}
+interface Prop {
+  notifications: AppNotification[];
+}
 
 export function PopoverNotification(props: Prop) {
+  const { notifications } = props;
+
+  const { currentUser } = useSelector(selectUser);
+
   const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
+    React.useState(false);
+  const [notificationsList, setNotificationsList] = React.useState<
+    AppNotification[]
+  >([]);
+  const [numberOfUnreadNotifications, setNumberOfUnreadNotifications] =
+    React.useState(0);
+
+  React.useEffect(() => {
+    setNotificationsList(notifications);
+
+    const unreads = notifications.filter(n => !n.read).length;
+    setNumberOfUnreadNotifications(unreads);
+  }, [notifications]);
+
+  React.useEffect(() => {
+    if (!currentUser?.sub) return;
+    if (!notificationModalVisible) return;
+
+    const setNotificationsAsRead = async () => {
+      const unreadNotifications = notificationsList.filter(n => !n.read);
+      for (const notification of unreadNotifications) {
+        const notificationDocRef = doc(
+          db,
+          `users/${currentUser.sub}/notifications`,
+          notification.id,
+        );
+        await updateDoc(notificationDocRef, {
+          read: true,
+        });
+      }
+    };
+
+    setNotificationsAsRead();
+  }, [currentUser?.sub, notificationModalVisible, notificationsList]);
+
   return (
     <Popover
       opened={notificationModalVisible}
       onClose={() => setNotificationModalVisible(false)}
       target={
-        <Bell size={24} onClick={() => setNotificationModalVisible(o => !o)} />
+        <Indicator
+          inline
+          label={numberOfUnreadNotifications}
+          size={16}
+          disabled={numberOfUnreadNotifications === 0}
+        >
+          <Bell
+            size={24}
+            onClick={() => setNotificationModalVisible(o => !o)}
+          />
+        </Indicator>
       }
       width={400}
       position="top"
       placement="end"
       gutter={30}
       withArrow
+      styles={{
+        inner: {
+          overflowY: 'auto',
+          maxHeight: 600,
+        },
+      }}
     >
       <Group position="apart">
         <Text>Earlier</Text>
@@ -28,19 +96,41 @@ export function PopoverNotification(props: Prop) {
           VIEW ALL
         </Button>
       </Group>
-      <Divider />
-      <NotificationItems
-        name="Genesis Diaz"
-        imageUrl="https://i.pravatar.cc/150"
-        subject="Python"
-        date="10 months ago"
-      />
-      <NotificationItems
-        name="Hanz Cruz"
-        imageUrl="https://scontent.fmnl17-3.fna.fbcdn.net/v/t39.30808-6/275215941_5295957080448286_5224006195072843048_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_eui2=AeFB46Q75bZBa0lwGxi0ESEc4ukXJUc7J8Di6RclRzsnwF7O92Butm3Wu_QY5_jkB5bN_Zj_bBCjfeOcSyZj_5x-&_nc_ohc=fzGRQj-i_0AAX86DogB&_nc_ht=scontent.fmnl17-3.fna&oh=00_AT8sUufdW3eUGcB7mKAa4z7w4JkXk4_SwCCQ0Sq6sAsNug&oe=62767843"
-        subject="Recess"
-        date="10 months ago"
-      />
+      <Divider className="mt-1" />
+      <Stack>
+        {notificationsList.length === 0 && (
+          <div className="py-3">
+            <Text size="sm" color="gray">
+              You have no notifications.
+            </Text>
+          </div>
+        )}
+        {notificationsList.map((notification, index) => {
+          if (notification.type === NotificationType.ClassInvite) {
+            return (
+              <ClassInviteNotification
+                key={index}
+                id={notification.id}
+                fromUserId={notification.fromUserId}
+                classId={notification.classId!}
+                createdAt={notification.createdAt}
+                result={notification.result}
+              />
+            );
+          }
+
+          return (
+            <ClassInviteNotification
+              key={index}
+              id={notification.id}
+              fromUserId={notification.fromUserId}
+              classId={notification.classId!}
+              createdAt={notification.createdAt}
+              result={notification.result}
+            />
+          );
+        })}
+      </Stack>
     </Popover>
   );
 }

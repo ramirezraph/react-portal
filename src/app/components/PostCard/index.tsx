@@ -172,6 +172,10 @@ export function PostCard(props: Prop) {
     };
 
     fetchImages();
+
+    return () => {
+      setImageList([]);
+    };
   }, [id]);
 
   React.useEffect(() => {
@@ -211,6 +215,7 @@ export function PostCard(props: Prop) {
     return () => {
       console.log('onSnapshot: comments - unsubscribe');
       unsubscribe();
+      setComments([]);
     };
   }, [currentUser, currentUser?.sub, id, isCommentsVisible]);
 

@@ -8,6 +8,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
+import { ClassRole } from 'app/pages/Class/slice/types';
 import { addDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
@@ -60,7 +61,7 @@ export function CreateClassModal(props: Props) {
         return setDoc(
           doc(db, `${newClassDoc.path}/people`, userSlice.currentUser?.sub!),
           {
-            type: 'teacher',
+            type: ClassRole.Teacher,
           },
         );
       })
