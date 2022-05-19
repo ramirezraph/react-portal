@@ -45,6 +45,11 @@ export function UserAvatar(props: Props) {
     };
 
     getUserInfo();
+
+    return () => {
+      setFullname('');
+      setPicture('');
+    };
   }, [CurrentAuthUser?.sub, currentUser, userId]);
 
   return (
