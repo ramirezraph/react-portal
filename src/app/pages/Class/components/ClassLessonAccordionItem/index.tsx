@@ -2,9 +2,11 @@ import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { lessonFilesColRef } from 'services/firebase';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
-import { Lesson, LessonFile } from '../../slice/types';
+import { selectClassroom } from '../../slice/selectors';
+import { ClassRole, Lesson, LessonFile } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 
@@ -24,6 +26,8 @@ export function ClassLessonAccordionItem(props: Props) {
 
   const [isOpened, setIsOpened] = React.useState(false);
   const [files, setFiles] = React.useState<LessonFile[]>([]);
+
+  const { activeClassRole } = useSelector(selectClassroom);
 
   React.useEffect(() => {
     if (!isOpened) {
@@ -104,6 +108,7 @@ export function ClassLessonAccordionItem(props: Props) {
                   fullPath={file.fullPath}
                   createdAt={file.createdAt}
                   updatedAt={file.updatedAt}
+                  viewOnly={activeClassRole !== ClassRole.Teacher}
                   compact
                 />
               ))}

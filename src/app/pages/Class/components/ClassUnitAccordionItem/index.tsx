@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { Check, ChevronDown, ChevronUp, X } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
-import { Lesson, Unit } from '../../slice/types';
+import { ClassRole, Lesson, Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 import { v4 as uuidv4 } from 'uuid';
@@ -193,15 +193,20 @@ export function ClassUnitAccordionItem(props: Props) {
               )}
             </Skeleton>
 
-            <Divider className="mt-6" />
-            <ClassAccordionControl
-              unitId={unit.id}
-              unitNumber={`Unit ${unit.number}`}
-              live={unit.isLive}
-              type={ClassAccordionType.Unit}
-              openDeleteModal={displayDeleteUnitModal}
-              openEditModal={prepareEditUnitModal}
-            />
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <Divider className="mt-6" />
+            )}
+
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <ClassAccordionControl
+                unitId={unit.id}
+                unitNumber={`Unit ${unit.number}`}
+                live={unit.isLive}
+                type={ClassAccordionType.Unit}
+                openDeleteModal={displayDeleteUnitModal}
+                openEditModal={prepareEditUnitModal}
+              />
+            )}
           </div>
         </Collapse>
       </Stack>

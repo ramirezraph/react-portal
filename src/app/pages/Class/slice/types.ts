@@ -9,6 +9,7 @@ export interface ClassroomState {
   unitPath: string;
   classworkModalBackground: Location | undefined;
   lessonModalBackground: Location | undefined;
+  activeClassRole: ClassRole | undefined;
 }
 
 export enum ClassRole {

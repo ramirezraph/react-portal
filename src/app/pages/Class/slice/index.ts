@@ -2,7 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { classroomSaga } from './saga';
-import { ClassroomState, Lesson, Unit } from './types';
+import { ClassRole, ClassroomState, Lesson, Unit } from './types';
 
 import { Location } from 'react-router-dom';
 import { Class } from 'app/pages/Classes/slice/types';
@@ -14,6 +14,7 @@ export const initialState: ClassroomState = {
   unitPath: '',
   classworkModalBackground: undefined,
   lessonModalBackground: undefined,
+  activeClassRole: undefined,
 };
 
 const slice = createSlice({
@@ -49,6 +50,9 @@ const slice = createSlice({
     },
     setActiveClass(state, action: PayloadAction<{ activeClass: Class }>) {
       state.activeClass = action.payload.activeClass;
+    },
+    setActiveClassRole(state, action: PayloadAction<{ role: ClassRole }>) {
+      state.activeClassRole = action.payload.role;
     },
   },
 });

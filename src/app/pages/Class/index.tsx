@@ -1,12 +1,20 @@
 import { Box, Button, Group, Skeleton, Text } from '@mantine/core';
 import { CreateUnitModal } from 'app/components/CreateUnitModal/Loadable';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { db } from 'services/firebase';
+import { selectUser } from 'store/userSlice/selectors';
 
 import { CardColor, ClassCard } from '../../components/ClassCard';
 import { selectClasses } from '../Classes/slice/selectors';
@@ -15,7 +23,7 @@ import { ClassTabs } from './components/ClassTabs/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
 import { useClassroomSlice } from './slice';
 import { selectClassroom } from './slice/selectors';
-import { Lesson, Unit } from './slice/types';
+import { ClassRole, Lesson, Unit } from './slice/types';
 
 export function Class() {
   let { id } = useParams();
@@ -23,6 +31,7 @@ export function Class() {
   const dispatch = useDispatch();
   const classroom = useSelector(selectClassroom);
   const classes = useSelector(selectClasses);
+  const { currentUser } = useSelector(selectUser);
   const { actions } = useClassroomSlice();
   const { actions: classroomActions } = useClassroomSlice();
 
@@ -49,6 +58,23 @@ export function Class() {
     fetchClassData();
     setLoading(false);
   }, [classes.classes, classroomActions, dispatch, id]);
+
+  React.useEffect(() => {
+    const getUserRole = async () => {
+      if (!openedClass?.id) return;
+      if (!currentUser?.sub) return;
+
+      const peopleColPath = `classes/${openedClass.id}/people`;
+      const docRef = doc(db, peopleColPath, currentUser.sub);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        dispatch(classroomActions.setActiveClassRole({ role: data.type }));
+      }
+    };
+
+    getUserRole();
+  }, [classroomActions, currentUser?.sub, dispatch, openedClass?.id]);
 
   React.useEffect(() => {
     if (!classroom.unitPath) return;
@@ -116,37 +142,40 @@ export function Class() {
                     {unitsList.length > 0 && (
                       <ClassUnitAccordion units={unitsList} />
                     )}
-                    {unitsList.length > 0 && (
-                      <Button
-                        className="mt-2"
-                        color="primary"
-                        onClick={() => {
-                          setCreateUnitModalVisible(true);
-                        }}
-                      >
-                        <Text size="sm" weight={400}>
-                          Add new unit
-                        </Text>
-                      </Button>
-                    )}
+                    {classroom.activeClassRole === ClassRole.Teacher &&
+                      unitsList.length > 0 && (
+                        <Button
+                          className="mt-2"
+                          color="primary"
+                          onClick={() => {
+                            setCreateUnitModalVisible(true);
+                          }}
+                        >
+                          <Text size="sm" weight={400}>
+                            Add new unit
+                          </Text>
+                        </Button>
+                      )}
                     {unitsList.length === 0 && (
                       <Group className="mt-3 py-2">
                         <Text size="sm" color="gray">
                           No unit for this class yet.
                         </Text>
-                        <Button
-                          compact
-                          variant="subtle"
-                          size="sm"
-                          className="px-0"
-                          onClick={() => {
-                            setCreateUnitModalVisible(true);
-                          }}
-                        >
-                          <Text size="sm" color="primary">
-                            Create
-                          </Text>
-                        </Button>
+                        {classroom.activeClassRole === ClassRole.Teacher && (
+                          <Button
+                            compact
+                            variant="subtle"
+                            size="sm"
+                            className="px-0"
+                            onClick={() => {
+                              setCreateUnitModalVisible(true);
+                            }}
+                          >
+                            <Text size="sm" color="primary">
+                              Create
+                            </Text>
+                          </Button>
+                        )}
                       </Group>
                     )}
 
