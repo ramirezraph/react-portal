@@ -35,6 +35,11 @@ export function PeopleItem(props: Prop) {
     if (userId === currentUser?.sub) {
       setIsCurrentUser(true);
     }
+
+    return () => {
+      setFullname('');
+      setPicture('');
+    };
   }, [currentUser?.sub, userId]);
 
   return (

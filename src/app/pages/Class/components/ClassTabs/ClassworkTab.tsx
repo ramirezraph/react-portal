@@ -21,8 +21,10 @@ import { ClassworkItem } from './components/ClassworkItem/Loadable';
 
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 import { Location, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useClassroomSlice } from '../../slice';
+import { selectClassroom } from '../../slice/selectors';
+import { ClassRole } from '../../slice/types';
 
 ChartJS.register(ArcElement, Tooltip);
 
@@ -30,10 +32,9 @@ interface Props {}
 
 export function ClassworkTab(props: Props) {
   const { actions } = useClassroomSlice();
+  const { activeClassRole } = useSelector(selectClassroom);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
-
   let location: Location = useLocation();
 
   const [doughnutData] = React.useState({
@@ -79,24 +80,26 @@ export function ClassworkTab(props: Props) {
           <Text size="lg">
             Classwork - <span className="font-semibold">CPE 401</span>
           </Text>
-          <Group spacing={'xs'}>
-            <Menu
-              control={
-                <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
-                  <Text weight={400} size="sm">
-                    Create new
-                  </Text>
-                </Button>
-              }
-            >
-              <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
-              <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
-              <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
-            </Menu>
-            <Button size="md" radius="xl">
-              <Settings size={21} />
-            </Button>
-          </Group>
+          {activeClassRole === ClassRole.Teacher && (
+            <Group spacing={'xs'}>
+              <Menu
+                control={
+                  <Button size="md" radius="xl" leftIcon={<Plus size={21} />}>
+                    <Text weight={400} size="sm">
+                      Create new
+                    </Text>
+                  </Button>
+                }
+              >
+                <Menu.Item icon={<Pencil size={16} />}>option 1</Menu.Item>
+                <Menu.Item icon={<Pencil size={16} />}>option 2</Menu.Item>
+                <Menu.Item icon={<Pencil size={16} />}>option 3</Menu.Item>
+              </Menu>
+              <Button size="md" radius="xl">
+                <Settings size={21} />
+              </Button>
+            </Group>
+          )}
         </Group>
         <Group spacing="xl">
           <div className="w-32">
