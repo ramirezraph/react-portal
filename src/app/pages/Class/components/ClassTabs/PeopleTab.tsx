@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   Group,
+  Menu,
   NativeSelect,
   Stack,
   Text,
@@ -21,7 +22,15 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
-import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
+import {
+  ArrowsUpDown,
+  ChevronDown,
+  Mail,
+  Menu2,
+  Search,
+  UserPlus,
+  X,
+} from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassRole } from '../../slice/types';
 import { PendingInvitesModal } from './components/PendingInvitesModal/Loadable';
@@ -162,10 +171,22 @@ export function PeopleTab(props: Props) {
       <Group position="apart" className="mt-6">
         <Group>
           <Checkbox />
-          <NativeSelect
-            className="w-48"
-            data={['Action', 'React', 'Vue', 'Angular', 'Svelte']}
-          />
+          <Menu
+            control={
+              <Button
+                variant="outline"
+                color="gray"
+                rightIcon={<ChevronDown size={14} />}
+              >
+                Actions
+              </Button>
+            }
+          >
+            <Menu.Item icon={<Mail size={18} />}>Send an email</Menu.Item>
+            <Menu.Item color="red" icon={<X size={18} />}>
+              Kick
+            </Menu.Item>
+          </Menu>
           <ActionIcon>
             <ArrowsUpDown size={20} />
           </ActionIcon>
