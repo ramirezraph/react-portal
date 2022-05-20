@@ -7,10 +7,11 @@ import { getNameAndPicture } from 'utils/userUtils';
 
 interface Prop {
   userId: string;
+  viewOnly?: boolean;
 }
 
 export function PeopleItem(props: Prop) {
-  const { userId } = props;
+  const { userId, viewOnly } = props;
 
   const { currentUser } = useSelector(selectUser);
 
@@ -39,10 +40,15 @@ export function PeopleItem(props: Prop) {
   return (
     <Group position="apart" className="mt-4 w-full">
       <Group>
-        <Checkbox />
+        {!viewOnly && <Checkbox />}
         <Avatar radius="xl" src={picture} size="md" />
         <Text size="md">{fullname}</Text>
       </Group>
+      {isCurrentUser && (
+        <Text size="sm" color="gray" className="w-12 italic">
+          you
+        </Text>
+      )}
       {!isCurrentUser && (
         <Group>
           <ActionIcon>
@@ -51,9 +57,11 @@ export function PeopleItem(props: Prop) {
           <ActionIcon>
             <UserCircle />
           </ActionIcon>
-          <ActionIcon>
-            <UserX />
-          </ActionIcon>
+          {!viewOnly && (
+            <ActionIcon>
+              <UserX />
+            </ActionIcon>
+          )}
         </Group>
       )}
     </Group>
