@@ -54,7 +54,7 @@ export function AppNavbar(props: Props) {
       <Group direction="column">
         <Group direction="column">
           <UserAvatar currentUser />
-          <Text weight={'bold'} className="w-full" lineClamp={1}>
+          <Text weight={'bold'} className="w-40" lineClamp={1}>
             {userName}
           </Text>
         </Group>
