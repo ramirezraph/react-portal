@@ -120,6 +120,7 @@ export function ClassLessonAccordionItem(props: Props) {
             live={lesson.isLive}
             type={ClassAccordionType.Lesson}
             unitNumber={unitNumber}
+            numberOfComments={lesson.numberOfComments}
           />
         </Stack>
       </Collapse>

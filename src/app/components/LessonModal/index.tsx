@@ -2,10 +2,8 @@ import {
   ActionIcon,
   Button,
   Card,
-  Collapse,
   Divider,
   Group,
-  Menu,
   Modal,
   ScrollArea,
   Stack,
@@ -19,11 +17,8 @@ import {
   doc,
   DocumentData,
   onSnapshot,
-  orderBy,
-  query,
   Timestamp,
   updateDoc,
-  where,
 } from 'firebase/firestore';
 import * as React from 'react';
 import {
@@ -32,38 +27,19 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import {
-  db,
-  lessonFilesColRef,
-  lessonsColRef,
-  storage,
-} from 'services/firebase';
-import {
-  ArrowForward,
-  BrandGoogleDrive,
-  Check,
-  Download,
-  Link,
-  Pencil,
-  Plus,
-  Settings,
-  Trash,
-  Upload,
-  X,
-} from 'tabler-icons-react';
+import { db, lessonsColRef } from 'services/firebase';
+import { ArrowForward, Check, Pencil, Trash, X } from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
-import { PostCard } from '../PostCard';
 import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
 import { useModals } from '@mantine/modals';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { FileDropzone } from './components/FileDropzone/Loadable';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
-import { AttachedFile } from './components/AttachedFile/Loadable';
+import { ClassRole } from 'app/pages/Class/slice/types';
 import RichTextEditor, { Editor } from '@mantine/rte';
 import { Topbar } from './Topbar';
+import { CommentSection } from './CommentSection';
+import { Attachments } from './Attachments';
 
 interface Prop {}
 
@@ -72,7 +48,6 @@ export function LessonModal(props: Prop) {
   const location = useLocation();
   const { id } = useParams();
   const modals = useModals();
-
   const onClose = () => {
     navigate(-1);
   };
@@ -83,11 +58,9 @@ export function LessonModal(props: Prop) {
   const [lessonIsNew, setLessonIsNew] = React.useState(false);
   const [isOnEditMode, setIsOnEditMode] = React.useState(false);
   const [submitLoading, setSubmitLoading] = React.useState(false);
-  const [uploadFileMode, setUploadFileMode] = React.useState(false);
   const [lessonNumber, setLessonNumber] = React.useState('Lesson 1');
   const [title, setTitle] = React.useState('Why we program?');
   const [content, setContent] = React.useState('');
-  const [files, setFiles] = React.useState<LessonFile[]>([]);
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
@@ -232,6 +205,7 @@ export function LessonModal(props: Prop) {
       title: title,
       content: content,
       isLive: isLive,
+      numberOfComments: 0,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
       deletedAt: null,
@@ -425,105 +399,6 @@ export function LessonModal(props: Prop) {
     }
   };
 
-  const onFileUpload = (files: File[]) => {
-    for (const file of files) {
-      const storageRef = ref(storage, `lessons/${id}/${file.name}`);
-
-      const notificationId = uuidv4();
-      showNotification({
-        id: notificationId,
-        loading: true,
-        title: 'In progress',
-        message: `Uploading ${file.name} ...`,
-        autoClose: false,
-        disallowClose: true,
-      });
-
-      uploadBytes(storageRef, file).then(snapshot => {
-        const data = snapshot.ref;
-        getDownloadURL(ref(storage, data.fullPath))
-          .then(url => {
-            // store data to firestore
-            addDoc(lessonFilesColRef, {
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              lessonId: id,
-              fullPath: data.fullPath,
-              downloadUrl: url,
-              createdAt: Timestamp.now(),
-              updatedAt: Timestamp.now(),
-              deletedAt: null,
-            })
-              .then(() => {
-                updateNotification({
-                  id: notificationId,
-                  title: 'Success',
-                  message: `File ${file.name} uploaded successfully.`,
-                  color: 'green',
-                  icon: <Check />,
-                });
-              })
-              .catch(e => {
-                updateNotification({
-                  id: notificationId,
-                  title: 'Failed',
-                  message: `File ${file.name} upload failed.`,
-                  color: 'red',
-                  icon: <X />,
-                });
-              });
-          })
-          .catch(e => {
-            updateNotification({
-              id: notificationId,
-              title: 'Failed',
-              message: `File ${file.name} upload failed.`,
-              color: 'red',
-              icon: <X />,
-            });
-          });
-      });
-    }
-  };
-
-  React.useEffect(() => {
-    if (!id) return;
-
-    // fetch files
-    console.log('onSnapshot: LessonModal Lesson Files');
-    const q = query(
-      lessonFilesColRef,
-      where('lessonId', '==', id),
-      orderBy('createdAt'),
-    );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: LessonFile[] = [];
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const file = {
-          id: doc.id,
-          name: data.name,
-          size: data.size,
-          type: data.type,
-          downloadUrl: data.downloadUrl,
-          lessonId: data.lessonId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          fullPath: data.fullPath,
-        };
-        list.push(file);
-      });
-
-      setFiles(list);
-    });
-
-    return () => {
-      console.log('onSnapshot: LessonModal Lesson Files - unsubscribe');
-      unsubscribe();
-    };
-  }, [id]);
-
   return (
     <Modal
       opened={true}
@@ -668,154 +543,14 @@ export function LessonModal(props: Prop) {
                     }}
                   />
 
-                  <Group position="apart" className="mt-6">
-                    <Group>
-                      <Text size="lg" className="font-semibold">
-                        Attachments
-                      </Text>
-                      {classroom.activeClassRole === ClassRole.Teacher && (
-                        <Menu
-                          control={
-                            <Button
-                              disabled={lessonIsNew}
-                              variant="outline"
-                              leftIcon={<Plus />}
-                            >
-                              Add
-                            </Button>
-                          }
-                          position="right"
-                          placement="center"
-                        >
-                          <Menu.Item
-                            icon={<Upload size={16} />}
-                            onClick={() => setUploadFileMode(true)}
-                          >
-                            Upload file
-                          </Menu.Item>
-                          <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
-                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                            Google Drive
-                          </Menu.Item>
-                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                            OneDrive
-                          </Menu.Item>
-                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                            Dropbox
-                          </Menu.Item>
-                        </Menu>
-                      )}
-                    </Group>
-                    <Button
-                      disabled={lessonIsNew}
-                      variant="outline"
-                      color={'gray'}
-                      leftIcon={<Download />}
-                    >
-                      Download All
-                    </Button>
-                  </Group>
-                  <Collapse in={uploadFileMode}>
-                    <Group className="w-full items-center" direction="column">
-                      <FileDropzone
-                        visible={true}
-                        onFileUpload={onFileUpload}
-                        className="mt-6 w-full"
-                      />
-                      <Button
-                        className="w-1/3"
-                        color="gray"
-                        onClick={() => setUploadFileMode(false)}
-                      >
-                        Close
-                      </Button>
-                    </Group>
-                  </Collapse>
-                  <Group position="apart" className="mt-3">
-                    <Text size="sm">Name</Text>
-                    <Text
-                      className={
-                        classroom.activeClassRole !== ClassRole.Teacher
-                          ? 'w-14'
-                          : 'w-24'
-                      }
-                      size="sm"
-                    >
-                      Actions
-                    </Text>
-                  </Group>
-                  <Stack className="mt-6" spacing="sm">
-                    {files.map(file => {
-                      return (
-                        <AttachedFile
-                          key={file.id}
-                          id={file.id}
-                          name={file.name}
-                          size={file.size}
-                          type={file.type}
-                          downloadUrl={file.downloadUrl}
-                          lessonId={file.lessonId}
-                          fullPath={file.fullPath}
-                          createdAt={file.createdAt}
-                          updatedAt={file.updatedAt}
-                          textClassName="w-[55ch] 2xl:w-[65ch]"
-                          viewOnly={
-                            classroom.activeClassRole !== ClassRole.Teacher
-                          }
-                        />
-                      );
-                    })}
-                  </Stack>
+                  {id && (
+                    <Attachments lessonId={id} lessonIsNew={lessonIsNew} />
+                  )}
                 </div>
               </ScrollArea>
             </Card.Section>
           </Card>
-          {!lessonIsNew && (
-            <Card className="m-0 p-0" radius={0}>
-              <Card>
-                <Card.Section className="p-4">
-                  <Group position="apart">
-                    <Text className="font-semibold">Comments</Text>
-                    <Group>
-                      <Button>Write a comment</Button>
-                      {classroom.activeClassRole === ClassRole.Teacher && (
-                        <ActionIcon size="lg">
-                          <Settings />
-                        </ActionIcon>
-                      )}
-                    </Group>
-                  </Group>
-                </Card.Section>
-                <Card.Section>
-                  <Divider />
-                </Card.Section>
-                <Card.Section>
-                  <ScrollArea
-                    style={{
-                      height: '70vh',
-                    }}
-                    className="bg-document"
-                  >
-                    <div className="p-4">
-                      <PostCard
-                        id="asdfasdfa"
-                        ownerId="John Doe"
-                        content="Hello, World!"
-                        classId={''}
-                        numberOfComments={0}
-                        createdAt={''}
-                        updatedAt={''}
-                        files={[]}
-                        images={[]}
-                        likes={0}
-                        requestForUpdate={setPostsNeedsUpdate}
-                      />
-                    </div>
-                  </ScrollArea>
-                </Card.Section>
-              </Card>
-            </Card>
-          )}
+          {!lessonIsNew && id && <CommentSection lessonId={id} />}
         </Group>
       </Stack>
     </Modal>
