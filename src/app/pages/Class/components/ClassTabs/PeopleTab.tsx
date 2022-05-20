@@ -3,18 +3,33 @@ import {
   Button,
   Checkbox,
   Group,
-  NativeSelect,
+  Menu,
   Stack,
   Text,
   TextInput,
 } from '@mantine/core';
 import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadable';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import {
+  collection,
+  DocumentData,
+  DocumentReference,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
-import { ArrowsUpDown, Menu2, Search, UserPlus } from 'tabler-icons-react';
+import {
+  ArrowsUpDown,
+  ChevronDown,
+  Mail,
+  Menu2,
+  Search,
+  UserPlus,
+  X,
+} from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassRole } from '../../slice/types';
 import { PendingInvitesModal } from './components/PendingInvitesModal/Loadable';
@@ -22,6 +37,11 @@ import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
   // someProps: string
+}
+
+interface People {
+  userId: string;
+  docRef: DocumentReference<DocumentData>;
 }
 
 export function PeopleTab(props: Props) {
@@ -32,8 +52,8 @@ export function PeopleTab(props: Props) {
   const [openedPendingInvite, setOpenedPendingInvite] = useState(false);
   const [openedSendInvite, setOpenedSendInvite] = useState(false);
 
-  const [teachers, setTeachers] = useState<string[]>([]);
-  const [students, setStudents] = useState<string[]>([]);
+  const [teachers, setTeachers] = useState<People[]>([]);
+  const [students, setStudents] = useState<People[]>([]);
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
@@ -45,9 +65,12 @@ export function PeopleTab(props: Props) {
       where('type', '==', ClassRole.Teacher),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: string[] = [];
+      const list: People[] = [];
       querySnapshot.forEach(doc => {
-        list.push(doc.id);
+        list.push({
+          userId: doc.id,
+          docRef: doc.ref,
+        });
       });
       setTeachers(list);
     });
@@ -69,9 +92,12 @@ export function PeopleTab(props: Props) {
       where('type', '==', ClassRole.Student),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: string[] = [];
+      const list: People[] = [];
       querySnapshot.forEach(doc => {
-        list.push(doc.id);
+        list.push({
+          userId: doc.id,
+          docRef: doc.ref,
+        });
       });
       setStudents(list);
     });
@@ -131,10 +157,11 @@ export function PeopleTab(props: Props) {
         Teacher
       </Text>
       <Stack spacing="sm" className="w-full">
-        {teachers.map((id, index) => (
+        {teachers.map((people, index) => (
           <PeopleItem
             key={index}
-            userId={id}
+            userId={people.userId}
+            docRef={people.docRef}
             viewOnly={activeClassRole === ClassRole.Student}
           />
         ))}
@@ -143,10 +170,22 @@ export function PeopleTab(props: Props) {
       <Group position="apart" className="mt-6">
         <Group>
           <Checkbox />
-          <NativeSelect
-            className="w-48"
-            data={['Action', 'React', 'Vue', 'Angular', 'Svelte']}
-          />
+          <Menu
+            control={
+              <Button
+                variant="outline"
+                color="gray"
+                rightIcon={<ChevronDown size={14} />}
+              >
+                Actions
+              </Button>
+            }
+          >
+            <Menu.Item icon={<Mail size={18} />}>Send an email</Menu.Item>
+            <Menu.Item color="red" icon={<X size={18} />}>
+              Kick
+            </Menu.Item>
+          </Menu>
           <ActionIcon>
             <ArrowsUpDown size={20} />
           </ActionIcon>
@@ -158,10 +197,11 @@ export function PeopleTab(props: Props) {
               No students yet.
             </Text>
           )}
-          {students.map((id, index) => (
+          {students.map((people, index) => (
             <PeopleItem
               key={index}
-              userId={id}
+              userId={people.userId}
+              docRef={people.docRef}
               viewOnly={activeClassRole === ClassRole.Student}
             />
           ))}
