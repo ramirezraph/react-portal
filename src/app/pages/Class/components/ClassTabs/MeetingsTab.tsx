@@ -4,6 +4,9 @@ import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
 import { useState } from 'react';
 import { CreateMeetingModal } from 'app/components/CreateMeetingModal/Loadable';
+import { useSelector } from 'react-redux';
+import { selectClassroom } from '../../slice/selectors';
+import { ClassRole } from '../../slice/types';
 
 interface Props {
   // someProps: string
@@ -12,6 +15,8 @@ interface Props {
 export function MeetingsTab(props: Props) {
   const [NewMeetingOpened, NewMeetingsetOpened] = useState(false);
 
+  const { activeClassRole } = useSelector(selectClassroom);
+
   return (
     <div className="bg-white p-6">
       <CreateMeetingModal
@@ -19,19 +24,23 @@ export function MeetingsTab(props: Props) {
         onToggle={NewMeetingsetOpened}
       />
       <Group>
-        <Button
-          onClick={() => NewMeetingsetOpened(true)}
-          color="primary"
-          radius="xl"
-          size="md"
-          leftIcon={<Video size={20} />}
-        >
-          <Text weight={400} size="sm">
-            New Meeting
-          </Text>
-        </Button>
+        {activeClassRole === ClassRole.Teacher && (
+          <Button
+            onClick={() => NewMeetingsetOpened(true)}
+            color="primary"
+            radius="xl"
+            size="md"
+            leftIcon={<Video size={20} />}
+          >
+            <Text weight={400} size="sm">
+              New Meeting
+            </Text>
+          </Button>
+        )}
 
-        <Group className="ml-auto">
+        <Group
+          className={activeClassRole === ClassRole.Teacher ? 'ml-auto' : ''}
+        >
           <Chips color="violet" variant="filled" spacing={5} size="sm">
             <Chip value={'today'}>Today</Chip>
             <Chip value={'week'}>This Week</Chip>
@@ -43,11 +52,13 @@ export function MeetingsTab(props: Props) {
         <Text size="lg" weight={500}>
           Class meetings
         </Text>
-        <Group className="ml-auto">
-          <ActionIcon variant="hover">
-            <Settings size={28} />
-          </ActionIcon>
-        </Group>
+        {activeClassRole === ClassRole.Teacher && (
+          <Group className="ml-auto">
+            <ActionIcon variant="hover">
+              <Settings size={28} />
+            </ActionIcon>
+          </Group>
+        )}
       </Group>
       <Group>
         <MeetingItem
