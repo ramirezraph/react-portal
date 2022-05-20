@@ -10,7 +10,6 @@ import {
   ScrollArea,
   Stack,
   Text,
-  Textarea,
   TextInput,
 } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
@@ -66,6 +65,7 @@ import { FileDropzone } from './components/FileDropzone/Loadable';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
 import { AttachedFile } from './components/AttachedFile/Loadable';
+import RichTextEditor, { Editor } from '@mantine/rte';
 
 interface Prop {}
 
@@ -102,6 +102,8 @@ export function LessonModal(props: Prop) {
 
   const classroom = useSelector(selectClassroom);
 
+  const richTextEditorRef = React.useRef<Editor>(null);
+
   interface LocationState {
     backgroundLocation: Location;
     unitId: string;
@@ -131,10 +133,6 @@ export function LessonModal(props: Prop) {
     setTitle(event.currentTarget.value);
   };
 
-  const onContentChange = event => {
-    setContent(event.currentTarget.value);
-  };
-
   React.useEffect(() => {
     const locState = location.state as LocationState;
     setUnitId(locState.unitId);
@@ -155,7 +153,6 @@ export function LessonModal(props: Prop) {
       setIsLive(false);
       return;
     }
-
     setLessonIsNew(false);
     setIsOnEditMode(false);
 
@@ -166,9 +163,11 @@ export function LessonModal(props: Prop) {
       if (lessonData) {
         setLessonNumber(`Lesson ${lessonData.number}`);
         setTitle(lessonData.title);
-        setContent(lessonData.content);
+        richTextEditorRef.current?.setEditorContents(
+          richTextEditorRef.current?.getEditor(),
+          lessonData.content,
+        );
         setIsLive(lessonData.isLive);
-
         setOriginalDataCopy(lessonData);
       }
     });
@@ -420,8 +419,10 @@ export function LessonModal(props: Prop) {
     if (originalDataCopy) {
       setLessonNumber(`Lesson ${originalDataCopy.number}`);
       setTitle(originalDataCopy.title);
-      setContent(originalDataCopy.content);
-
+      richTextEditorRef.current?.setEditorContents(
+        richTextEditorRef.current?.getEditor(),
+        originalDataCopy.content,
+      );
       setIsOnEditMode(false);
     }
   };
@@ -684,13 +685,27 @@ export function LessonModal(props: Prop) {
                       required
                     />
                   </Group>
-                  <Textarea
+
+                  <RichTextEditor
                     value={content}
-                    onChange={onContentChange}
-                    placeholder={'Write something for this lesson here.'}
-                    className="mt-1 w-full"
-                    minRows={12}
+                    onChange={setContent}
+                    ref={richTextEditorRef}
+                    controls={[
+                      ['bold', 'italic', 'underline', 'strike'],
+                      ['h1', 'h2', 'h3', 'orderedList', 'unorderedList'],
+                      ['sup', 'sub'],
+                      ['alignLeft', 'alignCenter', 'alignRight'],
+                      ['blockquote', 'codeBlock'],
+                    ]}
+                    className="text-lg"
+                    sticky
                     readOnly={!isOnEditMode}
+                    placeholder="Write something for this lesson."
+                    style={{
+                      minHeight: '250px',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                    }}
                   />
 
                   <Group position="apart" className="mt-6">
