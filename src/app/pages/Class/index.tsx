@@ -4,10 +4,13 @@ import { PageContainer } from 'app/components/PageContainer/Loadable';
 import {
   collection,
   doc,
+  DocumentData,
   getDoc,
   onSnapshot,
   orderBy,
+  Query,
   query,
+  where,
 } from 'firebase/firestore';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -80,10 +83,15 @@ export function Class() {
     if (!classroom.unitPath) return;
     console.log('onSnapshot: units');
 
-    const unitsQuery = query(
-      collection(db, classroom.unitPath),
-      orderBy('number'),
-    );
+    let unitsQuery: Query<DocumentData> | undefined = undefined;
+    unitsQuery = query(collection(db, classroom.unitPath), orderBy('number'));
+    if (classroom.activeClassRole === ClassRole.Student) {
+      unitsQuery = query(
+        collection(db, classroom.unitPath),
+        orderBy('number'),
+        where('isLive', '==', true),
+      );
+    }
     const unsubscribe = onSnapshot(unitsQuery, querySnapshot => {
       const units: Unit[] = [];
       querySnapshot.forEach(doc => {
@@ -106,7 +114,13 @@ export function Class() {
 
       unsubscribe();
     };
-  }, [actions, classroom.unitPath, classroomActions, dispatch]);
+  }, [
+    actions,
+    classroom.activeClassRole,
+    classroom.unitPath,
+    classroomActions,
+    dispatch,
+  ]);
 
   React.useEffect(() => {
     setUnitsList(classroom.units);
