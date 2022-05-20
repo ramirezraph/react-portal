@@ -40,13 +40,10 @@ import {
 } from 'services/firebase';
 import {
   ArrowForward,
-  ArrowNarrowRight,
   BrandGoogleDrive,
   Check,
-  ChevronRight,
   Download,
   Link,
-  Minus,
   Pencil,
   Plus,
   Settings,
@@ -66,6 +63,7 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 import RichTextEditor, { Editor } from '@mantine/rte';
+import { Topbar } from './Topbar';
 
 interface Prop {}
 
@@ -536,51 +534,13 @@ export function LessonModal(props: Prop) {
       padding={0}
       radius="md"
     >
-      <Group direction="column" className="h-full w-full" spacing={0} grow>
-        <Group
-          position="apart"
-          className="w-full flex-grow-0 rounded-tr-md rounded-tl-md bg-document p-4"
-        >
-          <Group>
-            <Group className="gap-2 rounded-md bg-white py-1 px-2">
-              <Text size="sm" weight="bold">
-                {classCode}
-              </Text>
-              <ChevronRight size={16} />
-              <Text size="sm">{unitNumber}</Text>
-              <ChevronRight size={16} />
-              <Text size="sm">
-                Lesson 1 <span className="opacity-50">of 4</span>
-              </Text>
-              <ActionIcon>
-                <ArrowNarrowRight />
-              </ActionIcon>
-            </Group>
-            {classroom.activeClassRole === ClassRole.Teacher && (
-              <Button size="md" compact>
-                <Text className="text-sm font-normal">Add new lesson</Text>
-              </Button>
-            )}
-          </Group>
-          <Group className="gap-1">
-            <ActionIcon
-              size={'md'}
-              variant="filled"
-              className="bg-white text-black hover:bg-white"
-              onClick={onClose}
-            >
-              <Minus size={18} />
-            </ActionIcon>
-            <ActionIcon
-              size={'md'}
-              variant="filled"
-              className="bg-white text-black hover:bg-white"
-              onClick={onClose}
-            >
-              <X size={18} />
-            </ActionIcon>
-          </Group>
-        </Group>
+      <Stack className="h-full w-full" spacing={0}>
+        <Topbar
+          classCode={classCode}
+          unitNumber={unitNumber}
+          student={classroom.activeClassRole === ClassRole.Student}
+          onClose={onClose}
+        />
         <Group className="w-full rounded-md" direction="row" spacing={0} grow>
           <Card withBorder radius={0} className="h-full">
             {classroom.activeClassRole === ClassRole.Teacher && (
@@ -857,7 +817,7 @@ export function LessonModal(props: Prop) {
             </Card>
           )}
         </Group>
-      </Group>
+      </Stack>
     </Modal>
   );
 }
