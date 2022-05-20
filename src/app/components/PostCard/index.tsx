@@ -13,7 +13,6 @@ import {
   Textarea,
   Collapse,
 } from '@mantine/core';
-import moment from 'moment';
 import * as React from 'react';
 import {
   ThumbUp,
@@ -56,6 +55,10 @@ import { useModals } from '@mantine/modals';
 import { UserAvatar } from '../UserAvatar/Loadable';
 import { Comment } from '../Comment';
 import { getNameAndPicture } from 'utils/userUtils';
+
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 export interface IFile {
   id: string;
@@ -338,7 +341,7 @@ export function PostCard(props: Prop) {
             <div className="flex-grow">
               <Text className="font-semibold">{ownerFullname}</Text>
               <Text color={'gray'} size="xs">
-                {moment(createdAt).fromNow()}
+                {dayjs(createdAt).fromNow()}
               </Text>
             </div>
             {isEditable && (

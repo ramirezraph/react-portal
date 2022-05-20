@@ -8,7 +8,6 @@ import {
   increment,
   writeBatch,
 } from 'firebase/firestore';
-import moment from 'moment';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
@@ -16,6 +15,10 @@ import { selectUser } from 'store/userSlice/selectors';
 import { X } from 'tabler-icons-react';
 import { getFullname } from 'utils/userUtils';
 import { UserAvatar } from '../UserAvatar';
+
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 interface Props {
   id: string;
@@ -94,7 +97,7 @@ export function Comment(props: Props) {
           </Text>
           <Group>
             <Text size="xs" weight="normal">
-              {moment(createdAt).fromNow()}
+              {dayjs(createdAt).fromNow()}
             </Text>
             {currentUser && currentUser.sub === ownerId && (
               <Menu size="sm">

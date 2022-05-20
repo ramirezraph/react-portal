@@ -2,7 +2,6 @@ import { Button, Group, Stack, Text } from '@mantine/core';
 import { UserAvatar } from 'app/components/UserAvatar/Loadable';
 import * as React from 'react';
 import { getNameAndPicture } from 'utils/userUtils';
-import moment from 'moment';
 import { getClassNameAndCode } from 'utils/classUtils';
 import { ClassInviteResult } from 'store/userSlice/types';
 import { useSelector } from 'react-redux';
@@ -12,6 +11,10 @@ import { db } from 'services/firebase';
 import { showNotification } from '@mantine/notifications';
 import { X } from 'tabler-icons-react';
 import { ClassRole } from 'app/pages/Class/slice/types';
+
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 interface Props {
   id: string;
@@ -140,7 +143,7 @@ export function ClassInviteNotification(props: Props) {
           <span className="font-bold">{classInfo}</span>
         </Text>
         <Text className="text-gray-400" size="xs">
-          {moment(createdAt).fromNow()}
+          {dayjs(createdAt).fromNow()}
         </Text>
         {!result && (
           <Group className="mt-3">
