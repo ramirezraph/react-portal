@@ -153,7 +153,7 @@ export function CommentSection(props: Props) {
             }}
             className="relative bg-document"
           >
-            <Stack className="p-4">
+            <Stack className="p-4" spacing="sm">
               {comments.map(comment => (
                 <Card key={comment.id} className="bg-white" radius="md">
                   <Comment
