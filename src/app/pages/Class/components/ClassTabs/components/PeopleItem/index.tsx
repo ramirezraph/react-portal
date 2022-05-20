@@ -1,17 +1,30 @@
 import { Group, Avatar, ActionIcon, Text, Checkbox } from '@mantine/core';
+import { useModals } from '@mantine/modals';
+import { showNotification, updateNotification } from '@mantine/notifications';
+import {
+  arrayRemove,
+  doc,
+  DocumentData,
+  DocumentReference,
+  writeBatch,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
+import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-import { Mail, UserCircle, UserX } from 'tabler-icons-react';
+import { Check, Mail, UserCircle, UserX, X } from 'tabler-icons-react';
 import { getNameAndPicture } from 'utils/userUtils';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Prop {
   userId: string;
+  docRef: DocumentReference<DocumentData>;
   viewOnly?: boolean;
 }
 
 export function PeopleItem(props: Prop) {
-  const { userId, viewOnly } = props;
+  const { userId, docRef, viewOnly } = props;
+  const modals = useModals();
 
   const { currentUser } = useSelector(selectUser);
 
@@ -42,6 +55,68 @@ export function PeopleItem(props: Prop) {
     };
   }, [currentUser?.sub, userId]);
 
+  const openConfirmRemoveUserModal = () => {
+    modals.openConfirmModal({
+      title: `Kick ${fullname}?`,
+      centered: true,
+      confirmProps: { color: 'red' },
+      zIndex: 999,
+      trapFocus: true,
+      closeOnClickOutside: false,
+      children: (
+        <div className="pb-3">
+          <Text size="sm">
+            Are you sure you want to remove this user from the class?
+          </Text>
+        </div>
+      ),
+      labels: { confirm: 'Remove user', cancel: "No, don't remove" },
+      onConfirm: () => onRemoveUser(),
+    });
+  };
+
+  const onRemoveUser = async () => {
+    const notificationId = uuidv4();
+
+    try {
+      showNotification({
+        id: notificationId,
+        loading: true,
+        title: 'In progress',
+        message: `Removing ${fullname} ...`,
+        autoClose: false,
+        disallowClose: true,
+      });
+
+      const batch = writeBatch(db);
+      // delete the user from usersList
+      const classId = docRef.parent.path.split('/')[1];
+      const classDocRef = doc(db, 'classes', classId);
+      batch.update(classDocRef, {
+        usersList: arrayRemove(userId),
+      });
+      // remove the user from people collection
+      batch.delete(docRef);
+      await batch.commit();
+
+      updateNotification({
+        id: notificationId,
+        title: 'Success',
+        message: `${fullname} has been removed.`,
+        color: 'green',
+        icon: <Check />,
+      });
+    } catch (e) {
+      updateNotification({
+        id: notificationId,
+        title: 'Failed',
+        message: `Failed to remove ${fullname}.`,
+        color: 'red',
+        icon: <X />,
+      });
+    }
+  };
+
   return (
     <Group position="apart" className="mt-4 w-full">
       <Group>
@@ -63,7 +138,7 @@ export function PeopleItem(props: Prop) {
             <UserCircle />
           </ActionIcon>
           {!viewOnly && (
-            <ActionIcon>
+            <ActionIcon onClick={openConfirmRemoveUserModal}>
               <UserX />
             </ActionIcon>
           )}

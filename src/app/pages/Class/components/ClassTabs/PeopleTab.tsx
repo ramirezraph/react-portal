@@ -9,7 +9,14 @@ import {
   TextInput,
 } from '@mantine/core';
 import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadable';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import {
+  collection,
+  DocumentData,
+  DocumentReference,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -24,6 +31,11 @@ interface Props {
   // someProps: string
 }
 
+interface People {
+  userId: string;
+  docRef: DocumentReference<DocumentData>;
+}
+
 export function PeopleTab(props: Props) {
   // const { someProps } = props;
 
@@ -32,8 +44,8 @@ export function PeopleTab(props: Props) {
   const [openedPendingInvite, setOpenedPendingInvite] = useState(false);
   const [openedSendInvite, setOpenedSendInvite] = useState(false);
 
-  const [teachers, setTeachers] = useState<string[]>([]);
-  const [students, setStudents] = useState<string[]>([]);
+  const [teachers, setTeachers] = useState<People[]>([]);
+  const [students, setStudents] = useState<People[]>([]);
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
@@ -45,9 +57,12 @@ export function PeopleTab(props: Props) {
       where('type', '==', ClassRole.Teacher),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: string[] = [];
+      const list: People[] = [];
       querySnapshot.forEach(doc => {
-        list.push(doc.id);
+        list.push({
+          userId: doc.id,
+          docRef: doc.ref,
+        });
       });
       setTeachers(list);
     });
@@ -69,9 +84,12 @@ export function PeopleTab(props: Props) {
       where('type', '==', ClassRole.Student),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: string[] = [];
+      const list: People[] = [];
       querySnapshot.forEach(doc => {
-        list.push(doc.id);
+        list.push({
+          userId: doc.id,
+          docRef: doc.ref,
+        });
       });
       setStudents(list);
     });
@@ -131,10 +149,11 @@ export function PeopleTab(props: Props) {
         Teacher
       </Text>
       <Stack spacing="sm" className="w-full">
-        {teachers.map((id, index) => (
+        {teachers.map((people, index) => (
           <PeopleItem
             key={index}
-            userId={id}
+            userId={people.userId}
+            docRef={people.docRef}
             viewOnly={activeClassRole === ClassRole.Student}
           />
         ))}
@@ -158,10 +177,11 @@ export function PeopleTab(props: Props) {
               No students yet.
             </Text>
           )}
-          {students.map((id, index) => (
+          {students.map((people, index) => (
             <PeopleItem
               key={index}
-              userId={id}
+              userId={people.userId}
+              docRef={people.docRef}
               viewOnly={activeClassRole === ClassRole.Student}
             />
           ))}
