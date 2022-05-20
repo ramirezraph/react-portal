@@ -2,12 +2,11 @@ import { Group, Text, Stack, Menu, Textarea } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import {
-  deleteDoc,
   doc,
   DocumentData,
   DocumentReference,
   increment,
-  updateDoc,
+  writeBatch,
 } from 'firebase/firestore';
 import moment from 'moment';
 import * as React from 'react';
@@ -63,12 +62,18 @@ export function Comment(props: Props) {
 
   const deleteComment = async () => {
     try {
-      const postId = docRef.parent.path.split('/')[1];
-      const postDocRef = doc(db, 'posts', postId);
-      await updateDoc(postDocRef, {
+      const batch = writeBatch(db);
+
+      const docCollection = docRef.parent.path.split('/')[0];
+      const docId = docRef.parent.path.split('/')[1];
+
+      const postDocRef = doc(db, docCollection, docId);
+      batch.update(postDocRef, {
         numberOfComments: increment(-1),
       });
-      await deleteDoc(docRef);
+      batch.delete(docRef);
+
+      await batch.commit();
     } catch (e) {
       showNotification({
         title: 'Failed',

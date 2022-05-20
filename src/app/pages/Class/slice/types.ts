@@ -43,6 +43,7 @@ export interface Lesson {
   number: number;
   title: string;
   content: string;
+  numberOfComments: number;
   isLive: boolean;
   files: LessonFile[];
 }

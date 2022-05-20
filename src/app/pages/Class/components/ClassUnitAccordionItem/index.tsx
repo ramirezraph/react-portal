@@ -139,6 +139,7 @@ export function ClassUnitAccordionItem(props: Props) {
           title: data.title,
           content: data.content,
           isLive: data.isLive,
+          numberOfComments: data.numberOfComments,
           files: [],
         };
         list.push(lesson);

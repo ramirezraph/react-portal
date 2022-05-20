@@ -2,15 +2,12 @@ import {
   ActionIcon,
   Button,
   Card,
-  Collapse,
   Divider,
   Group,
-  Menu,
   Modal,
   ScrollArea,
   Stack,
   Text,
-  Textarea,
   TextInput,
 } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
@@ -20,11 +17,8 @@ import {
   doc,
   DocumentData,
   onSnapshot,
-  orderBy,
-  query,
   Timestamp,
   updateDoc,
-  where,
 } from 'firebase/firestore';
 import * as React from 'react';
 import {
@@ -33,39 +27,19 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import {
-  db,
-  lessonFilesColRef,
-  lessonsColRef,
-  storage,
-} from 'services/firebase';
-import {
-  ArrowForward,
-  ArrowNarrowRight,
-  BrandGoogleDrive,
-  Check,
-  ChevronRight,
-  Download,
-  Link,
-  Minus,
-  Pencil,
-  Plus,
-  Settings,
-  Trash,
-  Upload,
-  X,
-} from 'tabler-icons-react';
+import { db, lessonsColRef } from 'services/firebase';
+import { ArrowForward, Check, Pencil, Trash, X } from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
-import { PostCard } from '../PostCard';
 import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
 import { useModals } from '@mantine/modals';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { FileDropzone } from './components/FileDropzone/Loadable';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
-import { AttachedFile } from './components/AttachedFile/Loadable';
+import { ClassRole } from 'app/pages/Class/slice/types';
+import RichTextEditor, { Editor } from '@mantine/rte';
+import { Topbar } from './Topbar';
+import { CommentSection } from './CommentSection';
+import { Attachments } from './Attachments';
 
 interface Prop {}
 
@@ -74,7 +48,6 @@ export function LessonModal(props: Prop) {
   const location = useLocation();
   const { id } = useParams();
   const modals = useModals();
-
   const onClose = () => {
     navigate(-1);
   };
@@ -85,11 +58,9 @@ export function LessonModal(props: Prop) {
   const [lessonIsNew, setLessonIsNew] = React.useState(false);
   const [isOnEditMode, setIsOnEditMode] = React.useState(false);
   const [submitLoading, setSubmitLoading] = React.useState(false);
-  const [uploadFileMode, setUploadFileMode] = React.useState(false);
   const [lessonNumber, setLessonNumber] = React.useState('Lesson 1');
   const [title, setTitle] = React.useState('Why we program?');
   const [content, setContent] = React.useState('');
-  const [files, setFiles] = React.useState<LessonFile[]>([]);
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
@@ -101,6 +72,8 @@ export function LessonModal(props: Prop) {
   const [classCode, setClassCode] = React.useState('');
 
   const classroom = useSelector(selectClassroom);
+
+  const richTextEditorRef = React.useRef<Editor>(null);
 
   interface LocationState {
     backgroundLocation: Location;
@@ -131,10 +104,6 @@ export function LessonModal(props: Prop) {
     setTitle(event.currentTarget.value);
   };
 
-  const onContentChange = event => {
-    setContent(event.currentTarget.value);
-  };
-
   React.useEffect(() => {
     const locState = location.state as LocationState;
     setUnitId(locState.unitId);
@@ -155,7 +124,6 @@ export function LessonModal(props: Prop) {
       setIsLive(false);
       return;
     }
-
     setLessonIsNew(false);
     setIsOnEditMode(false);
 
@@ -166,9 +134,11 @@ export function LessonModal(props: Prop) {
       if (lessonData) {
         setLessonNumber(`Lesson ${lessonData.number}`);
         setTitle(lessonData.title);
-        setContent(lessonData.content);
+        richTextEditorRef.current?.setEditorContents(
+          richTextEditorRef.current?.getEditor(),
+          lessonData.content,
+        );
         setIsLive(lessonData.isLive);
-
         setOriginalDataCopy(lessonData);
       }
     });
@@ -235,6 +205,7 @@ export function LessonModal(props: Prop) {
       title: title,
       content: content,
       isLive: isLive,
+      numberOfComments: 0,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
       deletedAt: null,
@@ -420,110 +391,13 @@ export function LessonModal(props: Prop) {
     if (originalDataCopy) {
       setLessonNumber(`Lesson ${originalDataCopy.number}`);
       setTitle(originalDataCopy.title);
-      setContent(originalDataCopy.content);
-
+      richTextEditorRef.current?.setEditorContents(
+        richTextEditorRef.current?.getEditor(),
+        originalDataCopy.content,
+      );
       setIsOnEditMode(false);
     }
   };
-
-  const onFileUpload = (files: File[]) => {
-    for (const file of files) {
-      const storageRef = ref(storage, `lessons/${id}/${file.name}`);
-
-      const notificationId = uuidv4();
-      showNotification({
-        id: notificationId,
-        loading: true,
-        title: 'In progress',
-        message: `Uploading ${file.name} ...`,
-        autoClose: false,
-        disallowClose: true,
-      });
-
-      uploadBytes(storageRef, file).then(snapshot => {
-        const data = snapshot.ref;
-        getDownloadURL(ref(storage, data.fullPath))
-          .then(url => {
-            // store data to firestore
-            addDoc(lessonFilesColRef, {
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              lessonId: id,
-              fullPath: data.fullPath,
-              downloadUrl: url,
-              createdAt: Timestamp.now(),
-              updatedAt: Timestamp.now(),
-              deletedAt: null,
-            })
-              .then(() => {
-                updateNotification({
-                  id: notificationId,
-                  title: 'Success',
-                  message: `File ${file.name} uploaded successfully.`,
-                  color: 'green',
-                  icon: <Check />,
-                });
-              })
-              .catch(e => {
-                updateNotification({
-                  id: notificationId,
-                  title: 'Failed',
-                  message: `File ${file.name} upload failed.`,
-                  color: 'red',
-                  icon: <X />,
-                });
-              });
-          })
-          .catch(e => {
-            updateNotification({
-              id: notificationId,
-              title: 'Failed',
-              message: `File ${file.name} upload failed.`,
-              color: 'red',
-              icon: <X />,
-            });
-          });
-      });
-    }
-  };
-
-  React.useEffect(() => {
-    if (!id) return;
-
-    // fetch files
-    console.log('onSnapshot: LessonModal Lesson Files');
-    const q = query(
-      lessonFilesColRef,
-      where('lessonId', '==', id),
-      orderBy('createdAt'),
-    );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: LessonFile[] = [];
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const file = {
-          id: doc.id,
-          name: data.name,
-          size: data.size,
-          type: data.type,
-          downloadUrl: data.downloadUrl,
-          lessonId: data.lessonId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          fullPath: data.fullPath,
-        };
-        list.push(file);
-      });
-
-      setFiles(list);
-    });
-
-    return () => {
-      console.log('onSnapshot: LessonModal Lesson Files - unsubscribe');
-      unsubscribe();
-    };
-  }, [id]);
 
   return (
     <Modal
@@ -535,51 +409,13 @@ export function LessonModal(props: Prop) {
       padding={0}
       radius="md"
     >
-      <Group direction="column" className="h-full w-full" spacing={0} grow>
-        <Group
-          position="apart"
-          className="w-full flex-grow-0 rounded-tr-md rounded-tl-md bg-document p-4"
-        >
-          <Group>
-            <Group className="gap-2 rounded-md bg-white py-1 px-2">
-              <Text size="sm" weight="bold">
-                {classCode}
-              </Text>
-              <ChevronRight size={16} />
-              <Text size="sm">{unitNumber}</Text>
-              <ChevronRight size={16} />
-              <Text size="sm">
-                Lesson 1 <span className="opacity-50">of 4</span>
-              </Text>
-              <ActionIcon>
-                <ArrowNarrowRight />
-              </ActionIcon>
-            </Group>
-            {classroom.activeClassRole === ClassRole.Teacher && (
-              <Button size="md" compact>
-                <Text className="text-sm font-normal">Add new lesson</Text>
-              </Button>
-            )}
-          </Group>
-          <Group className="gap-1">
-            <ActionIcon
-              size={'md'}
-              variant="filled"
-              className="bg-white text-black hover:bg-white"
-              onClick={onClose}
-            >
-              <Minus size={18} />
-            </ActionIcon>
-            <ActionIcon
-              size={'md'}
-              variant="filled"
-              className="bg-white text-black hover:bg-white"
-              onClick={onClose}
-            >
-              <X size={18} />
-            </ActionIcon>
-          </Group>
-        </Group>
+      <Stack className="h-full w-full" spacing={0}>
+        <Topbar
+          classCode={classCode}
+          unitNumber={unitNumber}
+          student={classroom.activeClassRole === ClassRole.Student}
+          onClose={onClose}
+        />
         <Group className="w-full rounded-md" direction="row" spacing={0} grow>
           <Card withBorder radius={0} className="h-full">
             {classroom.activeClassRole === ClassRole.Teacher && (
@@ -684,165 +520,39 @@ export function LessonModal(props: Prop) {
                       required
                     />
                   </Group>
-                  <Textarea
+
+                  <RichTextEditor
                     value={content}
-                    onChange={onContentChange}
-                    placeholder={'Write something for this lesson here.'}
-                    className="mt-1 w-full"
-                    minRows={12}
+                    onChange={setContent}
+                    ref={richTextEditorRef}
+                    controls={[
+                      ['bold', 'italic', 'underline', 'strike'],
+                      ['h1', 'h2', 'h3', 'orderedList', 'unorderedList'],
+                      ['sup', 'sub'],
+                      ['alignLeft', 'alignCenter', 'alignRight'],
+                      ['blockquote', 'codeBlock'],
+                    ]}
+                    className="text-lg"
+                    sticky
                     readOnly={!isOnEditMode}
+                    placeholder="Write something for this lesson."
+                    style={{
+                      minHeight: '250px',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                    }}
                   />
 
-                  <Group position="apart" className="mt-6">
-                    <Group>
-                      <Text size="lg" className="font-semibold">
-                        Attachments
-                      </Text>
-                      {classroom.activeClassRole === ClassRole.Teacher && (
-                        <Menu
-                          control={
-                            <Button
-                              disabled={lessonIsNew}
-                              variant="outline"
-                              leftIcon={<Plus />}
-                            >
-                              Add
-                            </Button>
-                          }
-                          position="right"
-                          placement="center"
-                        >
-                          <Menu.Item
-                            icon={<Upload size={16} />}
-                            onClick={() => setUploadFileMode(true)}
-                          >
-                            Upload file
-                          </Menu.Item>
-                          <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
-                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                            Google Drive
-                          </Menu.Item>
-                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                            OneDrive
-                          </Menu.Item>
-                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                            Dropbox
-                          </Menu.Item>
-                        </Menu>
-                      )}
-                    </Group>
-                    <Button
-                      disabled={lessonIsNew}
-                      variant="outline"
-                      color={'gray'}
-                      leftIcon={<Download />}
-                    >
-                      Download All
-                    </Button>
-                  </Group>
-                  <Collapse in={uploadFileMode}>
-                    <Group className="w-full items-center" direction="column">
-                      <FileDropzone
-                        visible={true}
-                        onFileUpload={onFileUpload}
-                        className="mt-6 w-full"
-                      />
-                      <Button
-                        className="w-1/3"
-                        color="gray"
-                        onClick={() => setUploadFileMode(false)}
-                      >
-                        Close
-                      </Button>
-                    </Group>
-                  </Collapse>
-                  <Group position="apart" className="mt-3">
-                    <Text size="sm">Name</Text>
-                    <Text
-                      className={
-                        classroom.activeClassRole !== ClassRole.Teacher
-                          ? 'w-14'
-                          : 'w-24'
-                      }
-                      size="sm"
-                    >
-                      Actions
-                    </Text>
-                  </Group>
-                  <Stack className="mt-6" spacing="sm">
-                    {files.map(file => {
-                      return (
-                        <AttachedFile
-                          key={file.id}
-                          id={file.id}
-                          name={file.name}
-                          size={file.size}
-                          type={file.type}
-                          downloadUrl={file.downloadUrl}
-                          lessonId={file.lessonId}
-                          fullPath={file.fullPath}
-                          createdAt={file.createdAt}
-                          updatedAt={file.updatedAt}
-                          textClassName="w-[55ch] 2xl:w-[65ch]"
-                          viewOnly={
-                            classroom.activeClassRole !== ClassRole.Teacher
-                          }
-                        />
-                      );
-                    })}
-                  </Stack>
+                  {id && (
+                    <Attachments lessonId={id} lessonIsNew={lessonIsNew} />
+                  )}
                 </div>
               </ScrollArea>
             </Card.Section>
           </Card>
-          {!lessonIsNew && (
-            <Card className="m-0 p-0" radius={0}>
-              <Card>
-                <Card.Section className="p-4">
-                  <Group position="apart">
-                    <Text className="font-semibold">Comments</Text>
-                    <Group>
-                      <Button>Write a comment</Button>
-                      {classroom.activeClassRole === ClassRole.Teacher && (
-                        <ActionIcon size="lg">
-                          <Settings />
-                        </ActionIcon>
-                      )}
-                    </Group>
-                  </Group>
-                </Card.Section>
-                <Card.Section>
-                  <Divider />
-                </Card.Section>
-                <Card.Section>
-                  <ScrollArea
-                    style={{
-                      height: '70vh',
-                    }}
-                    className="bg-document"
-                  >
-                    <div className="p-4">
-                      <PostCard
-                        id="asdfasdfa"
-                        ownerId="John Doe"
-                        content="Hello, World!"
-                        classId={''}
-                        numberOfComments={0}
-                        createdAt={''}
-                        updatedAt={''}
-                        files={[]}
-                        images={[]}
-                        likes={0}
-                        requestForUpdate={setPostsNeedsUpdate}
-                      />
-                    </div>
-                  </ScrollArea>
-                </Card.Section>
-              </Card>
-            </Card>
-          )}
+          {!lessonIsNew && id && <CommentSection lessonId={id} />}
         </Group>
-      </Group>
+      </Stack>
     </Modal>
   );
 }

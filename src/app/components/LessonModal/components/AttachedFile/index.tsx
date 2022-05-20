@@ -92,7 +92,7 @@ export function AttachedFile(props: Prop) {
     const fileStorageRef = ref(storage, fullPath);
     deleteObject(fileStorageRef)
       .then(() => {
-        const fileFirestoreRef = doc(db, 'files', id);
+        const fileFirestoreRef = doc(db, 'lesson-files', id);
         return deleteDoc(fileFirestoreRef);
       })
       .then(() => {
