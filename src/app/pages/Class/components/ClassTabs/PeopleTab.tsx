@@ -4,7 +4,6 @@ import {
   Checkbox,
   Group,
   Menu,
-  NativeSelect,
   Stack,
   Text,
   TextInput,
