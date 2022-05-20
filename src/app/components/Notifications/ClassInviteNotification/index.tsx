@@ -122,6 +122,11 @@ export function ClassInviteNotification(props: Props) {
     };
 
     fetchInfo();
+
+    return () => {
+      setFullname('');
+      setClassInfo('');
+    };
   }, [classId, fromUserId]);
 
   return (

@@ -64,7 +64,7 @@ import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import { FileDropzone } from './components/FileDropzone/Loadable';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { LessonFile } from 'app/pages/Class/slice/types';
+import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 
 interface Prop {}
@@ -555,9 +555,11 @@ export function LessonModal(props: Prop) {
                 <ArrowNarrowRight />
               </ActionIcon>
             </Group>
-            <Button size="md" compact>
-              <Text className="text-sm font-normal">Add new lesson</Text>
-            </Button>
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <Button size="md" compact>
+                <Text className="text-sm font-normal">Add new lesson</Text>
+              </Button>
+            )}
           </Group>
           <Group className="gap-1">
             <ActionIcon
@@ -580,74 +582,80 @@ export function LessonModal(props: Prop) {
         </Group>
         <Group className="w-full rounded-md" direction="row" spacing={0} grow>
           <Card withBorder radius={0} className="h-full">
-            <Card.Section className="p-4">
-              <Group position="apart">
-                <Group>
-                  {lessonIsNew ? (
-                    <>
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <Card.Section className="p-4">
+                <Group position="apart">
+                  <Group>
+                    {lessonIsNew ? (
+                      <>
+                        <Button
+                          color="green"
+                          leftIcon={<ArrowForward size={18} />}
+                          onClick={onSubmitNewLesson}
+                          loading={submitLoading}
+                        >
+                          <Text className="text-md font-normal">Submit</Text>
+                        </Button>
+                        <Button
+                          color="gray"
+                          onClick={onCancelCreate}
+                          loading={submitLoading}
+                        >
+                          <Text className="text-md font-normal">Cancel</Text>
+                        </Button>
+                      </>
+                    ) : isOnEditMode ? (
+                      <>
+                        <Button
+                          color="primary"
+                          leftIcon={<ArrowForward size={18} />}
+                          onClick={onSubmitUpdateLesson}
+                          loading={submitLoading}
+                        >
+                          <Text className="text-md font-normal">
+                            Submit changes
+                          </Text>
+                        </Button>
+                        <Button
+                          color="gray"
+                          onClick={onCancelUpdate}
+                          loading={submitLoading}
+                        >
+                          <Text className="text-md font-normal">Cancel</Text>
+                        </Button>
+                      </>
+                    ) : (
                       <Button
-                        color="green"
-                        leftIcon={<ArrowForward size={18} />}
-                        onClick={onSubmitNewLesson}
-                        loading={submitLoading}
+                        color="orange"
+                        leftIcon={<Pencil size={18} />}
+                        onClick={() => setIsOnEditMode(true)}
                       >
-                        <Text className="text-md font-normal">Submit</Text>
+                        <Text className="text-md font-normal">Edit</Text>
                       </Button>
-                      <Button
-                        color="gray"
-                        onClick={onCancelCreate}
-                        loading={submitLoading}
-                      >
-                        <Text className="text-md font-normal">Cancel</Text>
-                      </Button>
-                    </>
-                  ) : isOnEditMode ? (
-                    <>
-                      <Button
-                        color="primary"
-                        leftIcon={<ArrowForward size={18} />}
-                        onClick={onSubmitUpdateLesson}
-                        loading={submitLoading}
-                      >
-                        <Text className="text-md font-normal">
-                          Submit changes
-                        </Text>
-                      </Button>
-                      <Button
-                        color="gray"
-                        onClick={onCancelUpdate}
-                        loading={submitLoading}
-                      >
-                        <Text className="text-md font-normal">Cancel</Text>
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      color="orange"
-                      leftIcon={<Pencil size={18} />}
-                      onClick={() => setIsOnEditMode(true)}
-                    >
-                      <Text className="text-md font-normal">Edit</Text>
-                    </Button>
-                  )}
+                    )}
 
-                  <LiveSwitch live={isLive} onToggle={onLiveToggle} />
+                    <LiveSwitch live={isLive} onToggle={onLiveToggle} />
+                  </Group>
+                  {!lessonIsNew && (
+                    <ActionIcon
+                      size="lg"
+                      variant="filled"
+                      color="red"
+                      onClick={displayDeleteLessonModal}
+                    >
+                      <Trash size={18} />
+                    </ActionIcon>
+                  )}
                 </Group>
-                {!lessonIsNew && (
-                  <ActionIcon
-                    size="lg"
-                    variant="filled"
-                    color="red"
-                    onClick={displayDeleteLessonModal}
-                  >
-                    <Trash size={18} />
-                  </ActionIcon>
-                )}
-              </Group>
-            </Card.Section>
-            <Card.Section>
-              <Divider />
-            </Card.Section>
+              </Card.Section>
+            )}
+
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <Card.Section>
+                <Divider />
+              </Card.Section>
+            )}
+
             <Card.Section>
               <ScrollArea
                 style={{
@@ -690,36 +698,38 @@ export function LessonModal(props: Prop) {
                       <Text size="lg" className="font-semibold">
                         Attachments
                       </Text>
-                      <Menu
-                        control={
-                          <Button
-                            disabled={lessonIsNew}
-                            variant="outline"
-                            leftIcon={<Plus />}
-                          >
-                            Add
-                          </Button>
-                        }
-                        position="right"
-                        placement="center"
-                      >
-                        <Menu.Item
-                          icon={<Upload size={16} />}
-                          onClick={() => setUploadFileMode(true)}
+                      {classroom.activeClassRole === ClassRole.Teacher && (
+                        <Menu
+                          control={
+                            <Button
+                              disabled={lessonIsNew}
+                              variant="outline"
+                              leftIcon={<Plus />}
+                            >
+                              Add
+                            </Button>
+                          }
+                          position="right"
+                          placement="center"
                         >
-                          Upload file
-                        </Menu.Item>
-                        <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
-                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                          Google Drive
-                        </Menu.Item>
-                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                          OneDrive
-                        </Menu.Item>
-                        <Menu.Item icon={<BrandGoogleDrive size={16} />}>
-                          Dropbox
-                        </Menu.Item>
-                      </Menu>
+                          <Menu.Item
+                            icon={<Upload size={16} />}
+                            onClick={() => setUploadFileMode(true)}
+                          >
+                            Upload file
+                          </Menu.Item>
+                          <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
+                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                            Google Drive
+                          </Menu.Item>
+                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                            OneDrive
+                          </Menu.Item>
+                          <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+                            Dropbox
+                          </Menu.Item>
+                        </Menu>
+                      )}
                     </Group>
                     <Button
                       disabled={lessonIsNew}
@@ -748,7 +758,14 @@ export function LessonModal(props: Prop) {
                   </Collapse>
                   <Group position="apart" className="mt-3">
                     <Text size="sm">Name</Text>
-                    <Text className="w-24" size="sm">
+                    <Text
+                      className={
+                        classroom.activeClassRole !== ClassRole.Teacher
+                          ? 'w-14'
+                          : 'w-24'
+                      }
+                      size="sm"
+                    >
                       Actions
                     </Text>
                   </Group>
@@ -767,6 +784,9 @@ export function LessonModal(props: Prop) {
                           createdAt={file.createdAt}
                           updatedAt={file.updatedAt}
                           textClassName="w-[55ch] 2xl:w-[65ch]"
+                          viewOnly={
+                            classroom.activeClassRole !== ClassRole.Teacher
+                          }
                         />
                       );
                     })}
@@ -783,9 +803,11 @@ export function LessonModal(props: Prop) {
                     <Text className="font-semibold">Comments</Text>
                     <Group>
                       <Button>Write a comment</Button>
-                      <ActionIcon size="lg">
-                        <Settings />
-                      </ActionIcon>
+                      {classroom.activeClassRole === ClassRole.Teacher && (
+                        <ActionIcon size="lg">
+                          <Settings />
+                        </ActionIcon>
+                      )}
                     </Group>
                   </Group>
                 </Card.Section>

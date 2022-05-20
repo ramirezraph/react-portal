@@ -27,7 +27,7 @@ interface Props {
 export function PeopleTab(props: Props) {
   // const { someProps } = props;
 
-  const { activeClass } = useSelector(selectClassroom);
+  const { activeClass, activeClassRole } = useSelector(selectClassroom);
 
   const [openedPendingInvite, setOpenedPendingInvite] = useState(false);
   const [openedSendInvite, setOpenedSendInvite] = useState(false);
@@ -94,37 +94,49 @@ export function PeopleTab(props: Props) {
         onToggle={setOpenedSendInvite}
       />
 
-      <Group position="apart">
-        <Button
-          onClick={() => setOpenedSendInvite(true)}
-          color="primary"
-          radius="xl"
-          leftIcon={<UserPlus size={19} />}
-          variant="filled"
-          size="md"
-        >
-          <Text weight={400} size="sm">
-            Send Invite
-          </Text>
-        </Button>
-
-        <Group position="center">
+      {activeClassRole === ClassRole.Teacher && (
+        <Group position="apart">
           <Button
-            size="sm"
-            leftIcon={<Menu2 color="black" size={19} />}
-            variant="subtle"
-            onClick={() => setOpenedPendingInvite(true)}
+            onClick={() => setOpenedSendInvite(true)}
+            color="primary"
+            radius="xl"
+            leftIcon={<UserPlus size={19} />}
+            variant="filled"
+            size="md"
           >
-            <Text weight={400} color="black">
-              Pending Invites
+            <Text weight={400} size="sm">
+              Send Invite
             </Text>
           </Button>
+
+          <Group position="center">
+            <Button
+              size="sm"
+              leftIcon={<Menu2 color="black" size={19} />}
+              variant="subtle"
+              onClick={() => setOpenedPendingInvite(true)}
+            >
+              <Text weight={400} color="black">
+                Pending Invites
+              </Text>
+            </Button>
+          </Group>
         </Group>
-      </Group>
-      <Text className="mt-6 text-2xl font-semibold">Teacher</Text>
+      )}
+      <Text
+        className={`${
+          activeClassRole === ClassRole.Teacher ? 'mt-6' : 'mt-0'
+        } text-2xl font-semibold`}
+      >
+        Teacher
+      </Text>
       <Stack spacing="sm" className="w-full">
         {teachers.map((id, index) => (
-          <PeopleItem key={index} userId={id} />
+          <PeopleItem
+            key={index}
+            userId={id}
+            viewOnly={activeClassRole === ClassRole.Student}
+          />
         ))}
       </Stack>
       <Text className="mt-6 text-2xl font-semibold">Students</Text>
@@ -147,7 +159,11 @@ export function PeopleTab(props: Props) {
             </Text>
           )}
           {students.map((id, index) => (
-            <PeopleItem key={index} userId={id} />
+            <PeopleItem
+              key={index}
+              userId={id}
+              viewOnly={activeClassRole === ClassRole.Student}
+            />
           ))}
         </Stack>
       </Group>
