@@ -1,5 +1,5 @@
 import { Group, Text, Button, Box, Menu } from '@mantine/core';
-import { deleteDoc, DocumentData, DocumentReference } from 'firebase/firestore';
+import { deleteDoc } from 'firebase/firestore';
 import * as React from 'react';
 import { Check, Pencil, Trash, X } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,23 +8,17 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { getClassNameAndCode } from 'utils/classUtils';
 import { useModals } from '@mantine/modals';
+import { EditMeetingModal } from 'app/components/EditMeetingModal';
+import { ClassMeeting } from '../../MeetingsTab';
 dayjs.extend(relativeTime);
 
 interface Props {
-  classId: string;
-  meetingLink: string;
-  title: string;
-  description: string;
-  date: string;
-  timeStart: string;
-  timeEnd: string;
-  createdAt: string;
-  updatedAt: string;
-  docRef: DocumentReference<DocumentData>;
   shouldShowDescription: boolean;
+  meeting: ClassMeeting;
 }
 
 export function MeetingItem(props: Props) {
+  const { meeting, shouldShowDescription = false } = props;
   const {
     title,
     classId,
@@ -34,12 +28,12 @@ export function MeetingItem(props: Props) {
     timeEnd,
     meetingLink,
     docRef,
-    shouldShowDescription = false,
-  } = props;
+  } = meeting;
 
   const modals = useModals();
 
   const [subtitle, setSubtitle] = React.useState('');
+  const [editModalVisible, setEditModalVisible] = React.useState(false);
 
   React.useEffect(() => {
     const getInfo = async () => {
@@ -56,8 +50,6 @@ export function MeetingItem(props: Props) {
       setSubtitle('');
     };
   }, [classId]);
-
-  const onEdit = () => {};
 
   const openConfirmDeleteModal = () => {
     modals.openConfirmModal({
@@ -113,6 +105,11 @@ export function MeetingItem(props: Props) {
     <Box
       className={`w-full rounded-md border-none bg-white p-7 drop-shadow-md `}
     >
+      <EditMeetingModal
+        visible={editModalVisible}
+        meeting={meeting}
+        onToggle={setEditModalVisible}
+      />
       <Group position="apart" spacing="xs" className="mb-5 w-full">
         <Group direction="column">
           <Text weight="bold" color={'blue'}>
@@ -124,7 +121,10 @@ export function MeetingItem(props: Props) {
         </Group>
 
         <Menu position="right" className="mb-4">
-          <Menu.Item onClick={onEdit} icon={<Pencil size={16} />}>
+          <Menu.Item
+            onClick={() => setEditModalVisible(true)}
+            icon={<Pencil size={16} />}
+          >
             <Text size="sm">Edit</Text>
           </Menu.Item>
 
@@ -138,7 +138,7 @@ export function MeetingItem(props: Props) {
           </Menu.Item>
         </Menu>
       </Group>
-      <Text size="xs" className="mb-5">
+      <Text size="sm" className="mb-5">
         {shouldShowDescription && description}
       </Text>
       <Group className="" position="apart">

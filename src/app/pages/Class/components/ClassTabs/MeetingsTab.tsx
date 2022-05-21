@@ -17,7 +17,8 @@ import {
 } from 'firebase/firestore';
 import { db } from 'services/firebase';
 
-interface ClassMeeting {
+export interface ClassMeeting {
+  id: string;
   classId: string;
   meetingLink: string;
   title: string;
@@ -56,6 +57,7 @@ export function MeetingsTab(props: Props) {
         const data = doc.data();
 
         const meeting = {
+          id: doc.id,
           classId: data.classId,
           meetingLink: data.meetingLink,
           title: data.title,
@@ -128,17 +130,8 @@ export function MeetingsTab(props: Props) {
           meetings.map((meeting, index) => (
             <MeetingItem
               key={index}
-              classId={meeting.classId}
-              meetingLink={meeting.meetingLink}
-              title={meeting.title}
-              description={meeting.description}
-              date={meeting.date}
-              timeStart={meeting.timeStart}
-              timeEnd={meeting.timeEnd}
-              createdAt={meeting.createdAt}
-              updatedAt={meeting.updatedAt}
-              docRef={meeting.docRef}
-              shouldShowDescription={false}
+              shouldShowDescription={true}
+              meeting={meeting}
             />
           ))}
       </Group>
