@@ -95,8 +95,8 @@ export function Main() {
           pendingInvites: data.pendingInvites,
           inviteCode: data.inviteCode,
           color: data.color,
-          createdAt: data.createdAt.toDate().toISOString(),
-          updatedAt: data.updatedAt.toDate().toISOString(),
+          createdAt: data.createdAt && data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt && data.updatedAt.toDate().toISOString(),
         };
         classesList.push(newClass);
       });

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, Group, Space, Text } from '@mantine/core';
-import { Compass, User } from 'tabler-icons-react';
+import { Compass, Settings, User } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from 'services/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -11,6 +11,8 @@ interface Props {
   classCode: string;
   teacherId: string;
   color: CardColor;
+  inClass?: boolean;
+  onClick?: () => void;
 }
 
 export enum CardColor {
@@ -27,7 +29,8 @@ export enum CardColor {
 }
 
 export function ClassCard(props: Props) {
-  const { id, classTitle, classCode, teacherId, color } = props;
+  const { id, classTitle, classCode, teacherId, color, inClass, onClick } =
+    props;
 
   const navigate = useNavigate();
 
@@ -56,11 +59,12 @@ export function ClassCard(props: Props) {
     <Box
       component="button"
       className={`w-full cursor-pointer rounded-md border-none px-6 py-6 text-white ${cardBgColor}`}
-      onClick={onClicked}
+      onClick={inClass ? onClick : onClicked}
     >
       <Group position="apart" noWrap>
         <Text weight={'bold'}>{classTitle}</Text>
-        <Compass size={20} />
+
+        {inClass ? <Settings size={20} /> : <Compass size={20} />}
       </Group>
       <Space h={80} />
       <Group position="apart" noWrap>
