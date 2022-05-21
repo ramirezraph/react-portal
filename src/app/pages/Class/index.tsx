@@ -18,12 +18,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-
 import { CardColor, ClassCard } from '../../components/ClassCard';
 import { selectClasses } from '../Classes/slice/selectors';
 import { Class as IClass } from '../Classes/slice/types';
 import { ClassTabs } from './components/ClassTabs/Loadable';
 import { ClassUnitAccordion } from './components/ClassUnitAccordion/Loadable';
+import { SettingsDrawer } from './components/SettingsDrawer/Loadable';
 import { useClassroomSlice } from './slice';
 import { selectClassroom } from './slice/selectors';
 import { ClassRole, Lesson, Unit } from './slice/types';
@@ -42,6 +42,8 @@ export function Class() {
   const [loading, setLoading] = React.useState(true);
   const [unitsList, setUnitsList] = React.useState<Unit[]>([]);
   const [createUnitModalVisible, setCreateUnitModalVisible] =
+    React.useState(false);
+  const [classSettingsDrawerVisible, setClassSettingsDrawerVisible] =
     React.useState(false);
 
   React.useEffect(() => {
@@ -134,6 +136,15 @@ export function Class() {
       <PageContainer>
         {openedClass && (
           <>
+            <SettingsDrawer
+              visible={classSettingsDrawerVisible}
+              onToggle={setClassSettingsDrawerVisible}
+              id={openedClass.id}
+              classTitle={openedClass.name}
+              classCode={openedClass.code}
+              classShortDescription={openedClass.shortDescription}
+              ownerId={openedClass.ownerId}
+            />
             <Text size="lg" weight={'bold'}>
               Class
             </Text>
@@ -146,6 +157,8 @@ export function Class() {
                     classCode={openedClass.code}
                     teacherId={openedClass.ownerId}
                     color={CardColor.Sky}
+                    onClick={() => setClassSettingsDrawerVisible(true)}
+                    inClass
                   />
                 </Skeleton>
                 <Skeleton visible={loading} className="w-full">
