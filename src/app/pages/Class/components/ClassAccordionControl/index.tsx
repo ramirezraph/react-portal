@@ -164,9 +164,7 @@ export function ClassAccordionControl(props: Props) {
             onClick={displayLessonModalOnEdit}
           >
             <Message />
-            {numberOfComments && numberOfComments > 0 && (
-              <Text className="ml-2">{numberOfComments}</Text>
-            )}
+            <Text className="ml-2">{numberOfComments}</Text>
           </Button>
           <Tooltip label="Lesson View" position="bottom" withArrow>
             <ActionIcon
