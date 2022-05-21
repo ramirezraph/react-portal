@@ -25,33 +25,33 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from 'services/firebase';
 import { showNotification, updateNotification } from '@mantine/notifications';
+import { ClassMeeting } from 'app/pages/Class/components/ClassTabs/MeetingsTab';
 dayjs.extend(relativeTime);
 
 interface Prop {
   visible: boolean;
+  meeting: ClassMeeting;
   onToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function CreateMeetingModal(props: Prop) {
-  const { visible, onToggle } = props;
+export function EditMeetingModal(props: Prop) {
+  const { meeting, visible, onToggle } = props;
 
   const { currentUser } = useSelector(selectUser);
   const { activeClass } = useSelector(selectClassroom);
 
   const [loading, setLoading] = React.useState(false);
 
-  const now = new Date();
-  const then = dayjs(now).add(1, 'hour').toDate();
   const form = useForm({
     initialValues: {
-      meetingLink: '',
-      title: '',
-      description: '',
-      date: now,
-      time: [now, then],
+      meetingLink: meeting.meetingLink,
+      title: meeting.title,
+      description: meeting.description,
+      date: new Date(meeting.date),
+      time: [new Date(meeting.timeStart), new Date(meeting.timeEnd)],
     },
 
     validate: {
@@ -63,7 +63,25 @@ export function CreateMeetingModal(props: Prop) {
   });
   type FormValues = typeof form.values;
 
-  const onCreateMeeting = (values: FormValues) => {
+  React.useEffect(() => {
+    form.setValues({
+      meetingLink: meeting.meetingLink,
+      title: meeting.title,
+      description: meeting.description,
+      date: new Date(meeting.date),
+      time: [new Date(meeting.timeStart), new Date(meeting.timeEnd)],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    meeting.date,
+    meeting.description,
+    meeting.meetingLink,
+    meeting.timeEnd,
+    meeting.timeStart,
+    meeting.title,
+  ]);
+
+  const onUpdateMeeting = (values: FormValues) => {
     if (!activeClass?.id) return;
     if (!currentUser?.sub) return;
 
@@ -92,32 +110,31 @@ export function CreateMeetingModal(props: Prop) {
       date: values.date,
       timeStart: startTime,
       timeEnd: endTime,
-      classId: activeClass.id,
-      createdBy: currentUser.sub,
-      createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
-    const createIdNotification = uuidv4();
+    const notificationId = uuidv4();
     try {
       setLoading(true);
 
       showNotification({
-        id: createIdNotification,
+        id: notificationId,
         loading: true,
         title: 'In progress',
-        message: `Creating meeting: ${newMeeting.title} ...`,
+        message: `Updating meeting: ${newMeeting.title} ...`,
         autoClose: false,
         disallowClose: true,
       });
 
-      addDoc(
-        collection(db, `classes/${activeClass.id}/meetings`),
-        newMeeting,
-      ).then(() => {
+      const meetingDocRef = doc(
+        db,
+        `classes/${activeClass.id}/meetings`,
+        meeting.id,
+      );
+      updateDoc(meetingDocRef, newMeeting).then(() => {
         updateNotification({
-          id: createIdNotification,
+          id: notificationId,
           title: 'Success',
-          message: `Meeting: ${newMeeting.title} created successfully.`,
+          message: `Meeting: ${newMeeting.title} updated successfully.`,
           color: 'green',
           icon: <Check />,
         });
@@ -127,9 +144,9 @@ export function CreateMeetingModal(props: Prop) {
       onToggle(false);
     } catch (e) {
       updateNotification({
-        id: createIdNotification,
+        id: notificationId,
         title: 'Failed',
-        message: `Meeting: ${newMeeting.title} create failed.`,
+        message: `Meeting: ${newMeeting.title} update failed.`,
         color: 'red',
         icon: <X />,
       });
@@ -149,7 +166,7 @@ export function CreateMeetingModal(props: Prop) {
       onClose={() => onToggle(false)}
       withCloseButton={false}
     >
-      <form onSubmit={form.onSubmit(values => onCreateMeeting(values))}>
+      <form onSubmit={form.onSubmit(values => onUpdateMeeting(values))}>
         <Stack>
           <Group position="apart">
             <Text size="xl" weight={600}>
@@ -221,7 +238,7 @@ export function CreateMeetingModal(props: Prop) {
             {...form.getInputProps('time')}
           />
           <Button loading={loading} type="submit" size="md" className="mt-3">
-            <Text>Create</Text>
+            <Text>Submit changes</Text>
           </Button>
         </Stack>
       </form>
