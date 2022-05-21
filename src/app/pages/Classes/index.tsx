@@ -1,8 +1,8 @@
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Button, Group, SimpleGrid, Text } from '@mantine/core';
-import { Calendar, Link, Plus } from 'tabler-icons-react';
+import { Button, Group, Menu, SimpleGrid, Text } from '@mantine/core';
+import { Calendar, Link, Plus, Qrcode, ShieldLock } from 'tabler-icons-react';
 import { CardColor, ClassCard } from '../../components/ClassCard';
 import { useNavigate } from 'react-router-dom';
 import { JoinClassCollapseCard } from './components/JoinClassCollapseCard';
@@ -51,17 +51,35 @@ export function Classes() {
               Calendar
             </Text>
           </Button>
-          <Button
-            leftIcon={<Link size={19} color="gray" />}
-            color="gray"
-            variant="default"
-            size="md"
-            onClick={() => setJoinClassVisible(o => !o)}
+          <Menu
+            size="lg"
+            control={
+              <Button
+                leftIcon={<Link size={19} color="gray" />}
+                color="gray"
+                variant="default"
+                size="md"
+              >
+                <Text size="sm" weight={400} color="black">
+                  Join class
+                </Text>
+              </Button>
+            }
           >
-            <Text size="sm" weight={400} color="black">
-              Join class
-            </Text>
-          </Button>
+            <Menu.Label>How would you like to join?</Menu.Label>
+            <Menu.Item
+              icon={<ShieldLock size={18} />}
+              onClick={() => setJoinClassVisible(o => !o)}
+            >
+              Enter a class key
+            </Menu.Item>
+            <Menu.Item
+              icon={<Qrcode size={18} />}
+              onClick={() => setJoinClassVisible(o => !o)}
+            >
+              Scan a QR Code
+            </Menu.Item>
+          </Menu>
           <Button
             leftIcon={<Plus size={19} color="gray" />}
             color="gray"

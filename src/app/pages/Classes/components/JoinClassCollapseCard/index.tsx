@@ -30,7 +30,7 @@ export function JoinClassCollapseCard(props: Props) {
           <TextInput
             radius="md"
             className="w-1/2"
-            placeholder="Class code"
+            placeholder="Class key"
             size="lg"
           />
           <Group className="mt-6">
