@@ -44,7 +44,7 @@ export function CreateMeetingModal(props: Prop) {
   const [loading, setLoading] = React.useState(false);
 
   const now = new Date();
-  const then = dayjs(now).add(30, 'minutes').toDate();
+  const then = dayjs(now).add(1, 'hour').toDate();
   const form = useForm({
     initialValues: {
       meetingLink: '',

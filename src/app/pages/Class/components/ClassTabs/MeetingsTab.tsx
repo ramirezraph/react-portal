@@ -7,6 +7,28 @@ import { CreateMeetingModal } from 'app/components/CreateMeetingModal/Loadable';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassRole } from '../../slice/types';
+import {
+  collection,
+  DocumentData,
+  DocumentReference,
+  onSnapshot,
+  orderBy,
+  query,
+} from 'firebase/firestore';
+import { db } from 'services/firebase';
+
+interface ClassMeeting {
+  classId: string;
+  meetingLink: string;
+  title: string;
+  description: string;
+  date: string;
+  timeStart: string;
+  timeEnd: string;
+  createdAt: string;
+  updatedAt: string;
+  docRef: DocumentReference<DocumentData>;
+}
 
 interface Props {
   // someProps: string
@@ -15,7 +37,48 @@ interface Props {
 export function MeetingsTab(props: Props) {
   const [NewMeetingOpened, NewMeetingsetOpened] = useState(false);
 
-  const { activeClassRole } = useSelector(selectClassroom);
+  const { activeClassRole, activeClass } = useSelector(selectClassroom);
+  const [meetings, setMeetings] = useState<ClassMeeting[]>([]);
+
+  React.useEffect(() => {
+    if (!activeClass?.id) return;
+
+    console.log('onSnapshot: meetings');
+
+    const q = query(
+      collection(db, `classes/${activeClass.id}/meetings`),
+      orderBy('date', 'desc'),
+      orderBy('timeStart', 'desc'),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const meetings: ClassMeeting[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+
+        const meeting = {
+          classId: data.classId,
+          meetingLink: data.meetingLink,
+          title: data.title,
+          description: data.description,
+          date: data.date && data.date.toDate().toISOString(),
+          timeStart: data.timeStart && data.timeStart.toDate().toISOString(),
+          timeEnd: data.timeEnd && data.timeEnd.toDate().toISOString(),
+          createdAt: data.createdAt && data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt && data.updatedAt.toDate().toISOString(),
+          docRef: doc.ref,
+        };
+        meetings.push(meeting);
+      });
+      console.log('meetings', meetings);
+
+      setMeetings(meetings);
+    });
+
+    return () => {
+      console.log('onSnapshot: meetings - unsubscribe');
+      unsubscribe();
+    };
+  }, [activeClass?.id]);
 
   return (
     <div className="bg-white p-6">
@@ -61,27 +124,23 @@ export function MeetingsTab(props: Props) {
         )}
       </Group>
       <Group>
-        <MeetingItem
-          title="Class Introduction"
-          subtitle="CPE 401 - Python Programming"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-          date="Thu, Feb, 25, 2021"
-          timeStart="1:30 PM"
-          timeEnd="2:30 PM"
-          shouldShowDescription={true}
-        />
-
-        <MeetingItem
-          title="Class Introduction"
-          subtitle="CPE 401 - Python Programming"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-          date="Thu, Feb, 25, 2021"
-          timeStart="1:30 PM"
-          timeEnd="2:30 PM"
-          shouldShowDescription={true}
-        />
+        {meetings.length > 0 &&
+          meetings.map((meeting, index) => (
+            <MeetingItem
+              key={index}
+              classId={meeting.classId}
+              meetingLink={meeting.meetingLink}
+              title={meeting.title}
+              description={meeting.description}
+              date={meeting.date}
+              timeStart={meeting.timeStart}
+              timeEnd={meeting.timeEnd}
+              createdAt={meeting.createdAt}
+              updatedAt={meeting.updatedAt}
+              docRef={meeting.docRef}
+              shouldShowDescription={false}
+            />
+          ))}
       </Group>
     </div>
   );
