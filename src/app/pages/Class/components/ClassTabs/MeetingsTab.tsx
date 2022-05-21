@@ -14,8 +14,14 @@ import {
   onSnapshot,
   orderBy,
   query,
+  Timestamp,
+  where,
 } from 'firebase/firestore';
 import { db } from 'services/firebase';
+
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 export interface ClassMeeting {
   id: string;
@@ -40,17 +46,49 @@ export function MeetingsTab(props: Props) {
 
   const { activeClassRole, activeClass } = useSelector(selectClassroom);
   const [meetings, setMeetings] = useState<ClassMeeting[]>([]);
+  const [filterValue, setFilterValue] = useState('all');
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
 
     console.log('onSnapshot: meetings');
 
-    const q = query(
+    let q = query(
       collection(db, `classes/${activeClass.id}/meetings`),
-      orderBy('date', 'desc'),
-      orderBy('timeStart', 'desc'),
+      orderBy('date', 'asc'),
+      orderBy('timeStart', 'asc'),
     );
+
+    if (filterValue === 'today') {
+      let start = dayjs().startOf('day').toDate();
+      let end = dayjs().endOf('day').toDate();
+
+      const startOfDay = Timestamp.fromDate(start);
+      const endOfDay = Timestamp.fromDate(end);
+
+      q = query(
+        collection(db, `classes/${activeClass.id}/meetings`),
+        orderBy('date', 'asc'),
+        orderBy('timeStart', 'asc'),
+        where('date', '>=', startOfDay),
+        where('date', '<=', endOfDay),
+      );
+    } else if (filterValue === 'week') {
+      let start = dayjs().startOf('week').toDate();
+      let end = dayjs().endOf('week').toDate();
+
+      const startOfDay = Timestamp.fromDate(start);
+      const endOfDay = Timestamp.fromDate(end);
+
+      q = query(
+        collection(db, `classes/${activeClass.id}/meetings`),
+        orderBy('date', 'asc'),
+        orderBy('timeStart', 'asc'),
+        where('date', '>=', startOfDay),
+        where('date', '<=', endOfDay),
+      );
+    }
+
     const unsubscribe = onSnapshot(q, querySnapshot => {
       const meetings: ClassMeeting[] = [];
       querySnapshot.forEach(doc => {
@@ -80,7 +118,7 @@ export function MeetingsTab(props: Props) {
       console.log('onSnapshot: meetings - unsubscribe');
       unsubscribe();
     };
-  }, [activeClass?.id]);
+  }, [activeClass?.id, filterValue]);
 
   return (
     <div className="bg-white p-6">
@@ -106,10 +144,18 @@ export function MeetingsTab(props: Props) {
         <Group
           className={activeClassRole === ClassRole.Teacher ? 'ml-auto' : ''}
         >
-          <Chips color="violet" variant="filled" spacing={5} size="sm">
-            <Chip value={'today'}>Today</Chip>
-            <Chip value={'week'}>This Week</Chip>
-            <Chip value={'all'}>All Meetings</Chip>
+          <Chips
+            value={filterValue}
+            onChange={setFilterValue}
+            multiple={false}
+            color="primary"
+            variant="filled"
+            spacing={5}
+            size="sm"
+          >
+            <Chip value="all">All Meetings</Chip>
+            <Chip value="today">Today</Chip>
+            <Chip value="week">This Week</Chip>
           </Chips>
         </Group>
       </Group>
@@ -126,6 +172,11 @@ export function MeetingsTab(props: Props) {
         )}
       </Group>
       <Group>
+        {meetings.length === 0 && (
+          <Text size="sm" className="p-2 italic">
+            Wohoo! no meeting on this class.
+          </Text>
+        )}
         {meetings.length > 0 &&
           meetings.map((meeting, index) => (
             <MeetingItem
