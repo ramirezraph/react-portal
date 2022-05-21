@@ -9,6 +9,8 @@ import {
   NativeSelect,
   TextInput,
   ActionIcon,
+  Image,
+  ScrollArea,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useModals } from '@mantine/modals';
@@ -29,8 +31,10 @@ import { selectUser } from 'store/userSlice/selectors';
 import {
   Check,
   Copy,
+  Download,
   Messages,
   Pencil,
+  Qrcode,
   Settings,
   Users,
   X,
@@ -38,6 +42,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassRole } from '../../slice/types';
+import QRCode from 'qrcode';
+import { saveAs } from 'file-saver';
 
 interface Props {
   visible: boolean;
@@ -71,6 +77,8 @@ export function SettingsDrawer(props: Props) {
 
   const [classInviteCode, setClassInviteCode] = React.useState('');
   const [generateCodeLoading, setGenerateCodeLoading] = React.useState(false);
+
+  const [qrCodeImageUrl, setQrCodeImageUrl] = React.useState('');
 
   React.useEffect(() => {
     setClassInviteCode(inviteCode);
@@ -210,6 +218,21 @@ export function SettingsDrawer(props: Props) {
     setGenerateCodeLoading(false);
   };
 
+  React.useEffect(() => {
+    if (!classInviteCode) return;
+
+    const generateQrCode = async () => {
+      try {
+        const response = await QRCode.toDataURL(classInviteCode);
+        setQrCodeImageUrl(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    generateQrCode();
+  }, [classInviteCode]);
+
   return (
     <Drawer
       opened={visible}
@@ -221,152 +244,187 @@ export function SettingsDrawer(props: Props) {
       }
       padding="xl"
       size="xl"
+      lockScroll={true}
     >
       <Tabs>
         <Tabs.Tab label="General" icon={<Settings size={14} />}>
-          <ClassCard
-            id={id}
-            classTitle={classGeneralForm.values.className}
-            classCode={classGeneralForm.values.classCode}
-            teacherId={ownerId}
-            color={CardColor.Sky}
-            inClass
-          />
-          <form
-            onSubmit={classGeneralForm.onSubmit(values =>
-              openConfirmUpdateModal(values),
-            )}
-          >
-            <Stack className="mt-3">
-              <Text size="sm" color="gray" className="font-semibold">
-                Class details
-              </Text>
-              <TextInput
-                readOnly={activeClassRole === ClassRole.Student}
-                label={
-                  <Group spacing="sm">
-                    <Pencil color="gray" size={18} />
-                    <Text size="sm" weight={400}>
-                      Class name <span className="text-red-500">*</span>
-                    </Text>
-                  </Group>
-                }
-                {...classGeneralForm.getInputProps('className')}
-              />
-              <TextInput
-                readOnly={activeClassRole === ClassRole.Student}
-                label={
-                  <Group spacing="sm">
-                    <Pencil color="gray" size={18} />
-                    <Text size="sm" weight={400}>
-                      Class code <span className="text-red-500">*</span>
-                    </Text>
-                  </Group>
-                }
-                {...classGeneralForm.getInputProps('classCode')}
-              />
-              <TextInput
-                readOnly={activeClassRole === ClassRole.Student}
-                label={
-                  <Group spacing="sm">
-                    <Pencil color="gray" size={18} />
-                    <Text size="sm" weight={400}>
-                      Short description <span className="text-red-500">*</span>
-                    </Text>
-                  </Group>
-                }
-                {...classGeneralForm.getInputProps('shortDescription')}
-              />
-              {activeClassRole === ClassRole.Teacher && (
-                <Button className="mt-3" type="submit">
-                  Submit changes
-                </Button>
+          <ScrollArea className="h-screen" scrollbarSize={4} offsetScrollbars>
+            <div className="mt-3"></div>
+            <ClassCard
+              id={id}
+              classTitle={classGeneralForm.values.className}
+              classCode={classGeneralForm.values.classCode}
+              teacherId={ownerId}
+              color={CardColor.Sky}
+              inClass
+            />
+            <form
+              onSubmit={classGeneralForm.onSubmit(values =>
+                openConfirmUpdateModal(values),
               )}
-
-              <Divider
-                variant="solid"
-                size="sm"
-                color={'dark'}
-                className="my-2 w-8"
-              />
-              <Group>
-                {isClassOwner && <Button color="red">Archive</Button>}
-                {activeClassRole === ClassRole.Student && (
-                  <Button color="red" onClick={openConfirmLeaveModal}>
-                    Leave this class
+            >
+              <Stack className="mt-3 pb-48">
+                <Text size="sm" color="gray" className="font-semibold">
+                  Class details
+                </Text>
+                <TextInput
+                  readOnly={activeClassRole === ClassRole.Student}
+                  label={
+                    <Group spacing="sm">
+                      <Pencil color="gray" size={18} />
+                      <Text size="sm" weight={400}>
+                        Class name <span className="text-red-500">*</span>
+                      </Text>
+                    </Group>
+                  }
+                  {...classGeneralForm.getInputProps('className')}
+                />
+                <TextInput
+                  readOnly={activeClassRole === ClassRole.Student}
+                  label={
+                    <Group spacing="sm">
+                      <Pencil color="gray" size={18} />
+                      <Text size="sm" weight={400}>
+                        Class code <span className="text-red-500">*</span>
+                      </Text>
+                    </Group>
+                  }
+                  {...classGeneralForm.getInputProps('classCode')}
+                />
+                <TextInput
+                  readOnly={activeClassRole === ClassRole.Student}
+                  label={
+                    <Group spacing="sm">
+                      <Pencil color="gray" size={18} />
+                      <Text size="sm" weight={400}>
+                        Short description{' '}
+                        <span className="text-red-500">*</span>
+                      </Text>
+                    </Group>
+                  }
+                  {...classGeneralForm.getInputProps('shortDescription')}
+                />
+                {activeClassRole === ClassRole.Teacher && (
+                  <Button className="mt-3" type="submit">
+                    Submit changes
                   </Button>
                 )}
-                {isClassOwner && (
-                  <Button color="cyan">Pass Class Ownership</Button>
-                )}
-              </Group>
-            </Stack>
-          </form>
+
+                <Divider
+                  variant="solid"
+                  size="sm"
+                  color={'dark'}
+                  className="my-2 w-8"
+                />
+                <Group>
+                  {isClassOwner && <Button color="red">Archive</Button>}
+                  {activeClassRole === ClassRole.Student && (
+                    <Button color="red" onClick={openConfirmLeaveModal}>
+                      Leave this class
+                    </Button>
+                  )}
+                  {isClassOwner && (
+                    <Button color="cyan">Pass Class Ownership</Button>
+                  )}
+                </Group>
+              </Stack>
+            </form>
+          </ScrollArea>
         </Tabs.Tab>
         {activeClassRole === ClassRole.Teacher && (
-          <Tabs.Tab label="Permissions" icon={<Settings size={14} />}>
-            <Stack>
-              <Text size="sm" className="font-semibold" color="gray">
-                Permissions
-              </Text>
-              <NativeSelect
-                data={[
-                  'Students can post and comments',
-                  'Students can only comment',
-                  'Only teachers can post or comment',
-                ]}
-                placeholder="Pick one"
-                label={
-                  <Group spacing="sm">
-                    <Messages color="gray" size={18} />
-                    <Text size="sm" weight={400}>
-                      Post and comment permission
-                    </Text>
-                  </Group>
-                }
-                description="Set who can post and comment"
-              />
-              <NativeSelect
-                data={['Turn on', 'Turn off']}
-                placeholder="Pick one"
-                label={
-                  <Group spacing="sm">
-                    <Users color="gray" size={18} />
-                    <Text size="sm" weight={400}>
-                      Manage class invites
-                    </Text>
-                  </Group>
-                }
-              />
-              <TextInput
-                value={classInviteCode}
-                label={
-                  <Group spacing="sm">
-                    <Pencil color="gray" size={18} />
-                    <Text size="sm" weight={400}>
-                      Class invite code
-                    </Text>
-                  </Group>
-                }
-                rightSection={
-                  <ActionIcon
-                    onClick={() =>
-                      navigator.clipboard.writeText(classInviteCode)
-                    }
-                  >
-                    <Copy color={'gray'} size={24} className="cursor-pointer" />
-                  </ActionIcon>
-                }
-                readOnly
-              />
-              <Button
-                loading={generateCodeLoading}
-                className="w-fit"
-                onClick={onGenerateNewCode}
-              >
-                Generate new code
-              </Button>
-            </Stack>
+          <Tabs.Tab label="Additional settings" icon={<Settings size={14} />}>
+            <ScrollArea className="h-screen" scrollbarSize={4} offsetScrollbars>
+              <Stack className="pt-3 pb-48">
+                <Text size="sm" className="font-semibold" color="gray">
+                  Permissions
+                </Text>
+                <NativeSelect
+                  data={[
+                    'Students can post and comments',
+                    'Students can only comment',
+                    'Only teachers can post or comment',
+                  ]}
+                  placeholder="Pick one"
+                  label={
+                    <Group spacing="sm">
+                      <Messages color="gray" size={18} />
+                      <Text size="sm" weight={400}>
+                        Post and comment permission
+                      </Text>
+                    </Group>
+                  }
+                  description="Set who can post and comment"
+                />
+                <NativeSelect
+                  data={['Turn on', 'Turn off']}
+                  placeholder="Pick one"
+                  label={
+                    <Group spacing="sm">
+                      <Users color="gray" size={18} />
+                      <Text size="sm" weight={400}>
+                        Manage class invites
+                      </Text>
+                    </Group>
+                  }
+                />
+                <TextInput
+                  value={classInviteCode}
+                  label={
+                    <Group spacing="sm">
+                      <Pencil color="gray" size={18} />
+                      <Text size="sm" weight={400}>
+                        Class invite code
+                      </Text>
+                    </Group>
+                  }
+                  rightSection={
+                    <ActionIcon
+                      onClick={() =>
+                        navigator.clipboard.writeText(classInviteCode)
+                      }
+                    >
+                      <Copy
+                        color={'gray'}
+                        size={24}
+                        className="cursor-pointer"
+                      />
+                    </ActionIcon>
+                  }
+                  readOnly
+                />
+                <Button
+                  loading={generateCodeLoading}
+                  className="w-fit"
+                  onClick={onGenerateNewCode}
+                >
+                  Generate new code
+                </Button>
+                <Group spacing="sm">
+                  <Qrcode color="gray" size={18} />
+                  <Text size="sm" weight={400}>
+                    QR Code
+                  </Text>
+                </Group>
+                <div className="w-fit border border-solid border-gray-200 p-6">
+                  <Image
+                    height={300}
+                    fit="contain"
+                    src={qrCodeImageUrl}
+                    alt="QR code for class invite."
+                  />
+                </div>
+                <Button
+                  leftIcon={<Download size={18} />}
+                  loading={generateCodeLoading}
+                  className="w-fit"
+                  onClick={() => {
+                    saveAs(qrCodeImageUrl, `${classTitle}.png`);
+                  }}
+                >
+                  Download QR Code
+                </Button>
+              </Stack>
+            </ScrollArea>
           </Tabs.Tab>
         )}
       </Tabs>
