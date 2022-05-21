@@ -152,14 +152,18 @@ export function ClassMeetings() {
       </Group>
 
       <Stack className="w-full drop-shadow-md">
-        {allMeetings.map((meeting, index) => (
-          <MeetingItem
-            key={index}
-            shouldShowDescription={true}
-            meeting={meeting}
-            viewOnly
-          />
-        ))}
+        <Text size="sm" className="p-2 italic">
+          No meeting found.
+        </Text>
+        {allMeetings.length > 0 &&
+          allMeetings.map((meeting, index) => (
+            <MeetingItem
+              key={index}
+              shouldShowDescription={true}
+              meeting={meeting}
+              viewOnly
+            />
+          ))}
       </Stack>
     </Stack>
   );
