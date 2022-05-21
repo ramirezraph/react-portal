@@ -110,8 +110,6 @@ export function EditMeetingModal(props: Prop) {
       date: values.date,
       timeStart: startTime,
       timeEnd: endTime,
-      classId: activeClass.id,
-      createdBy: currentUser.sub,
       updatedAt: serverTimestamp(),
     };
     const notificationId = uuidv4();
