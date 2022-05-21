@@ -172,9 +172,19 @@ export function MeetingsTab(props: Props) {
         )}
       </Group>
       <Group>
-        {meetings.length === 0 && (
+        {meetings.length === 0 && filterValue === 'all' && (
           <Text size="sm" className="p-2 italic">
             Wohoo! no meeting on this class.
+          </Text>
+        )}
+        {meetings.length === 0 && filterValue === 'today' && (
+          <Text size="sm" className="p-2 italic">
+            Wohoo! no meeting today.
+          </Text>
+        )}
+        {meetings.length === 0 && filterValue === 'week' && (
+          <Text size="sm" className="p-2 italic">
+            Wohoo! no meeting this week.
           </Text>
         )}
         {meetings.length > 0 &&
