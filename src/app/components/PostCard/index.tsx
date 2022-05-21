@@ -45,7 +45,6 @@ import {
   where,
 } from 'firebase/firestore';
 import { db, postFilesColRef, storage } from 'services/firebase';
-import RichTextEditor from '@mantine/rte';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
 import { deleteObject, ref } from 'firebase/storage';
@@ -55,9 +54,10 @@ import { useModals } from '@mantine/modals';
 import { UserAvatar } from '../UserAvatar/Loadable';
 import { Comment } from '../Comment';
 import { getNameAndPicture } from 'utils/userUtils';
-
+import parse from 'html-react-parser';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getClassNameAndCode } from 'utils/classUtils';
 dayjs.extend(relativeTime);
 
 export interface IFile {
@@ -107,11 +107,13 @@ interface Prop {
   images: IFile[];
   files: IFile[];
   requestForUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+  showClassInfo?: boolean;
 }
 
 export function PostCard(props: Prop) {
   const {
     id,
+    classId,
     ownerId,
     createdAt,
     content,
@@ -119,13 +121,13 @@ export function PostCard(props: Prop) {
     likes,
     numberOfComments,
     requestForUpdate,
+    showClassInfo,
   } = props;
 
   const modals = useModals();
   const { currentUser } = useSelector(selectUser);
 
   const [opened, setOpened] = React.useState(false);
-  const [value, onChange] = React.useState(content);
   const [imageList, setImageList] = React.useState<IFile[]>([]);
   const [ownerFullname, setOwnerFullname] = React.useState('');
   const [ownerPicture, setOwnerPicture] = React.useState('');
@@ -133,6 +135,8 @@ export function PostCard(props: Prop) {
   const [isCommentsVisible, setCommentsVisible] = React.useState(false);
   const [newComment, setNewComment] = React.useState('');
   const [comments, setComments] = React.useState<IComment[]>([]);
+  const [classTitle, setClassTitle] = React.useState('');
+  const [classCode, setClassCode] = React.useState('');
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
@@ -146,7 +150,33 @@ export function PostCard(props: Prop) {
     };
 
     getOwnerInfo();
+
+    return () => {
+      setOwnerFullname('');
+      setOwnerPicture('');
+    };
   }, [ownerId]);
+
+  React.useEffect(() => {
+    if (!showClassInfo) return;
+
+    const getClassInfo = async () => {
+      const nameAndCode = await getClassNameAndCode(classId);
+      if (nameAndCode) {
+        const { name, code } = nameAndCode;
+
+        setClassTitle(name);
+        setClassCode(code);
+      }
+    };
+
+    getClassInfo();
+
+    return () => {
+      setClassTitle('');
+      setClassCode('');
+    };
+  }, [classId, showClassInfo]);
 
   React.useEffect(() => {
     const fetchImages = async () => {
@@ -362,13 +392,8 @@ export function PostCard(props: Prop) {
               </Menu>
             )}
           </Group>
-          {content.length > 0 && content !== '<p><br></p>' && (
-            <RichTextEditor
-              value={value}
-              readOnly
-              onChange={onChange}
-              className="w-full border-none text-lg"
-            />
+          {content !== '<p><br></p>' && content !== '<p></p>' && (
+            <div>{parse(content)}</div>
           )}
           <ImagesGrid images={imageList} />
           <Group className="w-full" position="apart" noWrap>
@@ -390,6 +415,9 @@ export function PostCard(props: Prop) {
                 )}
               </Button>
             </Group>
+            <Text size="sm" color="gray">
+              {classCode} - {classTitle}
+            </Text>
             {files && files?.length > 0 && (
               <Group>
                 <Tooltip label="Attached files" position="bottom" withArrow>
