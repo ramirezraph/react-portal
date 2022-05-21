@@ -8,6 +8,7 @@ import {
   Drawer,
   NativeSelect,
   TextInput,
+  ActionIcon,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useModals } from '@mantine/modals';
@@ -27,6 +28,7 @@ import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
 import {
   Check,
+  Copy,
   Messages,
   Pencil,
   Settings,
@@ -46,6 +48,7 @@ interface Props {
   classCode: string;
   classShortDescription: string;
   ownerId: string;
+  inviteCode: string;
 }
 
 export function SettingsDrawer(props: Props) {
@@ -57,6 +60,7 @@ export function SettingsDrawer(props: Props) {
     classCode,
     classShortDescription,
     ownerId,
+    inviteCode,
   } = props;
 
   const modals = useModals();
@@ -64,6 +68,13 @@ export function SettingsDrawer(props: Props) {
 
   const { currentUser } = useSelector(selectUser);
   const { activeClassRole } = useSelector(selectClassroom);
+
+  const [classInviteCode, setClassInviteCode] = React.useState('');
+  const [generateCodeLoading, setGenerateCodeLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    setClassInviteCode(inviteCode);
+  }, [inviteCode]);
 
   const isClassOwner = React.useMemo(() => {
     if (currentUser?.sub) {
@@ -188,6 +199,15 @@ export function SettingsDrawer(props: Props) {
     } catch (e) {
       console.log('error', e);
     }
+  };
+
+  const onGenerateNewCode = async () => {
+    setGenerateCodeLoading(true);
+    const newInviteCode = uuidv4();
+    await updateDoc(doc(db, 'classes', id), {
+      inviteCode: newInviteCode,
+    });
+    setGenerateCodeLoading(false);
   };
 
   return (
@@ -318,6 +338,34 @@ export function SettingsDrawer(props: Props) {
                   </Group>
                 }
               />
+              <TextInput
+                value={classInviteCode}
+                label={
+                  <Group spacing="sm">
+                    <Pencil color="gray" size={18} />
+                    <Text size="sm" weight={400}>
+                      Class invite code
+                    </Text>
+                  </Group>
+                }
+                rightSection={
+                  <ActionIcon
+                    onClick={() =>
+                      navigator.clipboard.writeText(classInviteCode)
+                    }
+                  >
+                    <Copy color={'gray'} size={24} className="cursor-pointer" />
+                  </ActionIcon>
+                }
+                readOnly
+              />
+              <Button
+                loading={generateCodeLoading}
+                className="w-fit"
+                onClick={onGenerateNewCode}
+              >
+                Generate new code
+              </Button>
             </Stack>
           </Tabs.Tab>
         )}

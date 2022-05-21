@@ -144,6 +144,7 @@ export function Class() {
               classCode={openedClass.code}
               classShortDescription={openedClass.shortDescription}
               ownerId={openedClass.ownerId}
+              inviteCode={openedClass.inviteCode}
             />
             <Text size="lg" weight={'bold'}>
               Class
