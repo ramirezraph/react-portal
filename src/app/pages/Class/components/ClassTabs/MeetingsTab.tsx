@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux';
 import { selectClassroom } from '../../slice/selectors';
 import { ClassRole } from '../../slice/types';
 import {
-  collection,
   DocumentData,
   DocumentReference,
   onSnapshot,
@@ -17,7 +16,7 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore';
-import { db } from 'services/firebase';
+import { meetingsColRef } from 'services/firebase';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -46,7 +45,7 @@ export function MeetingsTab(props: Props) {
 
   const { activeClassRole, activeClass } = useSelector(selectClassroom);
   const [meetings, setMeetings] = useState<ClassMeeting[]>([]);
-  const [filterValue, setFilterValue] = useState('all');
+  const [filterValue, setFilterValue] = useState('today');
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
@@ -54,7 +53,7 @@ export function MeetingsTab(props: Props) {
     console.log('onSnapshot: meetings');
 
     let q = query(
-      collection(db, `meetings`),
+      meetingsColRef,
       where('classId', '==', activeClass.id),
       orderBy('date', 'asc'),
       orderBy('timeStart', 'asc'),
@@ -68,7 +67,7 @@ export function MeetingsTab(props: Props) {
       const endOfDay = Timestamp.fromDate(end);
 
       q = query(
-        collection(db, `meetings`),
+        meetingsColRef,
         where('classId', '==', activeClass.id),
         orderBy('date', 'asc'),
         orderBy('timeStart', 'asc'),
@@ -83,7 +82,7 @@ export function MeetingsTab(props: Props) {
       const endOfDay = Timestamp.fromDate(end);
 
       q = query(
-        collection(db, `meetings`),
+        meetingsColRef,
         where('classId', '==', activeClass.id),
         where('date', '>=', startOfDay),
         where('date', '<=', endOfDay),
@@ -112,7 +111,6 @@ export function MeetingsTab(props: Props) {
         };
         meetings.push(meeting);
       });
-      console.log('meetings', meetings);
 
       setMeetings(meetings);
     });
@@ -156,9 +154,9 @@ export function MeetingsTab(props: Props) {
             spacing={5}
             size="sm"
           >
-            <Chip value="all">All Meetings</Chip>
             <Chip value="today">Today</Chip>
             <Chip value="week">This Week</Chip>
+            <Chip value="all">All Meetings</Chip>
           </Chips>
         </Group>
       </Group>

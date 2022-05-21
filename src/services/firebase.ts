@@ -26,6 +26,7 @@ const postsColRef = collection(db, 'posts');
 const lessonFilesColRef = collection(db, 'lesson-files');
 const postFilesColRef = collection(db, 'post-files');
 const notificationsColRef = collection(db, 'notifications');
+const meetingsColRef = collection(db, 'meetings');
 
 export {
   app,
@@ -38,4 +39,5 @@ export {
   lessonFilesColRef,
   postFilesColRef,
   notificationsColRef,
+  meetingsColRef,
 };
