@@ -168,7 +168,7 @@ export function MeetingItem(props: Props) {
             href={meetingLink}
             target="_blank"
           >
-            <Text size="xs">Join Meeting</Text>
+            <Text size="xs">Go to meeting</Text>
           </Button>
         </Group>
       </Group>
