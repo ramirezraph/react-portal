@@ -54,7 +54,8 @@ export function MeetingsTab(props: Props) {
     console.log('onSnapshot: meetings');
 
     let q = query(
-      collection(db, `classes/${activeClass.id}/meetings`),
+      collection(db, `meetings`),
+      where('classId', '==', activeClass.id),
       orderBy('date', 'asc'),
       orderBy('timeStart', 'asc'),
     );
@@ -67,7 +68,8 @@ export function MeetingsTab(props: Props) {
       const endOfDay = Timestamp.fromDate(end);
 
       q = query(
-        collection(db, `classes/${activeClass.id}/meetings`),
+        collection(db, `meetings`),
+        where('classId', '==', activeClass.id),
         orderBy('date', 'asc'),
         orderBy('timeStart', 'asc'),
         where('date', '>=', startOfDay),
@@ -81,11 +83,12 @@ export function MeetingsTab(props: Props) {
       const endOfDay = Timestamp.fromDate(end);
 
       q = query(
-        collection(db, `classes/${activeClass.id}/meetings`),
-        orderBy('date', 'asc'),
-        orderBy('timeStart', 'asc'),
+        collection(db, `meetings`),
+        where('classId', '==', activeClass.id),
         where('date', '>=', startOfDay),
         where('date', '<=', endOfDay),
+        orderBy('date', 'asc'),
+        orderBy('timeStart', 'asc'),
       );
     }
 

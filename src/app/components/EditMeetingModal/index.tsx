@@ -125,11 +125,7 @@ export function EditMeetingModal(props: Prop) {
         disallowClose: true,
       });
 
-      const meetingDocRef = doc(
-        db,
-        `classes/${activeClass.id}/meetings`,
-        meeting.id,
-      );
+      const meetingDocRef = doc(db, `meetings`, meeting.id);
       updateDoc(meetingDocRef, newMeeting).then(() => {
         updateNotification({
           id: notificationId,

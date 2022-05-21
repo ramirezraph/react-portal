@@ -110,10 +110,7 @@ export function CreateMeetingModal(props: Prop) {
         disallowClose: true,
       });
 
-      addDoc(
-        collection(db, `classes/${activeClass.id}/meetings`),
-        newMeeting,
-      ).then(() => {
+      addDoc(collection(db, `meetings`), newMeeting).then(() => {
         updateNotification({
           id: createIdNotification,
           title: 'Success',
