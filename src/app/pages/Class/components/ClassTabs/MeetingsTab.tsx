@@ -132,6 +132,7 @@ export function MeetingsTab(props: Props) {
               key={index}
               shouldShowDescription={true}
               meeting={meeting}
+              viewOnly={activeClassRole === ClassRole.Student}
             />
           ))}
       </Group>

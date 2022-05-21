@@ -15,10 +15,11 @@ dayjs.extend(relativeTime);
 interface Props {
   shouldShowDescription: boolean;
   meeting: ClassMeeting;
+  viewOnly?: boolean;
 }
 
 export function MeetingItem(props: Props) {
-  const { meeting, shouldShowDescription = false } = props;
+  const { meeting, viewOnly, shouldShowDescription = false } = props;
   const {
     title,
     classId,
@@ -120,23 +121,25 @@ export function MeetingItem(props: Props) {
           </Text>
         </Group>
 
-        <Menu position="right" className="mb-4">
-          <Menu.Item
-            onClick={() => setEditModalVisible(true)}
-            icon={<Pencil size={16} />}
-          >
-            <Text size="sm">Edit</Text>
-          </Menu.Item>
+        {!viewOnly && (
+          <Menu position="right" className="mb-4">
+            <Menu.Item
+              onClick={() => setEditModalVisible(true)}
+              icon={<Pencil size={16} />}
+            >
+              <Text size="sm">Edit</Text>
+            </Menu.Item>
 
-          <Menu.Item
-            onClick={openConfirmDeleteModal}
-            icon={<Trash size={16} color="red" />}
-          >
-            <Text size="sm" color="red">
-              Delete
-            </Text>
-          </Menu.Item>
-        </Menu>
+            <Menu.Item
+              onClick={openConfirmDeleteModal}
+              icon={<Trash size={16} color="red" />}
+            >
+              <Text size="sm" color="red">
+                Delete
+              </Text>
+            </Menu.Item>
+          </Menu>
+        )}
       </Group>
       <Text size="sm" className="mb-5">
         {shouldShowDescription && description}
