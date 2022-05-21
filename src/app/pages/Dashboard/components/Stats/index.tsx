@@ -10,8 +10,6 @@ export function Stats(props: Props) {
   const { classes } = useSelector(selectClasses);
 
   const numberOFClasses = React.useMemo(() => {
-    console.log('memo runs');
-
     return classes.length;
   }, [classes.length]);
 
