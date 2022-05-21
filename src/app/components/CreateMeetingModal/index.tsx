@@ -25,8 +25,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from 'services/firebase';
+import { addDoc, serverTimestamp } from 'firebase/firestore';
+import { meetingsColRef } from 'services/firebase';
 import { showNotification, updateNotification } from '@mantine/notifications';
 dayjs.extend(relativeTime);
 
@@ -110,10 +110,7 @@ export function CreateMeetingModal(props: Prop) {
         disallowClose: true,
       });
 
-      addDoc(
-        collection(db, `classes/${activeClass.id}/meetings`),
-        newMeeting,
-      ).then(() => {
+      addDoc(meetingsColRef, newMeeting).then(() => {
         updateNotification({
           id: createIdNotification,
           title: 'Success',
