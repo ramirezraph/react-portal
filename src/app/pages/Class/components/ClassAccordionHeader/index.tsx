@@ -1,4 +1,4 @@
-import { Badge, Text } from '@mantine/core';
+import { Badge, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
@@ -20,14 +20,18 @@ export function ClassAccordionHeader(props: Props) {
       color={`${live ? 'green' : 'orange'}`}
     >
       {type === ClassAccordionType.Unit && (
-        <Text size="md" className="ml-1 w-full" lineClamp={1}>
-          {`Unit ${number}: ${title}`}
-        </Text>
+        <Tooltip label={title} position="bottom" openDelay={400}>
+          <Text size="md" className="ml-1 w-full" lineClamp={1}>
+            {`Unit ${number}: ${title}`}
+          </Text>
+        </Tooltip>
       )}
       {type === ClassAccordionType.Lesson && (
-        <Text size="sm" className="ml-1 w-full" lineClamp={1}>
-          {`Lesson ${number}: ${title}`}
-        </Text>
+        <Tooltip label={title} position="bottom" openDelay={400}>
+          <Text size="sm" className="ml-1 w-full" lineClamp={1}>
+            {`Lesson ${number}: ${title}`}
+          </Text>
+        </Tooltip>
       )}
     </Badge>
   );
