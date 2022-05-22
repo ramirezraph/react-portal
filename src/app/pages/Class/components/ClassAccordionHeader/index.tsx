@@ -20,14 +20,24 @@ export function ClassAccordionHeader(props: Props) {
       color={`${live ? 'green' : 'orange'}`}
     >
       {type === ClassAccordionType.Unit && (
-        <Tooltip label={title} position="bottom" openDelay={400}>
+        <Tooltip
+          className="flex items-center"
+          label={title}
+          position="bottom"
+          openDelay={400}
+        >
           <Text size="md" className="ml-1 w-full" lineClamp={1}>
             {`Unit ${number}: ${title}`}
           </Text>
         </Tooltip>
       )}
       {type === ClassAccordionType.Lesson && (
-        <Tooltip label={title} position="bottom" openDelay={400}>
+        <Tooltip
+          className="flex items-center"
+          label={title}
+          position="bottom"
+          openDelay={400}
+        >
           <Text size="sm" className="ml-1 w-full" lineClamp={1}>
             {`Lesson ${number}: ${title}`}
           </Text>
