@@ -35,6 +35,7 @@ import {
   doc,
   DocumentData,
   DocumentReference,
+  getDoc,
   getDocs,
   increment,
   onSnapshot,
@@ -43,6 +44,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import { db, postFilesColRef, storage } from 'services/firebase';
 import { useSelector } from 'react-redux';
@@ -58,6 +60,7 @@ import parse from 'html-react-parser';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { getClassNameAndCode } from 'utils/classUtils';
+import _ from 'underscore';
 dayjs.extend(relativeTime);
 
 export interface IFile {
@@ -137,6 +140,7 @@ export function PostCard(props: Prop) {
   const [comments, setComments] = React.useState<IComment[]>([]);
   const [classTitle, setClassTitle] = React.useState('');
   const [classCode, setClassCode] = React.useState('');
+  const [isLiked, setIsLiked] = React.useState(false);
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
@@ -357,6 +361,59 @@ export function PostCard(props: Prop) {
     }
   };
 
+  const onLikePost = async () => {
+    if (!currentUser?.sub) return;
+
+    const newLike = {
+      createdAt: serverTimestamp(),
+    };
+
+    const batches = writeBatch(db);
+    const likesRef = doc(db, `posts/${id}/likes`, currentUser.sub);
+    batches.set(likesRef, newLike);
+    const postDocRef = doc(db, 'posts', id);
+    batches.update(postDocRef, {
+      likes: increment(1),
+    });
+    await batches.commit();
+
+    requestForUpdate(true);
+    setIsLiked(true);
+  };
+  const like = _.debounce(onLikePost, 500, true);
+
+  const onUnlikePost = async () => {
+    if (!currentUser?.sub) return;
+
+    const batches = writeBatch(db);
+    const likesRef = doc(db, `posts/${id}/likes`, currentUser.sub);
+    batches.delete(likesRef);
+    const postDocRef = doc(db, 'posts', id);
+    batches.update(postDocRef, {
+      likes: increment(-1),
+    });
+    await batches.commit();
+    setIsLiked(false);
+    requestForUpdate(true);
+  };
+  const unlike = _.debounce(onUnlikePost, 500, true);
+
+  React.useEffect(() => {
+    const checkIfLiked = async () => {
+      if (!currentUser?.sub) return;
+
+      const likesRef = doc(db, `posts/${id}/likes`, currentUser.sub);
+      const docRef = await getDoc(likesRef);
+      if (docRef.exists()) {
+        setIsLiked(true);
+      } else {
+        setIsLiked(false);
+      }
+    };
+
+    checkIfLiked();
+  }, [currentUser?.sub, id]);
+
   return (
     <Card className="mt-3 rounded-md">
       <Group direction="row" noWrap>
@@ -398,7 +455,13 @@ export function PostCard(props: Prop) {
           <ImagesGrid images={imageList} />
           <Group className="w-full" position="apart" noWrap>
             <Group>
-              <Button variant="subtle" compact color={'dark'} className="px-0">
+              <Button
+                variant="subtle"
+                compact
+                color={isLiked ? 'primary' : 'dark'}
+                className="px-0"
+                onClick={isLiked ? unlike : like}
+              >
                 <ThumbUp />
                 {likes > 0 && <Text className="ml-2">{likes}</Text>}
               </Button>
