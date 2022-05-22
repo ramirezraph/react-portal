@@ -368,8 +368,6 @@ export function PostCard(props: Prop) {
       createdAt: serverTimestamp(),
     };
 
-    console.log('like runs');
-
     const batches = writeBatch(db);
     const likesRef = doc(db, `posts/${id}/likes`, currentUser.sub);
     batches.set(likesRef, newLike);
@@ -386,8 +384,6 @@ export function PostCard(props: Prop) {
 
   const onUnlikePost = async () => {
     if (!currentUser?.sub) return;
-
-    console.log('unlike runs');
 
     const batches = writeBatch(db);
     const likesRef = doc(db, `posts/${id}/likes`, currentUser.sub);
