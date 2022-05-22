@@ -6,10 +6,16 @@ import { getClassNameAndCode } from 'utils/classUtils';
 import { ClassInviteResult } from 'store/userSlice/types';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
-import { arrayRemove, arrayUnion, doc, writeBatch } from 'firebase/firestore';
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  writeBatch,
+} from 'firebase/firestore';
 import { db } from 'services/firebase';
 import { showNotification } from '@mantine/notifications';
-import { X } from 'tabler-icons-react';
+import { Check, X } from 'tabler-icons-react';
 import { ClassRole } from 'app/pages/Class/slice/types';
 
 import dayjs from 'dayjs';
@@ -43,6 +49,18 @@ export function ClassInviteNotification(props: Props) {
       const batch = writeBatch(db);
       // admit the user to class
       const classDocRef = doc(db, 'classes', classId);
+      const classDoc = await getDoc(classDocRef);
+
+      if (!classDoc.exists()) {
+        showNotification({
+          title: 'Failed',
+          message: `Failed to join the class, please refer to your teacher.`,
+          color: 'red',
+          icon: <X />,
+        });
+        return;
+      }
+
       batch.update(classDocRef, {
         usersList: arrayUnion(currentUser.sub),
       });
@@ -59,10 +77,15 @@ export function ClassInviteNotification(props: Props) {
         `users/${currentUser.sub}/notifications`,
         id,
       );
-      batch.update(notificationDocRef, {
-        result: ClassInviteResult.Accepted,
-      });
+      batch.delete(notificationDocRef);
       await batch.commit();
+
+      showNotification({
+        title: 'Success',
+        message: `You have joined ${classDoc.data().code}`,
+        color: 'green',
+        icon: <Check />,
+      });
     } catch (e) {
       showNotification({
         title: 'Failed',
@@ -93,9 +116,7 @@ export function ClassInviteNotification(props: Props) {
         `users/${currentUser.sub}/notifications`,
         id,
       );
-      batch.update(notificationDocRef, {
-        result: ClassInviteResult.Rejected,
-      });
+      batch.delete(notificationDocRef);
       await batch.commit();
     } catch (e) {
       showNotification({
