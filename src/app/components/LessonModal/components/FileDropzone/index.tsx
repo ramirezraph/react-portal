@@ -100,15 +100,6 @@ export function FileDropzone(props: Prop) {
 
   return (
     <Dropzone
-      accept={[
-        ...IMAGE_MIME_TYPE,
-        ...PDF_MIME_TYPE,
-        ...MS_WORD_MIME_TYPE,
-        ...MS_EXCEL_MIME_TYPE,
-        ...MS_POWERPOINT_MIME_TYPE,
-        MIME_TYPES.mp4,
-        MIME_TYPES.zip,
-      ]}
       onDrop={onFileUpload}
       disabled={false}
       className={`${!visible ? 'hidden' : ''} ${className}`}
