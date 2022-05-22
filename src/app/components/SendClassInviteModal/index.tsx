@@ -123,6 +123,12 @@ export function SendClassInviteModal(props: Props) {
     const isAlreadyInClass = checkIfUserIsAlreadyInClass(user.userId);
     if (isAlreadyInClass) {
       console.log('isAlreadyInClass');
+      showNotification({
+        title: 'Cannot be added',
+        message: `User is already in the class.`,
+        color: 'red',
+        icon: <X />,
+      });
       return;
     }
 
@@ -130,6 +136,12 @@ export function SendClassInviteModal(props: Props) {
     const hasPendingInvite = checkIfUserHasPendingInvite(user.userId);
     if (hasPendingInvite) {
       console.log('hasPendingInvite');
+      showNotification({
+        title: 'Cannot be added',
+        message: `User has already been invited.`,
+        color: 'red',
+        icon: <X />,
+      });
       return;
     }
 
