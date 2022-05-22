@@ -152,9 +152,17 @@ export function ClassMeetings() {
       </Group>
 
       <Stack className="w-full drop-shadow-md">
-        <Text size="sm" className="p-2 italic">
-          No meeting found.
-        </Text>
+        {allMeetings.length === 0 && filterValue === 'today' && (
+          <Text size="sm" className="p-2 italic">
+            You have no meeting for today!
+          </Text>
+        )}
+        {allMeetings.length === 0 && filterValue === 'week' && (
+          <Text size="sm" className="p-2 italic">
+            You have no meeting for this week!
+          </Text>
+        )}
+
         {allMeetings.length > 0 &&
           allMeetings.map((meeting, index) => (
             <MeetingItem
