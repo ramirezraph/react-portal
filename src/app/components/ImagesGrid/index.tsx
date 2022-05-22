@@ -2,6 +2,7 @@ import { Text, SimpleGrid, Image, Box, ActionIcon } from '@mantine/core';
 import * as React from 'react';
 import { X } from 'tabler-icons-react';
 import { IFile } from '../PostCard';
+import FsLightbox from 'fslightbox-react';
 
 interface Props {
   images: IFile[];
@@ -14,6 +15,16 @@ export function ImagesGrid(props: Props) {
 
   const [upperImageCols, setUpperImageCols] = React.useState(1);
   const [lowerImageCols, setLowerImageCols] = React.useState(1);
+  const [sources, setSources] = React.useState<string[]>([]);
+
+  const [lightboxController, setLightboxController] = React.useState({
+    toggler: false,
+    slide: 0,
+  });
+
+  React.useEffect(() => {
+    setSources([...images.map(x => x.downloadUrl)]);
+  }, [images]);
 
   React.useEffect(() => {
     if (!images) return;
@@ -35,12 +46,11 @@ export function ImagesGrid(props: Props) {
     }
   }, [images]);
 
-  const onImageClicked = () => {
-    console.log('image clicked');
-  };
-
-  const onMoreImageClicked = () => {
-    console.log('more image clicked');
+  const onImageClicked = (index: number) => {
+    setLightboxController({
+      toggler: !lightboxController.toggler,
+      slide: index,
+    });
   };
 
   if (isOnEdit) {
@@ -65,7 +75,7 @@ export function ImagesGrid(props: Props) {
               src={image.downloadUrl}
               alt="Post Image"
               className="w-full cursor-pointer"
-              onClick={onImageClicked}
+              onClick={() => onImageClicked(findIndex(image.downloadUrl))}
             />
           </div>
         ))}
@@ -73,8 +83,17 @@ export function ImagesGrid(props: Props) {
     );
   }
 
+  const findIndex = (url: string) => {
+    return sources.findIndex(x => x === url);
+  };
+
   return (
     <>
+      <FsLightbox
+        toggler={lightboxController.toggler}
+        sources={[...sources]}
+        sourceIndex={lightboxController.slide}
+      />
       {images && (
         <SimpleGrid cols={upperImageCols} className="w-full" spacing={'xs'}>
           {images.slice(0, upperImageCols).map((image, index) => {
@@ -87,7 +106,7 @@ export function ImagesGrid(props: Props) {
                 src={image.downloadUrl}
                 alt="Post Image"
                 className="w-full cursor-pointer"
-                onClick={onImageClicked}
+                onClick={() => onImageClicked(findIndex(image.downloadUrl))}
               />
             );
           })}
@@ -104,7 +123,7 @@ export function ImagesGrid(props: Props) {
               return (
                 <Box
                   key={image.id}
-                  onClick={onMoreImageClicked}
+                  onClick={() => onImageClicked(findIndex(image.downloadUrl))}
                   className="relative cursor-pointer rounded-md bg-black"
                 >
                   <Text className="absolute left-0 right-0 top-0 bottom-0 z-10 ml-auto mt-auto mb-auto mr-auto h-10 w-full text-center text-4xl text-white">
@@ -130,7 +149,7 @@ export function ImagesGrid(props: Props) {
                   src={image.downloadUrl}
                   alt="Post Image"
                   className="w-full cursor-pointer"
-                  onClick={onImageClicked}
+                  onClick={() => onImageClicked(findIndex(image.downloadUrl))}
                 />
               );
             }
