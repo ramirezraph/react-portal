@@ -91,7 +91,14 @@ export function ClassLessonAccordionItem(props: Props) {
       <Collapse in={isOpened} transitionDuration={500}>
         <Stack className="p-4">
           {lesson.content !== '<p><br></p>' && lesson.content !== '<p></p>' && (
-            <div>{parse(lesson.content)}</div>
+            <div
+              style={{
+                maxHeight: 150,
+                overflowY: 'clip',
+              }}
+            >
+              {parse(lesson.content)}
+            </div>
           )}
           {files.length > 0 && (
             <Stack className="w-full" spacing="xs">
