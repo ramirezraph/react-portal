@@ -1,12 +1,15 @@
-import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
+import { Collapse, Divider, Group, Stack } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
-import { filesColRef } from 'services/firebase';
+import { useSelector } from 'react-redux';
+import { lessonFilesColRef } from 'services/firebase';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
-import { Lesson, LessonFile } from '../../slice/types';
+import { selectClassroom } from '../../slice/selectors';
+import { ClassRole, Lesson, LessonFile } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
+import parse from 'html-react-parser';
 
 export enum ClassAccordionType {
   Unit,
@@ -25,6 +28,8 @@ export function ClassLessonAccordionItem(props: Props) {
   const [isOpened, setIsOpened] = React.useState(false);
   const [files, setFiles] = React.useState<LessonFile[]>([]);
 
+  const { activeClassRole } = useSelector(selectClassroom);
+
   React.useEffect(() => {
     if (!isOpened) {
       return;
@@ -32,7 +37,7 @@ export function ClassLessonAccordionItem(props: Props) {
     // fetch files
     console.log('onSnapshot: Lesson Files');
     const q = query(
-      filesColRef,
+      lessonFilesColRef,
       where('lessonId', '==', lesson.id),
       orderBy('createdAt'),
     );
@@ -85,13 +90,11 @@ export function ClassLessonAccordionItem(props: Props) {
       </Group>
       <Collapse in={isOpened} transitionDuration={500}>
         <Stack className="p-4">
-          {lesson.content && (
-            <Text className="w-full" size="sm">
-              {lesson.content}
-            </Text>
+          {lesson.content !== '<p><br></p>' && lesson.content !== '<p></p>' && (
+            <div>{parse(lesson.content)}</div>
           )}
           {files.length > 0 && (
-            <Stack className="w-ful mt-3" spacing="xs">
+            <Stack className="w-full" spacing="xs">
               {files.map((file, index) => (
                 <AttachedFile
                   key={file.id}
@@ -104,6 +107,7 @@ export function ClassLessonAccordionItem(props: Props) {
                   fullPath={file.fullPath}
                   createdAt={file.createdAt}
                   updatedAt={file.updatedAt}
+                  viewOnly={activeClassRole !== ClassRole.Teacher}
                   compact
                 />
               ))}
@@ -116,6 +120,7 @@ export function ClassLessonAccordionItem(props: Props) {
             live={lesson.isLive}
             type={ClassAccordionType.Lesson}
             unitNumber={unitNumber}
+            numberOfComments={lesson.numberOfComments}
           />
         </Stack>
       </Collapse>

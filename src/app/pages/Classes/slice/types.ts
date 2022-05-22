@@ -9,9 +9,11 @@ export interface Class {
   name: string;
   ownerId: string;
   shortDescription: string;
-  usersList: string[];
   inviteCode: string;
   color: string;
   createdAt: string;
   updatedAt: string;
+
+  usersList: string[];
+  pendingInvites: string[];
 }

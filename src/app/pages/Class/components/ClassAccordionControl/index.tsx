@@ -15,6 +15,7 @@ import {
 } from 'tabler-icons-react';
 import { useClassroomSlice } from '../../slice';
 import { selectClassroom } from '../../slice/selectors';
+import { ClassRole } from '../../slice/types';
 import { ClassAccordionType } from '../ClassUnitAccordion';
 
 interface Props {
@@ -23,6 +24,7 @@ interface Props {
   lessonId?: string;
   type: ClassAccordionType;
   live: boolean;
+  numberOfComments?: number;
   openDeleteModal?: (id: string) => void;
   openEditModal?: (id: string) => void;
 }
@@ -36,6 +38,7 @@ export function ClassAccordionControl(props: Props) {
     openDeleteModal,
     openEditModal,
     unitNumber,
+    numberOfComments,
   } = props;
 
   const navigate = useNavigate();
@@ -108,26 +111,27 @@ export function ClassAccordionControl(props: Props) {
 
   return (
     <Group position="apart" className="mt-3" noWrap>
-      <Group spacing="sm" noWrap>
-        {type === ClassAccordionType.Unit && (
-          <Button
-            size="xs"
-            onClick={displayNewLessonModal}
-            leftIcon={<SquarePlus size={19} />}
-          >
-            Add Lesson
-          </Button>
-        )}
-        {type === ClassAccordionType.Lesson && (
-          <Tooltip label="Attach a file" position="bottom" withArrow>
-            <ActionIcon variant="transparent">
-              <FileUpload />
-            </ActionIcon>
-          </Tooltip>
-        )}
-
-        <LiveSwitch live={live} onToggle={toggleSwitch} />
-      </Group>
+      {classroom.activeClassRole === ClassRole.Teacher && (
+        <Group spacing="sm" noWrap>
+          {type === ClassAccordionType.Unit && (
+            <Button
+              size="xs"
+              onClick={displayNewLessonModal}
+              leftIcon={<SquarePlus size={19} />}
+            >
+              Add Lesson
+            </Button>
+          )}
+          {type === ClassAccordionType.Lesson && (
+            <Tooltip label="Attach a file" position="bottom" withArrow>
+              <ActionIcon variant="transparent">
+                <FileUpload />
+              </ActionIcon>
+            </Tooltip>
+          )}
+          <LiveSwitch live={live} onToggle={toggleSwitch} />
+        </Group>
+      )}
       {type === ClassAccordionType.Unit && (
         <Group className="gap-0" noWrap>
           <Tooltip label="Edit" position="bottom" withArrow>
@@ -160,7 +164,7 @@ export function ClassAccordionControl(props: Props) {
             onClick={displayLessonModalOnEdit}
           >
             <Message />
-            <Text className="ml-2">1</Text>
+            <Text className="ml-2">{numberOfComments}</Text>
           </Button>
           <Tooltip label="Lesson View" position="bottom" withArrow>
             <ActionIcon

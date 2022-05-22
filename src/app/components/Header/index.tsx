@@ -18,6 +18,9 @@ import { selectUser } from 'store/userSlice/selectors';
 import { useSelector } from 'react-redux';
 
 import { PopoverNotification } from './components/PopoverNotifcation/loadable';
+import { AppNotification } from 'store/userSlice/types';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from 'services/firebase';
 
 interface Props {
   opened: boolean;
@@ -30,13 +33,50 @@ export function AppHeader(props: Props) {
   const { opened, burgerOnClick } = props;
   const { logout } = useAuth0();
 
-  const userSlice = useSelector(selectUser);
-  const [userImageUrl, setUserImageUrl] = React.useState(
-    userSlice.currentUser?.picture,
+  const { currentUser } = useSelector(selectUser);
+  const [userImageUrl, setUserImageUrl] = React.useState(currentUser?.picture);
+
+  const [notifications, setNotifications] = React.useState<AppNotification[]>(
+    [],
   );
+
   React.useEffect(() => {
-    setUserImageUrl(userSlice.currentUser?.picture);
-  }, [userSlice]);
+    if (!currentUser) return;
+    setUserImageUrl(currentUser.picture);
+  }, [currentUser, currentUser?.picture]);
+
+  React.useEffect(() => {
+    if (!currentUser) return;
+
+    const q = query(
+      collection(db, `users/${currentUser.sub}/notifications`),
+      orderBy('createdAt', 'desc'),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: AppNotification[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const notification: AppNotification = {
+          id: doc.id,
+          fromUserId: data.fromUserId,
+          read: data.read,
+          type: data.type,
+          createdAt: data.createdAt.toDate().toISOString(),
+
+          classId: data?.classId,
+          classworkId: data?.classworkId,
+          postId: data?.postId,
+          result: data?.result,
+        };
+        list.push(notification);
+      });
+      setNotifications(list);
+    });
+    return () => {
+      console.log('onSnapshot: notifications - unsubscribe');
+      unsubscribe();
+    };
+  }, [currentUser]);
 
   return (
     <Header height={50} className="bg-zinc-800 text-white sm:px-6" p="md">
@@ -71,13 +111,8 @@ export function AppHeader(props: Props) {
               <Calendar size={24} />
             </ActionIcon>
 
-            <ActionIcon
-              className="text-white hover:bg-transparent hover:text-secondary"
-              onClick={() => {
-                console.log('menu');
-              }}
-            >
-              <PopoverNotification />
+            <ActionIcon className="text-white hover:bg-transparent hover:text-secondary">
+              <PopoverNotification notifications={notifications} />
             </ActionIcon>
 
             <Menu

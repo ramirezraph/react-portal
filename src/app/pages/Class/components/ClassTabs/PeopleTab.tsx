@@ -2,121 +2,210 @@ import {
   ActionIcon,
   Button,
   Checkbox,
-  Divider,
   Group,
-  Modal,
-  NativeSelect,
+  Menu,
+  Stack,
   Text,
   TextInput,
 } from '@mantine/core';
+import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadable';
+import {
+  collection,
+  DocumentData,
+  DocumentReference,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { db } from 'services/firebase';
 import {
   ArrowsUpDown,
+  ChevronDown,
+  Mail,
   Menu2,
   Search,
   UserPlus,
-  UserSearch,
+  X,
 } from 'tabler-icons-react';
-import { PendingInvitesModal } from './components/PendingInvitesModal/loadable';
+import { selectClassroom } from '../../slice/selectors';
+import { ClassRole } from '../../slice/types';
+import { PendingInvitesModal } from './components/PendingInvitesModal/Loadable';
 import { PeopleItem } from './components/PeopleItem/Loadable';
 
 interface Props {
   // someProps: string
 }
 
+interface People {
+  userId: string;
+  docRef: DocumentReference<DocumentData>;
+}
+
 export function PeopleTab(props: Props) {
   // const { someProps } = props;
-  const [opened, setOpened] = useState(false);
-  const [openedInvite, setOpenedInvite] = useState(false);
+
+  const { activeClass, activeClassRole } = useSelector(selectClassroom);
+
+  const [openedPendingInvite, setOpenedPendingInvite] = useState(false);
+  const [openedSendInvite, setOpenedSendInvite] = useState(false);
+
+  const [teachers, setTeachers] = useState<People[]>([]);
+  const [students, setStudents] = useState<People[]>([]);
+
+  React.useEffect(() => {
+    if (!activeClass?.id) return;
+
+    console.log('onSnapshot: Teachers');
+
+    const q = query(
+      collection(db, `classes/${activeClass.id}/people`),
+      where('type', '==', ClassRole.Teacher),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: People[] = [];
+      querySnapshot.forEach(doc => {
+        list.push({
+          userId: doc.id,
+          docRef: doc.ref,
+        });
+      });
+      setTeachers(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: Teachers - unsubscribe');
+      unsubscribe();
+      setTeachers([]);
+    };
+  }, [activeClass?.id]);
+
+  React.useEffect(() => {
+    if (!activeClass?.id) return;
+
+    console.log('onSnapshot: Students');
+
+    const q = query(
+      collection(db, `classes/${activeClass.id}/people`),
+      where('type', '==', ClassRole.Student),
+    );
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const list: People[] = [];
+      querySnapshot.forEach(doc => {
+        list.push({
+          userId: doc.id,
+          docRef: doc.ref,
+        });
+      });
+      setStudents(list);
+    });
+
+    return () => {
+      console.log('onSnapshot: Students - unsubscribe');
+      unsubscribe();
+      setStudents([]);
+    };
+  }, [activeClass?.id]);
 
   return (
     <div className="bg-white p-6">
-      <PendingInvitesModal opened={opened} setOpened={setOpened} />
+      <PendingInvitesModal
+        visible={openedPendingInvite}
+        onToggle={setOpenedPendingInvite}
+      />
+      <SendClassInviteModal
+        visible={openedSendInvite}
+        onToggle={setOpenedSendInvite}
+      />
 
-      <Group position="apart">
-        <Modal
-          withCloseButton={false}
-          opened={openedInvite}
-          onClose={() => setOpenedInvite(false)}
-          centered
-          size="lg"
-        >
-          <Group position="apart">
-            <Text size="xl" weight={600}>
+      {activeClassRole === ClassRole.Teacher && (
+        <Group position="apart">
+          <Button
+            onClick={() => setOpenedSendInvite(true)}
+            color="primary"
+            radius="xl"
+            leftIcon={<UserPlus size={19} />}
+            variant="filled"
+            size="md"
+          >
+            <Text weight={400} size="sm">
               Send Invite
             </Text>
-            <Button variant="default" onClick={() => setOpenedInvite(false)}>
-              Close
+          </Button>
+
+          <Group position="center">
+            <Button
+              size="sm"
+              leftIcon={<Menu2 color="black" size={19} />}
+              variant="subtle"
+              onClick={() => setOpenedPendingInvite(true)}
+            >
+              <Text weight={400} color="black">
+                Pending Invites
+              </Text>
             </Button>
           </Group>
-          <Divider my="sm" />
-          <Group className="mt-10">
-            <TextInput
-              className="w-full"
-              placeholder="Search people by email"
-              variant="default"
-              icon={<UserSearch size={18} />}
-              size="md"
-            ></TextInput>
-            <Group position="apart">
-              <Text color="gray" size="xs">
-                Search Result:
-              </Text>
-              <Text color="gray" size="xs">
-                0
-              </Text>
-            </Group>
-          </Group>
-
-          <Button size="sm" className="mt-6 w-full">
-            SEND INVITE
-          </Button>
-        </Modal>
-        <Button
-          onClick={() => setOpenedInvite(true)}
-          color="primary"
-          radius="xl"
-          leftIcon={<UserPlus size={19} />}
-          variant="filled"
-          size="md"
-        >
-          <Text weight={400} size="sm">
-            Send Invite
-          </Text>
-        </Button>
-
-        <Group position="center">
-          <Button
-            size="sm"
-            leftIcon={<Menu2 color="black" size={19} />}
-            variant="subtle"
-            onClick={() => setOpened(true)}
-          >
-            <Text weight={400} color="black">
-              Pending Invites
-            </Text>
-          </Button>
         </Group>
-      </Group>
-      <Text className="mt-6 text-2xl font-semibold">Teacher</Text>
-      <PeopleItem name="John Doe" />
+      )}
+      <Text
+        className={`${
+          activeClassRole === ClassRole.Teacher ? 'mt-6' : 'mt-0'
+        } text-2xl font-semibold`}
+      >
+        Teacher
+      </Text>
+      <Stack spacing="sm" className="w-full">
+        {teachers.map((people, index) => (
+          <PeopleItem
+            key={index}
+            userId={people.userId}
+            docRef={people.docRef}
+            viewOnly={activeClassRole === ClassRole.Student}
+          />
+        ))}
+      </Stack>
       <Text className="mt-6 text-2xl font-semibold">Students</Text>
       <Group position="apart" className="mt-6">
         <Group>
           <Checkbox />
-          <NativeSelect
-            className="w-48"
-            data={['Action', 'React', 'Vue', 'Angular', 'Svelte']}
-          />
+          <Menu
+            control={
+              <Button
+                variant="outline"
+                color="gray"
+                rightIcon={<ChevronDown size={14} />}
+              >
+                Actions
+              </Button>
+            }
+          >
+            <Menu.Item icon={<Mail size={18} />}>Send an email</Menu.Item>
+            <Menu.Item color="red" icon={<X size={18} />}>
+              Kick
+            </Menu.Item>
+          </Menu>
           <ActionIcon>
             <ArrowsUpDown size={20} />
           </ActionIcon>
         </Group>
         <TextInput placeholder="Search" rightSection={<Search size={15} />} />
-        <PeopleItem name="John Doe" />
-        <PeopleItem name="Jeff Lacerna" />
-        <PeopleItem name="Jane Test" />
+        <Stack spacing="sm" className="w-full">
+          {students.length === 0 && (
+            <Text size="sm" color="gray" className="ml-9">
+              No students yet.
+            </Text>
+          )}
+          {students.map((people, index) => (
+            <PeopleItem
+              key={index}
+              userId={people.userId}
+              docRef={people.docRef}
+              viewOnly={activeClassRole === ClassRole.Student}
+            />
+          ))}
+        </Stack>
       </Group>
     </div>
   );

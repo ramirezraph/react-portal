@@ -26,3 +26,37 @@ export interface Auth0User {
   sub?: string;
   [key: string]: any;
 }
+
+export enum NotificationType {
+  ClassInvite = 'ClassInvite',
+  ClassInviteResult = 'ClassInviteResult',
+  Assignment = 'Assignment',
+  Regular = 'Regular',
+  Post = 'Post',
+  Comment = 'Comment',
+}
+
+export enum ClassInviteResult {
+  Accepted = 'Accepted',
+  Rejected = 'Rejected',
+}
+
+export interface AppNotification {
+  id: string;
+  createdAt: string;
+  fromUserId: string;
+  read: boolean;
+  type: NotificationType;
+
+  // class invite
+  classId?: string;
+
+  // class invite result
+  result?: ClassInviteResult;
+
+  // post
+  postId?: string;
+
+  // assignment
+  classworkId?: string;
+}

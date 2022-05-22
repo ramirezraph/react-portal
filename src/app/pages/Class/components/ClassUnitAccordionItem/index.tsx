@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { Check, ChevronDown, ChevronUp, X } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
-import { Lesson, Unit } from '../../slice/types';
+import { ClassRole, Lesson, Unit } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,8 +15,10 @@ import { db, lessonsColRef } from 'services/firebase';
 import {
   deleteDoc,
   doc,
+  DocumentData,
   onSnapshot,
   orderBy,
+  Query,
   query,
   where,
 } from 'firebase/firestore';
@@ -112,12 +114,21 @@ export function ClassUnitAccordionItem(props: Props) {
     console.log('onSnapshot: lessons');
     setLoading(true);
 
-    const q = query(
+    let lessonQuery: Query<DocumentData> | undefined = undefined;
+    lessonQuery = query(
       lessonsColRef,
       where('unitId', '==', unit.id),
       orderBy('number'),
     );
-    const unsubscribe = onSnapshot(q, snapshot => {
+    if (classroom.activeClassRole === ClassRole.Student) {
+      lessonQuery = query(
+        lessonsColRef,
+        where('unitId', '==', unit.id),
+        orderBy('number'),
+        where('isLive', '==', true),
+      );
+    }
+    const unsubscribe = onSnapshot(lessonQuery, snapshot => {
       const list: Lesson[] = [];
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -128,6 +139,7 @@ export function ClassUnitAccordionItem(props: Props) {
           title: data.title,
           content: data.content,
           isLive: data.isLive,
+          numberOfComments: data.numberOfComments,
           files: [],
         };
         list.push(lesson);
@@ -141,7 +153,7 @@ export function ClassUnitAccordionItem(props: Props) {
 
       unsubscribe();
     };
-  }, [isOpened, unit.id]);
+  }, [classroom.activeClassRole, isOpened, unit.id]);
 
   return (
     <>
@@ -193,15 +205,20 @@ export function ClassUnitAccordionItem(props: Props) {
               )}
             </Skeleton>
 
-            <Divider className="mt-6" />
-            <ClassAccordionControl
-              unitId={unit.id}
-              unitNumber={`Unit ${unit.number}`}
-              live={unit.isLive}
-              type={ClassAccordionType.Unit}
-              openDeleteModal={displayDeleteUnitModal}
-              openEditModal={prepareEditUnitModal}
-            />
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <Divider className="mt-6" />
+            )}
+
+            {classroom.activeClassRole === ClassRole.Teacher && (
+              <ClassAccordionControl
+                unitId={unit.id}
+                unitNumber={`Unit ${unit.number}`}
+                live={unit.isLive}
+                type={ClassAccordionType.Unit}
+                openDeleteModal={displayDeleteUnitModal}
+                openEditModal={prepareEditUnitModal}
+              />
+            )}
           </div>
         </Collapse>
       </Stack>

@@ -1,55 +1,162 @@
-import {
-  Text,
-  Button,
-  Group,
-  ActionIcon,
-  Chips,
-  Chip,
-  Menu,
-} from '@mantine/core';
-import { Video, Settings, Link, Plus } from 'tabler-icons-react';
+import { Text, Button, Group, ActionIcon, Chips, Chip } from '@mantine/core';
+import { Video, Settings } from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
+import { useState } from 'react';
+import { CreateMeetingModal } from 'app/components/CreateMeetingModal/Loadable';
+import { useSelector } from 'react-redux';
+import { selectClassroom } from '../../slice/selectors';
+import { ClassRole } from '../../slice/types';
+import {
+  DocumentData,
+  DocumentReference,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+  where,
+} from 'firebase/firestore';
+import { meetingsColRef } from 'services/firebase';
+
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+
+export interface ClassMeeting {
+  id: string;
+  classId: string;
+  meetingLink: string;
+  title: string;
+  description: string;
+  date: string;
+  timeStart: string;
+  timeEnd: string;
+  createdAt: string;
+  updatedAt: string;
+  docRef: DocumentReference<DocumentData>;
+}
 
 interface Props {
   // someProps: string
 }
 
 export function MeetingsTab(props: Props) {
-  // const { someProps } = props;
+  const [NewMeetingOpened, NewMeetingsetOpened] = useState(false);
+
+  const { activeClassRole, activeClass } = useSelector(selectClassroom);
+  const [meetings, setMeetings] = useState<ClassMeeting[]>([]);
+  const [filterValue, setFilterValue] = useState('today');
+
+  React.useEffect(() => {
+    if (!activeClass?.id) return;
+
+    console.log('onSnapshot: meetings');
+
+    let q = query(
+      meetingsColRef,
+      where('classId', '==', activeClass.id),
+      orderBy('date', 'asc'),
+      orderBy('timeStart', 'asc'),
+    );
+
+    if (filterValue === 'today') {
+      let start = dayjs().startOf('day').toDate();
+      let end = dayjs().endOf('day').toDate();
+
+      const startOfDay = Timestamp.fromDate(start);
+      const endOfDay = Timestamp.fromDate(end);
+
+      q = query(
+        meetingsColRef,
+        where('classId', '==', activeClass.id),
+        orderBy('date', 'asc'),
+        orderBy('timeStart', 'asc'),
+        where('date', '>=', startOfDay),
+        where('date', '<=', endOfDay),
+      );
+    } else if (filterValue === 'week') {
+      let start = dayjs().startOf('week').toDate();
+      let end = dayjs().endOf('week').toDate();
+
+      const startOfDay = Timestamp.fromDate(start);
+      const endOfDay = Timestamp.fromDate(end);
+
+      q = query(
+        meetingsColRef,
+        where('classId', '==', activeClass.id),
+        where('date', '>=', startOfDay),
+        where('date', '<=', endOfDay),
+        orderBy('date', 'asc'),
+        orderBy('timeStart', 'asc'),
+      );
+    }
+
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      const meetings: ClassMeeting[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+
+        const meeting = {
+          id: doc.id,
+          classId: data.classId,
+          meetingLink: data.meetingLink,
+          title: data.title,
+          description: data.description,
+          date: data.date && data.date.toDate().toISOString(),
+          timeStart: data.timeStart && data.timeStart.toDate().toISOString(),
+          timeEnd: data.timeEnd && data.timeEnd.toDate().toISOString(),
+          createdAt: data.createdAt && data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt && data.updatedAt.toDate().toISOString(),
+          docRef: doc.ref,
+        };
+        meetings.push(meeting);
+      });
+
+      setMeetings(meetings);
+    });
+
+    return () => {
+      console.log('onSnapshot: meetings - unsubscribe');
+      unsubscribe();
+    };
+  }, [activeClass?.id, filterValue]);
 
   return (
     <div className="bg-white p-6">
+      <CreateMeetingModal
+        visible={NewMeetingOpened}
+        onToggle={NewMeetingsetOpened}
+      />
       <Group>
-        <Menu
-          size={250}
-          position="right"
-          control={
-            <Button
-              color="primary"
-              radius="xl"
-              size="md"
-              leftIcon={<Video size={20} />}
-            >
-              <Text weight={400} size="sm">
-                New Meeting
-              </Text>
-            </Button>
-          }
-        >
-          <Menu.Item icon={<Link size={20} />}>
-            Create a meeting for later
-          </Menu.Item>
+        {activeClassRole === ClassRole.Teacher && (
+          <Button
+            onClick={() => NewMeetingsetOpened(true)}
+            color="primary"
+            radius="xl"
+            size="md"
+            leftIcon={<Video size={20} />}
+          >
+            <Text weight={400} size="sm">
+              New Meeting
+            </Text>
+          </Button>
+        )}
 
-          <Menu.Item icon={<Plus size={20} />}>
-            Start an instant meeting
-          </Menu.Item>
-        </Menu>
-        <Group className="ml-auto">
-          <Chips color="violet" variant="filled" spacing={5} size="sm">
-            <Chip value={'today'}>Today</Chip>
-            <Chip value={'week'}>This Week</Chip>
-            <Chip value={'all'}>All Meetings</Chip>
+        <Group
+          className={activeClassRole === ClassRole.Teacher ? 'ml-auto' : ''}
+        >
+          <Chips
+            value={filterValue}
+            onChange={setFilterValue}
+            multiple={false}
+            color="primary"
+            variant="filled"
+            spacing={5}
+            size="sm"
+          >
+            <Chip value="today">Today</Chip>
+            <Chip value="week">This Week</Chip>
+            <Chip value="all">All Meetings</Chip>
           </Chips>
         </Group>
       </Group>
@@ -57,34 +164,39 @@ export function MeetingsTab(props: Props) {
         <Text size="lg" weight={500}>
           Class meetings
         </Text>
-        <Group className="ml-auto">
-          <ActionIcon variant="hover">
-            <Settings size={28} />
-          </ActionIcon>
-        </Group>
+        {activeClassRole === ClassRole.Teacher && (
+          <Group className="ml-auto">
+            <ActionIcon variant="hover">
+              <Settings size={28} />
+            </ActionIcon>
+          </Group>
+        )}
       </Group>
       <Group>
-        <MeetingItem
-          title="Class Introduction"
-          subtitle="CPE 401 - Python Programming"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-          date="Thu, Feb, 25, 2021"
-          timeStart="1:30 PM"
-          timeEnd="2:30 PM"
-          shouldShowDescription={true}
-        />
-
-        <MeetingItem
-          title="Class Introduction"
-          subtitle="CPE 401 - Python Programming"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-          date="Thu, Feb, 25, 2021"
-          timeStart="1:30 PM"
-          timeEnd="2:30 PM"
-          shouldShowDescription={true}
-        />
+        {meetings.length === 0 && filterValue === 'all' && (
+          <Text size="sm" className="p-2 italic">
+            Wohoo! no meeting on this class.
+          </Text>
+        )}
+        {meetings.length === 0 && filterValue === 'today' && (
+          <Text size="sm" className="p-2 italic">
+            Wohoo! no meeting today.
+          </Text>
+        )}
+        {meetings.length === 0 && filterValue === 'week' && (
+          <Text size="sm" className="p-2 italic">
+            Wohoo! no meeting this week.
+          </Text>
+        )}
+        {meetings.length > 0 &&
+          meetings.map((meeting, index) => (
+            <MeetingItem
+              key={index}
+              shouldShowDescription={true}
+              meeting={meeting}
+              viewOnly={activeClassRole === ClassRole.Student}
+            />
+          ))}
       </Group>
     </div>
   );

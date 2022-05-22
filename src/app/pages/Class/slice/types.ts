@@ -9,6 +9,12 @@ export interface ClassroomState {
   unitPath: string;
   classworkModalBackground: Location | undefined;
   lessonModalBackground: Location | undefined;
+  activeClassRole: ClassRole | undefined;
+}
+
+export enum ClassRole {
+  Student = 'Student',
+  Teacher = 'Teacher',
 }
 
 export interface Unit {
@@ -37,6 +43,7 @@ export interface Lesson {
   number: number;
   title: string;
   content: string;
+  numberOfComments: number;
   isLive: boolean;
   files: LessonFile[];
 }

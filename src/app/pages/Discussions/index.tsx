@@ -2,119 +2,63 @@ import { Button, Group, Menu, Text, TextInput } from '@mantine/core';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
+import { getDocs, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useSelector } from 'react-redux';
+import { postsColRef } from 'services/firebase';
 import { Adjustments, Search, Settings } from 'tabler-icons-react';
+import { selectClasses } from '../Classes/slice/selectors';
 
 export function Discussions() {
   const [posts, setPosts] = React.useState<Post[]>([]);
+  const [postsNeedsUpdate, setPostsNeedsUpdate] = React.useState(true);
+
+  const { classes } = useSelector(selectClasses);
+
+  const getClassesIds = React.useMemo(() => {
+    return classes.map(x => x.id);
+  }, [classes]);
 
   React.useEffect(() => {
-    setPosts([
-      {
-        id: '0',
-        ownerName: 'John Doe',
-        date: '2022-04-05T12:10',
-        content: 'Post with no photos',
-        images: [],
-        files: [
-          {
-            id: 'asdsa',
-            downloadUrl: '',
-            name: 'Sample File 1',
-            type: 'pdf',
-          },
-          {
-            id: 'asdsadad',
-            downloadUrl: '',
-            name: 'Sample File 2',
-            type: 'pdf',
-          },
-        ],
-      },
-      {
-        id: '1',
-        ownerName: 'John Doe',
-        date: '2022-04-05T12:10',
-        content: 'Post with 6 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/1100/1100',
-          },
-          {
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            url: 'https://picsum.photos/700/300',
-          },
-          {
-            url: 'https://picsum.photos/1200/700',
-          },
-          {
-            url: 'https://picsum.photos/1200/700',
-          },
-          {
-            url: 'https://picsum.photos/1200/700',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '2',
-        ownerName: 'John Doe',
-        date: '2022-04-05T07:10',
-        content: 'Post with 2 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/1100/700',
-          },
-          {
-            url: 'https://picsum.photos/1280/768',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '3',
-        ownerName: 'John Doe',
-        date: '2022-04-05T06:10',
-        content: 'Post with 3 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/700/600',
-          },
-          {
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            url: 'https://picsum.photos/600/200',
-          },
-        ],
-        files: [],
-      },
-      {
-        id: '4',
-        ownerName: 'John Doe',
-        date: '2022-04-04T12:10',
-        content: 'Post with 4 Photos',
-        images: [
-          {
-            url: 'https://picsum.photos/700/600',
-          },
-          {
-            url: 'https://picsum.photos/700/200',
-          },
-          {
-            url: 'https://picsum.photos/600/200',
-          },
-          {
-            url: 'https://picsum.photos/600/200',
-          },
-        ],
-        files: [],
-      },
-    ]);
-  }, []);
+    if (getClassesIds.length === 0) return;
+
+    const fetchPosts = async () => {
+      if (!postsNeedsUpdate) return;
+
+      const first = query(
+        postsColRef,
+        where('classId', 'in', getClassesIds),
+        orderBy('updatedAt', 'desc'),
+        orderBy('createdAt', 'desc'),
+        // limit(100),
+      );
+      const postsDocSnapshot = await getDocs(first);
+      const list: Post[] = [];
+      postsDocSnapshot.forEach(postDoc => {
+        console.log('snapshot runs');
+
+        const data = postDoc.data();
+        const post = {
+          id: postDoc.id,
+          classId: data.classId,
+          ownerId: data.ownerId,
+          content: data.content,
+          likes: data.likes,
+          numberOfComments: data.numberOfComments,
+          createdAt: data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt.toDate().toISOString(),
+          images: [],
+          files: [],
+        };
+        list.push(post);
+      });
+      setPosts(list);
+      setPostsNeedsUpdate(false);
+    };
+
+    fetchPosts();
+  }, [getClassesIds, postsNeedsUpdate]);
 
   return (
     <>
@@ -169,19 +113,31 @@ export function Discussions() {
           />
         </Group>
 
-        <div>
-          {posts.map(post => (
+        {posts.length === 0 && (
+          <div className="p-6">
+            <Text size="sm" color="gray">
+              No discussions yet.
+            </Text>
+          </div>
+        )}
+        {posts.length > 0 &&
+          posts.map(post => (
             <PostCard
               key={post.id}
+              classId={post.classId}
               id={post.id}
-              ownerName={post.ownerName}
+              ownerId={post.ownerId}
               content={post.content}
-              date={post.date}
-              images={post.images}
-              files={post.files}
+              numberOfComments={post.numberOfComments}
+              likes={post.likes}
+              createdAt={post.createdAt}
+              updatedAt={post.updatedAt}
+              images={post.images || []}
+              files={post.files || []}
+              requestForUpdate={setPostsNeedsUpdate}
+              showClassInfo
             />
           ))}
-        </div>
       </PageContainer>
     </>
   );

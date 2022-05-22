@@ -61,6 +61,8 @@ export function Main() {
           firstName: user.given_name ? user.given_name : '',
           lastName: user.family_name ? user.family_name : '',
           name: user.name ? user.name : '',
+          email: user.email ? user.email : '',
+          picture: user.picture ? user.picture : '',
         });
       }
     };
@@ -90,10 +92,11 @@ export function Main() {
           ownerId: data.ownerId,
           shortDescription: data.shortDescription,
           usersList: data.usersList,
+          pendingInvites: data.pendingInvites,
           inviteCode: data.inviteCode,
           color: data.color,
-          createdAt: data.createdAt.toDate().toString(),
-          updatedAt: data.updatedAt.toDate().toString(),
+          createdAt: data.createdAt && data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt && data.updatedAt.toDate().toISOString(),
         };
         classesList.push(newClass);
       });
