@@ -193,8 +193,8 @@ export function ClassUnitAccordionItem(props: Props) {
                 </Text>
               )}
               {lessons.length === 0 ? (
-                <Text color="gray" size="sm">
-                  No lesson found.
+                <Text className="mt-3" color="gray" size="sm">
+                  No lessons yet.
                 </Text>
               ) : (
                 <ClassLessonAccordion
