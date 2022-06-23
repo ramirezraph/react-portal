@@ -199,7 +199,7 @@ export function ClassUnitAccordionItem(props: Props) {
               ) : (
                 <ClassLessonAccordion
                   unitId={unit.id}
-                  unitNumber={`Lesson ${unit.number}`}
+                  unitNumber={`Unit ${unit.number}`}
                   lessons={lessons}
                 />
               )}

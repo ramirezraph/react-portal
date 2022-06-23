@@ -406,7 +406,9 @@ export function LessonModal(props: Prop) {
       <Stack className="h-full w-full" spacing={0}>
         <Topbar
           classCode={classCode}
+          unitId={unitId}
           unitNumber={unitNumber}
+          lessonNumber={lessonNumber}
           student={classroom.activeClassRole === ClassRole.Student}
           onClose={onClose}
         />

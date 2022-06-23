@@ -34,6 +34,7 @@ export function ClassLessonAccordionItem(props: Props) {
     if (!isOpened) {
       return;
     }
+
     // fetch files
     console.log('onSnapshot: Lesson Files');
     const q = query(
