@@ -1,7 +1,11 @@
 import { Group, ActionIcon, Text, Button } from '@mantine/core';
+import { useClassroomSlice } from 'app/pages/Class/slice';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowNarrowRight, ChevronRight, Minus, X } from 'tabler-icons-react';
+import { LessonModalLocationState } from '.';
 
 interface Props {
   classCode: string;
@@ -12,10 +16,13 @@ interface Props {
 
 export function Topbar(props: Props) {
   const { classCode, unitNumber, student, onClose } = props;
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
 
   const [lessonIsNew, setLessonIsNew] = React.useState(false);
 
-  const { id } = useParams();
+  const { lessonModalBackground } = useSelector(selectClassroom);
 
   React.useEffect(() => {
     if (!id) {
@@ -23,6 +30,26 @@ export function Topbar(props: Props) {
       return;
     }
   }, [id]);
+
+  const onAddNewLessonClicked = () => {
+    const locState = location.state as LessonModalLocationState;
+    if (!locState) return;
+
+    navigate(
+      {
+        pathname: `/lesson/new`,
+      },
+      {
+        state: {
+          backgroundLocation: lessonModalBackground,
+          unitId: locState.unitId,
+          classId: locState.classId,
+          unitNumber: unitNumber,
+        },
+        replace: true,
+      },
+    );
+  };
 
   return (
     <Group
@@ -47,7 +74,7 @@ export function Topbar(props: Props) {
           )}
         </Group>
         {!student && !lessonIsNew && (
-          <Button size="md" compact>
+          <Button size="md" compact onClick={onAddNewLessonClicked}>
             <Text className="text-sm font-normal">Add new lesson</Text>
           </Button>
         )}

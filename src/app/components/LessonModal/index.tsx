@@ -51,11 +51,19 @@ import { Attachments } from './Attachments';
 
 interface Prop {}
 
+export interface LessonModalLocationState {
+  backgroundLocation: Location;
+  unitId: string;
+  classId: string;
+  unitNumber: string;
+}
+
 export function LessonModal(props: Prop) {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   const modals = useModals();
+
   const onClose = () => {
     navigate(-1);
   };
@@ -88,13 +96,6 @@ export function LessonModal(props: Prop) {
 
   const richTextEditorRef = React.useRef<Editor>(null);
 
-  interface LocationState {
-    backgroundLocation: Location;
-    unitId: string;
-    classId: string;
-    unitNumber: string;
-  }
-
   const onLessonNumberChange = event => {
     if (event.currentTarget.value.substring(0, 7) !== 'Lesson ') return;
 
@@ -118,7 +119,7 @@ export function LessonModal(props: Prop) {
   };
 
   React.useEffect(() => {
-    const locState = location.state as LocationState;
+    const locState = location.state as LessonModalLocationState;
     setUnitId(locState.unitId);
     setClassId(locState.classId);
     setUnitNumber(locState.unitNumber);
