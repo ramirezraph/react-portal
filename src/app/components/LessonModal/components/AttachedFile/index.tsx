@@ -1,8 +1,16 @@
-import { Group, ActionIcon, Text, Button, Tooltip, Stack } from '@mantine/core';
+import {
+  Group,
+  ActionIcon,
+  Text,
+  Button,
+  Tooltip,
+  Stack,
+  TextInput,
+} from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import axios from 'axios';
-import { deleteDoc, doc } from 'firebase/firestore';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import * as React from 'react';
 import { db, storage } from 'services/firebase';
@@ -55,6 +63,21 @@ export function AttachedFile(props: Prop) {
   } = props;
 
   const [ligthBoxToggler, setLigthBoxToggler] = React.useState(false);
+  const [isOnEditMode, setIsOnEditMode] = React.useState(false);
+  const [fileNameOnEdit, setFileNameOnEdit] = React.useState(name);
+  let editFileNameTemp = React.useRef('');
+  let editFileExtTemp = React.useRef('');
+
+  React.useEffect(() => {
+    if (!name) return;
+
+    const nameOnEdit = name.replace(/\.[^/.]+$/, '');
+    editFileNameTemp.current = nameOnEdit;
+    // gets the file extension
+    const ext = name.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2);
+    if (ext) editFileExtTemp.current = ext;
+    setFileNameOnEdit(nameOnEdit);
+  }, [name]);
 
   const openConfirmDeleteModal = () => {
     modals.openConfirmModal({
@@ -185,7 +208,13 @@ export function AttachedFile(props: Prop) {
             </ActionIcon>
           </Tooltip>
           <Tooltip position="bottom" label="Edit" withArrow>
-            <ActionIcon size="sm">
+            <ActionIcon
+              size="sm"
+              onClick={() => {
+                setFileNameOnEdit(editFileNameTemp.current);
+                setIsOnEditMode(o => !o);
+              }}
+            >
               <Pencil />
             </ActionIcon>
           </Tooltip>
@@ -254,32 +283,65 @@ export function AttachedFile(props: Prop) {
     return <File size={18} />;
   };
 
+  const editFileName = async () => {
+    const fileRef = doc(db, 'lesson-files', id);
+    await updateDoc(fileRef, {
+      name: `${fileNameOnEdit}.${editFileExtTemp.current}`,
+    });
+
+    setIsOnEditMode(false);
+  };
+
   return (
     <Group position="apart" className={`w-full ${className}`} noWrap>
       <FsLightbox toggler={ligthBoxToggler} sources={getCorrectSource()} />
-      <Button
-        className="px-0 text-blue-700"
-        variant="subtle"
-        compact
-        leftIcon={renderIcon()}
-      >
-        <Tooltip
-          position="bottom"
-          placement="start"
-          label={name}
-          openDelay={500}
-          withArrow
+      {isOnEditMode ? (
+        <Group spacing="sm">
+          <TextInput
+            icon={renderIcon()}
+            value={fileNameOnEdit}
+            rightSection={<Text size="sm">.jpg</Text>}
+            onChange={evt => setFileNameOnEdit(evt.currentTarget.value)}
+          />
+          <Group spacing={5}>
+            <ActionIcon onClick={editFileName} variant="filled" color="green">
+              <Check />
+            </ActionIcon>
+            <ActionIcon
+              onClick={() => setIsOnEditMode(false)}
+              variant="filled"
+              color="gray"
+            >
+              <X />
+            </ActionIcon>
+          </Group>
+        </Group>
+      ) : (
+        <Button
+          className="px-0 text-blue-700"
+          variant="subtle"
+          compact
+          leftIcon={renderIcon()}
         >
-          <Text
-            weight={400}
-            size="sm"
-            className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
-            onClick={onTitleClicked}
+          <Tooltip
+            position="bottom"
+            placement="start"
+            label={name}
+            openDelay={500}
+            withArrow
           >
-            {name}
-          </Text>
-        </Tooltip>
-      </Button>
+            <Text
+              weight={400}
+              size="sm"
+              className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
+              onClick={onTitleClicked}
+            >
+              {name}
+            </Text>
+          </Tooltip>
+        </Button>
+      )}
+
       {renderButtons()}
     </Group>
   );
