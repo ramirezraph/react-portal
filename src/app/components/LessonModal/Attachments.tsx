@@ -194,14 +194,8 @@ export function Attachments(props: Props) {
             visible={true}
             onFileUpload={onFileUpload}
             className="mt-6 w-full"
+            onClose={() => setUploadFileMode(false)}
           />
-          <Button
-            className="w-1/3"
-            color="gray"
-            onClick={() => setUploadFileMode(false)}
-          >
-            Close
-          </Button>
         </Group>
       </Collapse>
       <Group position="apart" className="mt-3">
