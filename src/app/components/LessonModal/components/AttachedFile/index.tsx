@@ -305,14 +305,14 @@ export function AttachedFile(props: Prop) {
           />
           <Group spacing={5}>
             <ActionIcon onClick={editFileName} variant="filled" color="green">
-              <Check />
+              <Check size={18} />
             </ActionIcon>
             <ActionIcon
               onClick={() => setIsOnEditMode(false)}
               variant="filled"
               color="gray"
             >
-              <X />
+              <X size={18} />
             </ActionIcon>
           </Group>
         </Group>
