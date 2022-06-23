@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { lessonsColRef } from 'services/firebase';
-import { ArrowNarrowRight, ChevronRight, Minus, X } from 'tabler-icons-react';
+import { ChevronRight, Minus, X } from 'tabler-icons-react';
 import { LessonModalLocationState } from '.';
 
 interface Props {
@@ -91,11 +91,11 @@ export function Topbar(props: Props) {
               <span className="opacity-50">of {numberOfLessons}</span>
             </Text>
           )}
-          {!lessonIsNew && (
+          {/* {!lessonIsNew && (
             <ActionIcon>
               <ArrowNarrowRight />
             </ActionIcon>
-          )}
+          )} */}
         </Group>
         {!student && !lessonIsNew && (
           <Button size="md" compact onClick={onAddNewLessonClicked}>
