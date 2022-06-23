@@ -84,7 +84,9 @@ export function Topbar(props: Props) {
           </Text>
           <ChevronRight size={16} />
           <Text size="sm">{unitNumber}</Text>
-          {!lessonIsNew && <ChevronRight size={16} />}
+          <ChevronRight size={16} />
+          {lessonIsNew && <Text size="sm">New Lesson</Text>}
+
           {!lessonIsNew && (
             <Text size="sm">
               {lessonNumber}{' '}
