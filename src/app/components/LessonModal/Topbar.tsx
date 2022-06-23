@@ -1,5 +1,6 @@
 import { Group, ActionIcon, Text, Button } from '@mantine/core';
 import * as React from 'react';
+import { useParams } from 'react-router-dom';
 import { ArrowNarrowRight, ChevronRight, Minus, X } from 'tabler-icons-react';
 
 interface Props {
@@ -11,6 +12,17 @@ interface Props {
 
 export function Topbar(props: Props) {
   const { classCode, unitNumber, student, onClose } = props;
+
+  const [lessonIsNew, setLessonIsNew] = React.useState(false);
+
+  const { id } = useParams();
+
+  React.useEffect(() => {
+    if (!id) {
+      setLessonIsNew(true);
+      return;
+    }
+  }, [id]);
 
   return (
     <Group
@@ -28,11 +40,13 @@ export function Topbar(props: Props) {
           <Text size="sm">
             Lesson 1 <span className="opacity-50">of 4</span>
           </Text>
-          <ActionIcon>
-            <ArrowNarrowRight />
-          </ActionIcon>
+          {!lessonIsNew && (
+            <ActionIcon>
+              <ArrowNarrowRight />
+            </ActionIcon>
+          )}
         </Group>
-        {!student && (
+        {!student && !lessonIsNew && (
           <Button size="md" compact>
             <Text className="text-sm font-normal">Add new lesson</Text>
           </Button>
