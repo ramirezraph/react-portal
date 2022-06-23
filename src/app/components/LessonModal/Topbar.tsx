@@ -1,5 +1,4 @@
 import { Group, ActionIcon, Text, Button } from '@mantine/core';
-import { useClassroomSlice } from 'app/pages/Class/slice';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import * as React from 'react';
 import { useSelector } from 'react-redux';

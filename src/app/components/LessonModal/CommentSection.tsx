@@ -132,14 +132,14 @@ export function CommentSection(props: Props) {
 
   return (
     <Card className="flex-grow" radius={0}>
-      <Card.Section className="p-4">
+      <Card.Section className="p-5">
         <Group position="apart">
           <Text className="font-semibold">Comments</Text>
-          {activeClassRole === ClassRole.Teacher && (
+          {/* {activeClassRole === ClassRole.Teacher && (
             <ActionIcon size="lg">
               <Settings />
             </ActionIcon>
-          )}
+          )} */}
         </Group>
       </Card.Section>
       <Card.Section>
