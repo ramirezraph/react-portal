@@ -167,7 +167,7 @@ export function Attachments(props: Props) {
                 Upload file
               </Menu.Item>
               <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
-              <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+              {/* <Menu.Item icon={<BrandGoogleDrive size={16} />}>
                 Google Drive
               </Menu.Item>
               <Menu.Item icon={<BrandGoogleDrive size={16} />}>
@@ -175,7 +175,7 @@ export function Attachments(props: Props) {
               </Menu.Item>
               <Menu.Item icon={<BrandGoogleDrive size={16} />}>
                 Dropbox
-              </Menu.Item>
+              </Menu.Item> */}
             </Menu>
           )}
         </Group>
