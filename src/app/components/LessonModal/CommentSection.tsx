@@ -9,8 +9,6 @@ import {
   Stack,
 } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { ClassRole } from 'app/pages/Class/slice/types';
 import {
   addDoc,
   collection,
@@ -28,7 +26,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-import { Send, Settings, X } from 'tabler-icons-react';
+import { Send, X } from 'tabler-icons-react';
 import { UserAvatar } from '../UserAvatar/Loadable';
 import { Comment } from '../Comment';
 
@@ -50,7 +48,7 @@ export function CommentSection(props: Props) {
   const { lessonId } = props;
 
   const { currentUser } = useSelector(selectUser);
-  const { activeClassRole } = useSelector(selectClassroom);
+  // const { activeClassRole } = useSelector(selectClassroom);
 
   const [newComment, setNewComment] = React.useState('');
   const [sendCommentLoading, setSendCommentLoading] = React.useState(false);
