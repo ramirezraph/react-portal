@@ -300,7 +300,7 @@ export function LessonModal(props: Prop) {
         updateNotification({
           id: notificationId,
           title: 'Success',
-          message: `Lesson ${number}: ${title} created successfully.`,
+          message: `Lesson ${number}: ${title} updated successfully.`,
           color: 'green',
           icon: <Check />,
         });
