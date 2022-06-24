@@ -26,16 +26,26 @@ export interface Unit {
   lessons: Lesson[];
 }
 
-export interface LessonFile {
+export interface ClassFile {
   id: string;
   name: string;
-  size: number;
   type: string;
-  downloadUrl: string;
-  lessonId: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string;
+  lessonId: string;
+}
+
+export interface LessonFile extends ClassFile {
+  kind: 'file';
+  size: number;
+  downloadUrl: string;
   fullPath: string;
+}
+
+export interface LessonLink extends ClassFile {
+  kind: 'link';
+  url: string;
 }
 
 export interface Lesson {

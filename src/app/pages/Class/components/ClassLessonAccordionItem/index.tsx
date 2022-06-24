@@ -1,4 +1,4 @@
-import { Collapse, Divider, Group, Stack } from '@mantine/core';
+import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { lessonFilesColRef } from 'services/firebase';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
-import { ClassRole, Lesson, LessonFile } from '../../slice/types';
+import { ClassRole, Lesson, LessonFile, LessonLink } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 import parse from 'html-react-parser';
@@ -26,7 +26,7 @@ export function ClassLessonAccordionItem(props: Props) {
   const { lesson, unitId, unitNumber } = props;
 
   const [isOpened, setIsOpened] = React.useState(false);
-  const [files, setFiles] = React.useState<LessonFile[]>([]);
+  const [files, setFiles] = React.useState<(LessonFile | LessonLink)[]>([]);
 
   const { activeClassRole } = useSelector(selectClassroom);
 
@@ -43,23 +43,41 @@ export function ClassLessonAccordionItem(props: Props) {
       orderBy('createdAt'),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: LessonFile[] = [];
+      const list: (LessonFile | LessonLink)[] = [];
       const sourceList: string[] = [];
       querySnapshot.forEach(doc => {
         const data = doc.data();
-        const file = {
-          id: doc.id,
-          name: data.name,
-          size: data.size,
-          type: data.type,
-          downloadUrl: data.downloadUrl,
-          lessonId: data.lessonId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          fullPath: data.fullPath,
-        };
-        list.push(file);
-        sourceList.push(file.downloadUrl);
+        let file: LessonFile | LessonLink;
+        if (data.downloadUrl) {
+          file = {
+            kind: 'file',
+            id: doc.id,
+            name: data.name,
+            size: data.size,
+            type: data.type,
+            downloadUrl: data.downloadUrl,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+            fullPath: data.fullPath,
+          };
+          list.push(file);
+          sourceList.push(file.downloadUrl);
+        } else {
+          file = {
+            kind: 'link',
+            id: doc.id,
+            name: data.name,
+            url: data.url,
+            type: data.type,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+          };
+          list.push(file);
+        }
       });
       setFiles(list);
     });
@@ -103,22 +121,32 @@ export function ClassLessonAccordionItem(props: Props) {
           )}
           {files.length > 0 && (
             <Stack className="w-full" spacing="xs">
-              {files.map((file, index) => (
-                <AttachedFile
-                  key={file.id}
-                  id={file.id}
-                  name={file.name}
-                  size={file.size}
-                  type={file.type}
-                  downloadUrl={file.downloadUrl}
-                  lessonId={file.lessonId}
-                  fullPath={file.fullPath}
-                  createdAt={file.createdAt}
-                  updatedAt={file.updatedAt}
-                  viewOnly={activeClassRole !== ClassRole.Teacher}
-                  compact
-                />
-              ))}
+              {files.map((file, index) => {
+                if (file.kind === 'link') {
+                  return (
+                    <Group key={file.id}>
+                      <Text>This is a link</Text>
+                    </Group>
+                  );
+                }
+
+                return (
+                  <AttachedFile
+                    key={file.id}
+                    id={file.id}
+                    name={file.name}
+                    size={file.size}
+                    type={file.type}
+                    downloadUrl={file.downloadUrl}
+                    lessonId={file.lessonId}
+                    fullPath={file.fullPath}
+                    createdAt={file.createdAt}
+                    updatedAt={file.updatedAt}
+                    viewOnly={activeClassRole !== ClassRole.Teacher}
+                    compact
+                  />
+                );
+              })}
             </Stack>
           )}
           <Divider className="mt-3" />

@@ -1,7 +1,7 @@
 import { Group, Text, Button, Menu, Collapse, Stack } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
+import { ClassRole, LessonFile, LessonLink } from 'app/pages/Class/slice/types';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
@@ -18,6 +18,7 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore';
+import { AddLinkModal } from '../AddLinkModal/Loadable';
 
 interface Props {
   lessonId: string;
@@ -30,7 +31,8 @@ export function Attachments(props: Props) {
   const { activeClassRole } = useSelector(selectClassroom);
 
   const [uploadFileMode, setUploadFileMode] = React.useState(false);
-  const [files, setFiles] = React.useState<LessonFile[]>([]);
+  const [files, setFiles] = React.useState<(LessonFile | LessonLink)[]>([]);
+  const [addLinkModalVisible, setAddLinkModalVisible] = React.useState(false);
 
   React.useEffect(() => {
     if (!lessonId) return;
@@ -43,21 +45,40 @@ export function Attachments(props: Props) {
       orderBy('createdAt'),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: LessonFile[] = [];
+      const list: (LessonFile | LessonLink)[] = [];
       querySnapshot.forEach(doc => {
         const data = doc.data();
-        const file = {
-          id: doc.id,
-          name: data.name,
-          size: data.size,
-          type: data.type,
-          downloadUrl: data.downloadUrl,
-          lessonId: data.lessonId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          fullPath: data.fullPath,
-        };
-        list.push(file);
+
+        let file: LessonFile | LessonLink;
+        if (data.downloadUrl) {
+          file = {
+            kind: 'file',
+            id: doc.id,
+            name: data.name,
+            size: data.size,
+            type: data.type,
+            downloadUrl: data.downloadUrl,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+            fullPath: data.fullPath,
+          };
+          list.push(file);
+        } else {
+          file = {
+            kind: 'link',
+            id: doc.id,
+            name: data.name,
+            url: data.url,
+            type: data.type,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+          };
+          list.push(file);
+        }
       });
 
       setFiles(list);
@@ -133,6 +154,11 @@ export function Attachments(props: Props) {
 
   return (
     <>
+      <AddLinkModal
+        lessonId={lessonId}
+        visible={addLinkModalVisible}
+        onToggle={setAddLinkModalVisible}
+      />
       <Group position="apart" className="mt-6">
         <Group>
           <Text size="lg" className="font-semibold">
@@ -158,7 +184,12 @@ export function Attachments(props: Props) {
               >
                 Upload file
               </Menu.Item>
-              <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
+              <Menu.Item
+                icon={<Link size={16} />}
+                onClick={() => setAddLinkModalVisible(true)}
+              >
+                Link
+              </Menu.Item>
               {/* <Menu.Item icon={<BrandGoogleDrive size={16} />}>
                 Google Drive
               </Menu.Item>
@@ -201,22 +232,34 @@ export function Attachments(props: Props) {
       </Group>
       <Stack className="mt-6" spacing="sm">
         {files.map(file => {
-          return (
-            <AttachedFile
-              key={file.id}
-              id={file.id}
-              name={file.name}
-              size={file.size}
-              type={file.type}
-              downloadUrl={file.downloadUrl}
-              lessonId={file.lessonId}
-              fullPath={file.fullPath}
-              createdAt={file.createdAt}
-              updatedAt={file.updatedAt}
-              textClassName="w-[55ch] 2xl:w-[65ch]"
-              viewOnly={activeClassRole !== ClassRole.Teacher}
-            />
-          );
+          if (file.kind === 'file') {
+            return (
+              <AttachedFile
+                key={file.id}
+                id={file.id}
+                name={file.name}
+                size={file.size}
+                type={file.type}
+                downloadUrl={file.downloadUrl}
+                lessonId={file.lessonId}
+                fullPath={file.fullPath}
+                createdAt={file.createdAt}
+                updatedAt={file.updatedAt}
+                textClassName="w-[55ch] 2xl:w-[65ch]"
+                viewOnly={activeClassRole !== ClassRole.Teacher}
+              />
+            );
+          }
+
+          if (file.kind === 'link') {
+            return (
+              <Group key={file.id}>
+                <Text>{file.url}</Text>
+              </Group>
+            );
+          }
+
+          return null;
         })}
       </Stack>
     </>

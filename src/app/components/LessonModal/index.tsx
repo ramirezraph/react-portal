@@ -80,12 +80,10 @@ export function LessonModal(props: Prop) {
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
-
   const [popoverNumberVisible, setPopoverNumberVisible] = React.useState(false);
   const [popoverNumberText, setPopoverNumberText] = React.useState(
     'Lesson number is required.',
   );
-
   const [popoverTitleVisible, setPopoverTitleVisible] = React.useState(false);
 
   // header
