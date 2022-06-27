@@ -232,34 +232,40 @@ export function Attachments(props: Props) {
       </Group>
       <Stack className="mt-6" spacing="sm">
         {files.map(file => {
-          if (file.kind === 'file') {
+          if (file.kind === 'link') {
             return (
               <AttachedFile
+                kind="link"
                 key={file.id}
                 id={file.id}
+                url={file.url}
                 name={file.name}
-                size={file.size}
                 type={file.type}
-                downloadUrl={file.downloadUrl}
                 lessonId={file.lessonId}
-                fullPath={file.fullPath}
                 createdAt={file.createdAt}
                 updatedAt={file.updatedAt}
-                textClassName="w-[55ch] 2xl:w-[65ch]"
                 viewOnly={activeClassRole !== ClassRole.Teacher}
               />
             );
           }
 
-          if (file.kind === 'link') {
-            return (
-              <Group key={file.id}>
-                <Text>{file.url}</Text>
-              </Group>
-            );
-          }
-
-          return null;
+          return (
+            <AttachedFile
+              kind="file"
+              key={file.id}
+              id={file.id}
+              name={file.name}
+              size={file.size}
+              type={file.type}
+              downloadUrl={file.downloadUrl}
+              lessonId={file.lessonId}
+              fullPath={file.fullPath}
+              createdAt={file.createdAt}
+              updatedAt={file.updatedAt}
+              textClassName="w-[55ch] 2xl:w-[65ch]"
+              viewOnly={activeClassRole !== ClassRole.Teacher}
+            />
+          );
         })}
       </Stack>
     </>

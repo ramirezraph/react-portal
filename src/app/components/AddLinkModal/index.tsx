@@ -46,6 +46,8 @@ export function AddLinkModal(props: Props) {
   const onCreate = (values: FormValues) => {
     console.log(values);
 
+    setLoading(true);
+
     const notificationId = uuidv4();
     showNotification({
       id: notificationId,
@@ -82,7 +84,13 @@ export function AddLinkModal(props: Props) {
           color: 'red',
           icon: <X />,
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
+
+    form.reset();
+    onToggle(false);
   };
 
   const onCancel = () => {

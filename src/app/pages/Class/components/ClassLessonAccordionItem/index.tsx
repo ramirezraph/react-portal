@@ -1,4 +1,4 @@
-import { Collapse, Divider, Group, Stack, Text } from '@mantine/core';
+import { Collapse, Divider, Group, Stack } from '@mantine/core';
 import { AttachedFile } from 'app/components/LessonModal/components/AttachedFile/Loadable';
 import { onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import * as React from 'react';
@@ -124,14 +124,25 @@ export function ClassLessonAccordionItem(props: Props) {
               {files.map((file, index) => {
                 if (file.kind === 'link') {
                   return (
-                    <Group key={file.id}>
-                      <Text>This is a link</Text>
-                    </Group>
+                    <AttachedFile
+                      kind="link"
+                      key={file.id}
+                      id={file.id}
+                      url={file.url}
+                      name={file.name}
+                      type={file.type}
+                      lessonId={file.lessonId}
+                      createdAt={file.createdAt}
+                      updatedAt={file.updatedAt}
+                      viewOnly={activeClassRole !== ClassRole.Teacher}
+                      compact
+                    />
                   );
                 }
 
                 return (
                   <AttachedFile
+                    kind="file"
                     key={file.id}
                     id={file.id}
                     name={file.name}
