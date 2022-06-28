@@ -202,14 +202,14 @@ export function Attachments(props: Props) {
             </Menu>
           )}
         </Group>
-        <Button
+        {/* <Button
           disabled={lessonIsNew}
           variant="outline"
           color={'gray'}
           leftIcon={<Download />}
         >
           Download All
-        </Button>
+        </Button> */}
       </Group>
       <Collapse in={uploadFileMode}>
         <Group className="w-full items-center" direction="column">
