@@ -6,7 +6,7 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { lessonFilesColRef, storage } from 'services/firebase';
-import { Plus, Upload, Link, Download, Check, X } from 'tabler-icons-react';
+import { Plus, Upload, Link, Check, X } from 'tabler-icons-react';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 import { FileDropzone } from './components/FileDropzone/Loadable';
 import { v4 as uuidv4 } from 'uuid';
