@@ -1,20 +1,12 @@
 import { Group, Text, Button, Menu, Collapse, Stack } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { ClassRole, LessonFile } from 'app/pages/Class/slice/types';
+import { ClassRole, LessonFile, LessonLink } from 'app/pages/Class/slice/types';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { lessonFilesColRef, storage } from 'services/firebase';
-import {
-  Plus,
-  Upload,
-  Link,
-  BrandGoogleDrive,
-  Download,
-  Check,
-  X,
-} from 'tabler-icons-react';
+import { Plus, Upload, Link, Download, Check, X } from 'tabler-icons-react';
 import { AttachedFile } from './components/AttachedFile/Loadable';
 import { FileDropzone } from './components/FileDropzone/Loadable';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,6 +18,7 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore';
+import { AddLinkModal } from '../AddLinkModal/Loadable';
 
 interface Props {
   lessonId: string;
@@ -38,7 +31,8 @@ export function Attachments(props: Props) {
   const { activeClassRole } = useSelector(selectClassroom);
 
   const [uploadFileMode, setUploadFileMode] = React.useState(false);
-  const [files, setFiles] = React.useState<LessonFile[]>([]);
+  const [files, setFiles] = React.useState<(LessonFile | LessonLink)[]>([]);
+  const [addLinkModalVisible, setAddLinkModalVisible] = React.useState(false);
 
   React.useEffect(() => {
     if (!lessonId) return;
@@ -51,21 +45,40 @@ export function Attachments(props: Props) {
       orderBy('createdAt'),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: LessonFile[] = [];
+      const list: (LessonFile | LessonLink)[] = [];
       querySnapshot.forEach(doc => {
         const data = doc.data();
-        const file = {
-          id: doc.id,
-          name: data.name,
-          size: data.size,
-          type: data.type,
-          downloadUrl: data.downloadUrl,
-          lessonId: data.lessonId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          fullPath: data.fullPath,
-        };
-        list.push(file);
+
+        let file: LessonFile | LessonLink;
+        if (data.downloadUrl) {
+          file = {
+            kind: 'file',
+            id: doc.id,
+            name: data.name,
+            size: data.size,
+            type: data.type,
+            downloadUrl: data.downloadUrl,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+            fullPath: data.fullPath,
+          };
+          list.push(file);
+        } else {
+          file = {
+            kind: 'link',
+            id: doc.id,
+            name: data.name,
+            url: data.url,
+            type: data.type,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+          };
+          list.push(file);
+        }
       });
 
       setFiles(list);
@@ -141,6 +154,11 @@ export function Attachments(props: Props) {
 
   return (
     <>
+      <AddLinkModal
+        lessonId={lessonId}
+        visible={addLinkModalVisible}
+        onToggle={setAddLinkModalVisible}
+      />
       <Group position="apart" className="mt-6">
         <Group>
           <Text size="lg" className="font-semibold">
@@ -166,8 +184,13 @@ export function Attachments(props: Props) {
               >
                 Upload file
               </Menu.Item>
-              <Menu.Item icon={<Link size={16} />}>Link</Menu.Item>
-              <Menu.Item icon={<BrandGoogleDrive size={16} />}>
+              <Menu.Item
+                icon={<Link size={16} />}
+                onClick={() => setAddLinkModalVisible(true)}
+              >
+                Link
+              </Menu.Item>
+              {/* <Menu.Item icon={<BrandGoogleDrive size={16} />}>
                 Google Drive
               </Menu.Item>
               <Menu.Item icon={<BrandGoogleDrive size={16} />}>
@@ -175,7 +198,7 @@ export function Attachments(props: Props) {
               </Menu.Item>
               <Menu.Item icon={<BrandGoogleDrive size={16} />}>
                 Dropbox
-              </Menu.Item>
+              </Menu.Item> */}
             </Menu>
           )}
         </Group>
@@ -194,14 +217,8 @@ export function Attachments(props: Props) {
             visible={true}
             onFileUpload={onFileUpload}
             className="mt-6 w-full"
+            onClose={() => setUploadFileMode(false)}
           />
-          <Button
-            className="w-1/3"
-            color="gray"
-            onClick={() => setUploadFileMode(false)}
-          >
-            Close
-          </Button>
         </Group>
       </Collapse>
       <Group position="apart" className="mt-3">
@@ -215,8 +232,26 @@ export function Attachments(props: Props) {
       </Group>
       <Stack className="mt-6" spacing="sm">
         {files.map(file => {
+          if (file.kind === 'link') {
+            return (
+              <AttachedFile
+                kind="link"
+                key={file.id}
+                id={file.id}
+                url={file.url}
+                name={file.name}
+                type={file.type}
+                lessonId={file.lessonId}
+                createdAt={file.createdAt}
+                updatedAt={file.updatedAt}
+                viewOnly={activeClassRole !== ClassRole.Teacher}
+              />
+            );
+          }
+
           return (
             <AttachedFile
+              kind="file"
               key={file.id}
               id={file.id}
               name={file.name}

@@ -1,8 +1,16 @@
-import { Group, ActionIcon, Text, Button, Tooltip, Stack } from '@mantine/core';
+import {
+  Group,
+  ActionIcon,
+  Text,
+  Button,
+  Tooltip,
+  Stack,
+  TextInput,
+} from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import axios from 'axios';
-import { deleteDoc, doc } from 'firebase/firestore';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import * as React from 'react';
 import { db, storage } from 'services/firebase';
@@ -18,6 +26,8 @@ import {
   X,
   Photo,
   Video,
+  Link,
+  ExternalLink,
 } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
 import { IMAGE_MIME_TYPE, MIME_TYPES } from '@mantine/dropzone';
@@ -25,13 +35,15 @@ import { IMAGE_MIME_TYPE, MIME_TYPES } from '@mantine/dropzone';
 interface Prop {
   id: string;
   name: string;
-  size: number;
   type: string;
-  downloadUrl: string;
   lessonId: string;
-  fullPath: string;
   createdAt: string;
   updatedAt: string;
+  kind: 'link' | 'file';
+  url?: string;
+  fullPath?: string;
+  size?: number;
+  downloadUrl?: string;
   compact?: boolean;
   className?: string;
   textClassName?: string;
@@ -43,6 +55,7 @@ export function AttachedFile(props: Prop) {
   const modals = useModals();
 
   const {
+    kind,
     id,
     name,
     compact,
@@ -50,11 +63,27 @@ export function AttachedFile(props: Prop) {
     textClassName,
     viewOnly,
     downloadUrl,
+    url,
     fullPath,
     type,
   } = props;
 
   const [ligthBoxToggler, setLigthBoxToggler] = React.useState(false);
+  const [isOnEditMode, setIsOnEditMode] = React.useState(false);
+  const [fileNameOnEdit, setFileNameOnEdit] = React.useState(name);
+  let editFileNameTemp = React.useRef('');
+  let editFileExtTemp = React.useRef('');
+
+  React.useEffect(() => {
+    if (!name) return;
+
+    const nameOnEdit = name.replace(/\.[^/.]+$/, '');
+    editFileNameTemp.current = nameOnEdit;
+    // gets the file extension
+    const ext = name.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2);
+    if (ext) editFileExtTemp.current = ext;
+    setFileNameOnEdit(nameOnEdit);
+  }, [name]);
 
   const openConfirmDeleteModal = () => {
     modals.openConfirmModal({
@@ -67,23 +96,61 @@ export function AttachedFile(props: Prop) {
       children: (
         <div className="pb-3">
           <Text size="sm">
-            Are you sure you want to delete this file? This action cannot be
-            undone.
+            Are you sure you want to delete this{' '}
+            {kind === 'file' ? 'file' : 'link'}? This action cannot be undone.
           </Text>
         </div>
       ),
-      labels: { confirm: 'Delete file', cancel: "No, don't delete" },
+      labels: {
+        confirm: `Delete ${kind === 'file' ? 'file' : 'link'}`,
+        cancel: "No, don't delete",
+      },
       onConfirm: () => onDelete(),
     });
   };
 
   const onDelete = () => {
     const notificationId = uuidv4();
+
+    if (kind === 'link') {
+      showNotification({
+        id: notificationId,
+        loading: true,
+        title: 'In progress',
+        message: `Deleting link ${name} ...`,
+        autoClose: false,
+        disallowClose: true,
+      });
+
+      const fileFirestoreRef = doc(db, 'lesson-files', id);
+      deleteDoc(fileFirestoreRef)
+        .then(() => {
+          updateNotification({
+            id: notificationId,
+            title: 'Success',
+            message: `Link ${name} deleted successfully.`,
+            color: 'green',
+            icon: <Check />,
+          });
+        })
+        .catch(e => {
+          updateNotification({
+            id: notificationId,
+            title: 'Failed',
+            message: `Link ${name} delete failed.`,
+            color: 'red',
+            icon: <X />,
+          });
+        });
+
+      return;
+    }
+
     showNotification({
       id: notificationId,
       loading: true,
       title: 'In progress',
-      message: `Deleting File ${name} ...`,
+      message: `Deleting file ${name} ...`,
       autoClose: false,
       disallowClose: true,
     });
@@ -136,7 +203,21 @@ export function AttachedFile(props: Prop) {
   };
 
   const onTitleClicked = () => {
-    setLigthBoxToggler(x => !x);
+    if (kind === 'file') {
+      setLigthBoxToggler(x => !x);
+      return;
+    }
+
+    if (kind === 'link') {
+      goToExternalLink();
+      return;
+    }
+  };
+
+  const goToExternalLink = () => {
+    if (!url) return;
+
+    window.open(url, '_blank');
   };
 
   const renderButtons = () => {
@@ -148,22 +229,38 @@ export function AttachedFile(props: Prop) {
               <At />
             </ActionIcon>
           </Tooltip>
-          <Tooltip position="bottom" label="Download" withArrow>
-            <ActionIcon size="sm" onClick={download}>
-              <Download />
-            </ActionIcon>
-          </Tooltip>
+          {kind === 'file' ? (
+            <Tooltip position="bottom" label="Download" withArrow>
+              <ActionIcon size="sm" onClick={download}>
+                <Download />
+              </ActionIcon>
+            </Tooltip>
+          ) : (
+            <Tooltip position="bottom" label="Visit Link" withArrow>
+              <ActionIcon onClick={goToExternalLink} size="sm">
+                <ExternalLink />
+              </ActionIcon>
+            </Tooltip>
+          )}
         </Group>
       );
     } else {
       if (compact) {
         return (
           <Group position="center" spacing={compact ? 'xs' : 'md'} noWrap>
-            <Tooltip position="bottom" label="Download" withArrow>
-              <ActionIcon size="sm" onClick={download}>
-                <Download />
-              </ActionIcon>
-            </Tooltip>
+            {kind === 'file' ? (
+              <Tooltip position="bottom" label="Download" withArrow>
+                <ActionIcon size="sm" onClick={download}>
+                  <Download />
+                </ActionIcon>
+              </Tooltip>
+            ) : (
+              <Tooltip position="bottom" label="Visit Link" withArrow>
+                <ActionIcon onClick={goToExternalLink} size="sm">
+                  <ExternalLink />
+                </ActionIcon>
+              </Tooltip>
+            )}
             <Tooltip position="bottom" label="Delete" withArrow>
               <ActionIcon
                 color="red"
@@ -185,15 +282,29 @@ export function AttachedFile(props: Prop) {
             </ActionIcon>
           </Tooltip>
           <Tooltip position="bottom" label="Edit" withArrow>
-            <ActionIcon size="sm">
+            <ActionIcon
+              size="sm"
+              onClick={() => {
+                setFileNameOnEdit(editFileNameTemp.current);
+                setIsOnEditMode(o => !o);
+              }}
+            >
               <Pencil />
             </ActionIcon>
           </Tooltip>
-          <Tooltip position="bottom" label="Download" withArrow>
-            <ActionIcon size="sm" onClick={download}>
-              <Download />
-            </ActionIcon>
-          </Tooltip>
+          {kind === 'file' ? (
+            <Tooltip position="bottom" label="Download" withArrow>
+              <ActionIcon size="sm" onClick={download}>
+                <Download />
+              </ActionIcon>
+            </Tooltip>
+          ) : (
+            <Tooltip position="bottom" label="Visit Link" withArrow>
+              <ActionIcon onClick={goToExternalLink} size="sm">
+                <ExternalLink />
+              </ActionIcon>
+            </Tooltip>
+          )}
           <Tooltip position="bottom" label="Delete" withArrow>
             <ActionIcon color="red" size="sm" onClick={openConfirmDeleteModal}>
               <Trash />
@@ -254,32 +365,77 @@ export function AttachedFile(props: Prop) {
     return <File size={18} />;
   };
 
+  const editFileName = async () => {
+    const fileRef = doc(db, 'lesson-files', id);
+
+    if (kind === 'link') {
+      await updateDoc(fileRef, {
+        name: `${fileNameOnEdit}`,
+      });
+      setIsOnEditMode(false);
+
+      return;
+    }
+
+    await updateDoc(fileRef, {
+      name: `${fileNameOnEdit}.${editFileExtTemp.current}`,
+    });
+    setIsOnEditMode(false);
+  };
+
   return (
     <Group position="apart" className={`w-full ${className}`} noWrap>
-      <FsLightbox toggler={ligthBoxToggler} sources={getCorrectSource()} />
-      <Button
-        className="px-0 text-blue-700"
-        variant="subtle"
-        compact
-        leftIcon={renderIcon()}
-      >
-        <Tooltip
-          position="bottom"
-          placement="start"
-          label={name}
-          openDelay={500}
-          withArrow
+      {kind === 'file' && (
+        <FsLightbox toggler={ligthBoxToggler} sources={getCorrectSource()} />
+      )}
+
+      {isOnEditMode ? (
+        <Group spacing="sm">
+          <TextInput
+            icon={kind === 'file' ? renderIcon() : <Link size={18} />}
+            value={fileNameOnEdit}
+            rightSection={kind === 'file' && <Text size="sm">.jpg</Text>}
+            onChange={evt => setFileNameOnEdit(evt.currentTarget.value)}
+          />
+          <Group spacing={5}>
+            <ActionIcon onClick={editFileName} variant="filled" color="green">
+              <Check size={18} />
+            </ActionIcon>
+            <ActionIcon
+              onClick={() => setIsOnEditMode(false)}
+              variant="filled"
+              color="gray"
+            >
+              <X size={18} />
+            </ActionIcon>
+          </Group>
+        </Group>
+      ) : (
+        <Button
+          className="px-0 text-blue-700"
+          variant="subtle"
+          compact
+          leftIcon={kind === 'file' ? renderIcon() : <Link size={18} />}
         >
-          <Text
-            weight={400}
-            size="sm"
-            className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
-            onClick={onTitleClicked}
+          <Tooltip
+            position="bottom"
+            placement="start"
+            label={name}
+            openDelay={500}
+            withArrow
           >
-            {name}
-          </Text>
-        </Tooltip>
-      </Button>
+            <Text
+              weight={400}
+              size="sm"
+              className={`inline-block w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-left 2xl:w-[30ch] ${textClassName}`}
+              onClick={onTitleClicked}
+            >
+              {name}
+            </Text>
+          </Tooltip>
+        </Button>
+      )}
+
       {renderButtons()}
     </Group>
   );

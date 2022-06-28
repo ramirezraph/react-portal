@@ -5,6 +5,7 @@ import {
   Divider,
   Group,
   Modal,
+  Popover,
   ScrollArea,
   Stack,
   Text,
@@ -28,7 +29,14 @@ import {
   useParams,
 } from 'react-router-dom';
 import { db, lessonsColRef } from 'services/firebase';
-import { ArrowForward, Check, Pencil, Trash, X } from 'tabler-icons-react';
+import {
+  ArrowForward,
+  Check,
+  CircleX,
+  Pencil,
+  Trash,
+  X,
+} from 'tabler-icons-react';
 import { LiveSwitch } from '../LiveSwitch/Loadable';
 import { getLessonNumber, testForDuplicateLessonNumber } from './utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -43,11 +51,19 @@ import { Attachments } from './Attachments';
 
 interface Prop {}
 
+export interface LessonModalLocationState {
+  backgroundLocation: Location;
+  unitId: string;
+  classId: string;
+  unitNumber: string;
+}
+
 export function LessonModal(props: Prop) {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   const modals = useModals();
+
   const onClose = () => {
     navigate(-1);
   };
@@ -64,8 +80,11 @@ export function LessonModal(props: Prop) {
   const [classId, setClassId] = React.useState('');
   const [unitId, setUnitId] = React.useState('');
   const [isLive, setIsLive] = React.useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setPostsNeedsUpdate] = React.useState(true);
+  const [popoverNumberVisible, setPopoverNumberVisible] = React.useState(false);
+  const [popoverNumberText, setPopoverNumberText] = React.useState(
+    'Lesson number is required.',
+  );
+  const [popoverTitleVisible, setPopoverTitleVisible] = React.useState(false);
 
   // header
   const [unitNumber, setUnitNumber] = React.useState('');
@@ -74,13 +93,6 @@ export function LessonModal(props: Prop) {
   const classroom = useSelector(selectClassroom);
 
   const richTextEditorRef = React.useRef<Editor>(null);
-
-  interface LocationState {
-    backgroundLocation: Location;
-    unitId: string;
-    classId: string;
-    unitNumber: string;
-  }
 
   const onLessonNumberChange = event => {
     if (event.currentTarget.value.substring(0, 7) !== 'Lesson ') return;
@@ -105,7 +117,7 @@ export function LessonModal(props: Prop) {
   };
 
   React.useEffect(() => {
-    const locState = location.state as LocationState;
+    const locState = location.state as LessonModalLocationState;
     setUnitId(locState.unitId);
     setClassId(locState.classId);
     setUnitNumber(locState.unitNumber);
@@ -159,35 +171,41 @@ export function LessonModal(props: Prop) {
     });
   };
 
+  const validateLessonInfo = async () => {
+    const number = getLessonNumber(lessonNumber);
+    if (!number) {
+      setPopoverNumberText('Lesson number is required.');
+      setPopoverNumberVisible(o => !o);
+      return false;
+    }
+    // check for duplicate lesson number
+    const duplicateTest = await testForDuplicateLessonNumber(
+      unitId,
+      number,
+      id,
+    );
+    if (!duplicateTest) {
+      setPopoverNumberText('Lesson number already in used.');
+      setPopoverNumberVisible(o => !o);
+      return false;
+    }
+    if (!title || title.length === 0) {
+      setPopoverTitleVisible(o => !o);
+      return false;
+    }
+    return true;
+  };
+
   const onSubmitNewLesson = async () => {
     setSubmitLoading(true);
+    const validateResult = await validateLessonInfo();
+
+    if (!validateResult) {
+      setSubmitLoading(false);
+      return;
+    }
+
     const number = getLessonNumber(lessonNumber);
-
-    // simple validate
-    if (!title && !number) {
-      setSubmitLoading(false);
-      showNotification({
-        title: 'Failed',
-        message: 'Lesson number and title are required.',
-        color: 'red',
-        icon: <X />,
-      });
-      return;
-    }
-
-    // check for duplicate lesson number
-    const duplicateTest = await testForDuplicateLessonNumber(unitId, number);
-    if (!duplicateTest) {
-      setSubmitLoading(false);
-      showNotification({
-        title: 'Failed',
-        message: 'Lesson number already in used.',
-        color: 'red',
-        icon: <X />,
-      });
-      return;
-    }
-
     const notificationId = uuidv4();
     showNotification({
       id: notificationId,
@@ -253,38 +271,12 @@ export function LessonModal(props: Prop) {
   const onSubmitUpdateLesson = async () => {
     if (!id) return;
 
-    setSubmitLoading(true);
+    const validateResult = await validateLessonInfo();
+    if (!validateResult) {
+      return;
+    }
+
     const number = getLessonNumber(lessonNumber);
-
-    // simple validate
-    if (!title && !number) {
-      setSubmitLoading(false);
-      showNotification({
-        title: 'Failed',
-        message: 'Lesson number and title are required.',
-        color: 'red',
-        icon: <X />,
-      });
-      return;
-    }
-
-    // check for duplicate lesson number
-    const duplicateTest = await testForDuplicateLessonNumber(
-      unitId,
-      number,
-      id,
-    );
-    if (!duplicateTest) {
-      setSubmitLoading(false);
-      showNotification({
-        title: 'Failed',
-        message: 'Lesson number already in used.',
-        color: 'red',
-        icon: <X />,
-      });
-      return;
-    }
-
     const notificationId = uuidv4();
     showNotification({
       id: notificationId,
@@ -306,7 +298,7 @@ export function LessonModal(props: Prop) {
         updateNotification({
           id: notificationId,
           title: 'Success',
-          message: `Lesson ${number}: ${title} created successfully.`,
+          message: `Lesson ${number}: ${title} updated successfully.`,
           color: 'green',
           icon: <Check />,
         });
@@ -412,7 +404,9 @@ export function LessonModal(props: Prop) {
       <Stack className="h-full w-full" spacing={0}>
         <Topbar
           classCode={classCode}
+          unitId={unitId}
           unitNumber={unitNumber}
+          lessonNumber={lessonNumber}
           student={classroom.activeClassRole === ClassRole.Student}
           onClose={onClose}
         />
@@ -502,23 +496,55 @@ export function LessonModal(props: Prop) {
               >
                 <div className="p-4">
                   <Group noWrap spacing={4}>
-                    <TextInput
-                      value={lessonNumber}
-                      size="xl"
-                      placeholder="Lesson number"
-                      onChange={onLessonNumberChange}
-                      readOnly={!isOnEditMode}
-                      required
-                    />
-                    <TextInput
-                      value={title}
+                    <Popover
+                      opened={popoverNumberVisible}
+                      onClose={() => setPopoverNumberVisible(false)}
+                      target={
+                        <TextInput
+                          value={lessonNumber}
+                          size="xl"
+                          placeholder="Lesson number"
+                          onChange={onLessonNumberChange}
+                          readOnly={!isOnEditMode}
+                          required
+                        />
+                      }
+                      position="bottom"
+                      withArrow
+                    >
+                      <Group>
+                        <CircleX color="red" />
+                        <Text color="red" size="sm">
+                          {popoverNumberText}
+                        </Text>
+                      </Group>
+                    </Popover>
+
+                    <Popover
                       className="w-full"
-                      size="xl"
-                      placeholder="Lesson title"
-                      onChange={onTitleChange}
-                      readOnly={!isOnEditMode}
-                      required
-                    />
+                      opened={popoverTitleVisible}
+                      onClose={() => setPopoverTitleVisible(false)}
+                      target={
+                        <TextInput
+                          value={title}
+                          className="w-full"
+                          size="xl"
+                          placeholder="Lesson title"
+                          onChange={onTitleChange}
+                          readOnly={!isOnEditMode}
+                          required
+                        />
+                      }
+                      position="bottom"
+                      withArrow
+                    >
+                      <Group>
+                        <CircleX color="red" />
+                        <Text color="red" size="sm">
+                          Lesson title is required.
+                        </Text>
+                      </Group>
+                    </Popover>
                   </Group>
 
                   <RichTextEditor

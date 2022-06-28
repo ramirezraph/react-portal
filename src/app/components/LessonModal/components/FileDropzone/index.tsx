@@ -1,5 +1,11 @@
 import { Upload, Photo, X, Icon as TablerIcon } from 'tabler-icons-react';
-import { Group, Text, useMantineTheme, MantineTheme } from '@mantine/core';
+import {
+  Group,
+  Text,
+  useMantineTheme,
+  MantineTheme,
+  ActionIcon,
+} from '@mantine/core';
 import {
   DropzoneStatus,
   IMAGE_MIME_TYPE,
@@ -45,7 +51,7 @@ export const dropzoneChildren = (
   <Group
     position="center"
     spacing="xl"
-    style={{ minHeight: 220, pointerEvents: 'none' }}
+    style={{ minHeight: 150, pointerEvents: 'none' }}
   >
     <ImageUploadIcon
       status={status}
@@ -55,7 +61,7 @@ export const dropzoneChildren = (
 
     <div>
       <Text size="xl" inline>
-        Drag images here or click to select files
+        Drag files here or click to select
       </Text>
       <Text size="sm" color="dimmed" inline mt={7}>
         Attach as many files as you like, each file should not exceed 5mb
@@ -69,10 +75,11 @@ interface Prop {
   visible?: boolean;
   className?: string;
   onFileUpload: (files: File[]) => void;
+  onClose: () => void;
 }
 
 export function FileDropzone(props: Prop) {
-  const { fullscreen, visible, className, onFileUpload } = props;
+  const { fullscreen, visible, className, onClose, onFileUpload } = props;
 
   // const {} = props;
   const theme = useMantineTheme();
@@ -99,12 +106,23 @@ export function FileDropzone(props: Prop) {
   }
 
   return (
-    <Dropzone
-      onDrop={onFileUpload}
-      disabled={false}
-      className={`${!visible ? 'hidden' : ''} ${className}`}
-    >
-      {status => dropzoneChildren(status, theme)}
-    </Dropzone>
+    <div className={`relative ${className}`}>
+      <ActionIcon
+        variant="light"
+        radius="xl"
+        size="lg"
+        className="absolute right-3 top-3 z-10"
+        onClick={() => onClose()}
+      >
+        <X />
+      </ActionIcon>
+      <Dropzone
+        onDrop={onFileUpload}
+        disabled={false}
+        className={`${!visible ? 'hidden' : ''}`}
+      >
+        {status => dropzoneChildren(status, theme)}
+      </Dropzone>
+    </div>
   );
 }

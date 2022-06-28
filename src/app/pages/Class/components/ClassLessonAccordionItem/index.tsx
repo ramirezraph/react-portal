@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { lessonFilesColRef } from 'services/firebase';
 import { ChevronDown, ChevronUp } from 'tabler-icons-react';
 import { selectClassroom } from '../../slice/selectors';
-import { ClassRole, Lesson, LessonFile } from '../../slice/types';
+import { ClassRole, Lesson, LessonFile, LessonLink } from '../../slice/types';
 import { ClassAccordionControl } from '../ClassAccordionControl/Loadable';
 import { ClassAccordionHeader } from '../ClassAccordionHeader';
 import parse from 'html-react-parser';
@@ -26,7 +26,7 @@ export function ClassLessonAccordionItem(props: Props) {
   const { lesson, unitId, unitNumber } = props;
 
   const [isOpened, setIsOpened] = React.useState(false);
-  const [files, setFiles] = React.useState<LessonFile[]>([]);
+  const [files, setFiles] = React.useState<(LessonFile | LessonLink)[]>([]);
 
   const { activeClassRole } = useSelector(selectClassroom);
 
@@ -34,6 +34,7 @@ export function ClassLessonAccordionItem(props: Props) {
     if (!isOpened) {
       return;
     }
+
     // fetch files
     console.log('onSnapshot: Lesson Files');
     const q = query(
@@ -42,23 +43,41 @@ export function ClassLessonAccordionItem(props: Props) {
       orderBy('createdAt'),
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
-      const list: LessonFile[] = [];
+      const list: (LessonFile | LessonLink)[] = [];
       const sourceList: string[] = [];
       querySnapshot.forEach(doc => {
         const data = doc.data();
-        const file = {
-          id: doc.id,
-          name: data.name,
-          size: data.size,
-          type: data.type,
-          downloadUrl: data.downloadUrl,
-          lessonId: data.lessonId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          fullPath: data.fullPath,
-        };
-        list.push(file);
-        sourceList.push(file.downloadUrl);
+        let file: LessonFile | LessonLink;
+        if (data.downloadUrl) {
+          file = {
+            kind: 'file',
+            id: doc.id,
+            name: data.name,
+            size: data.size,
+            type: data.type,
+            downloadUrl: data.downloadUrl,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+            fullPath: data.fullPath,
+          };
+          list.push(file);
+          sourceList.push(file.downloadUrl);
+        } else {
+          file = {
+            kind: 'link',
+            id: doc.id,
+            name: data.name,
+            url: data.url,
+            type: data.type,
+            lessonId: data.lessonId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            deletedAt: data.deletedAt,
+          };
+          list.push(file);
+        }
       });
       setFiles(list);
     });
@@ -102,22 +121,43 @@ export function ClassLessonAccordionItem(props: Props) {
           )}
           {files.length > 0 && (
             <Stack className="w-full" spacing="xs">
-              {files.map((file, index) => (
-                <AttachedFile
-                  key={file.id}
-                  id={file.id}
-                  name={file.name}
-                  size={file.size}
-                  type={file.type}
-                  downloadUrl={file.downloadUrl}
-                  lessonId={file.lessonId}
-                  fullPath={file.fullPath}
-                  createdAt={file.createdAt}
-                  updatedAt={file.updatedAt}
-                  viewOnly={activeClassRole !== ClassRole.Teacher}
-                  compact
-                />
-              ))}
+              {files.map((file, index) => {
+                if (file.kind === 'link') {
+                  return (
+                    <AttachedFile
+                      kind="link"
+                      key={file.id}
+                      id={file.id}
+                      url={file.url}
+                      name={file.name}
+                      type={file.type}
+                      lessonId={file.lessonId}
+                      createdAt={file.createdAt}
+                      updatedAt={file.updatedAt}
+                      viewOnly={activeClassRole !== ClassRole.Teacher}
+                      compact
+                    />
+                  );
+                }
+
+                return (
+                  <AttachedFile
+                    kind="file"
+                    key={file.id}
+                    id={file.id}
+                    name={file.name}
+                    size={file.size}
+                    type={file.type}
+                    downloadUrl={file.downloadUrl}
+                    lessonId={file.lessonId}
+                    fullPath={file.fullPath}
+                    createdAt={file.createdAt}
+                    updatedAt={file.updatedAt}
+                    viewOnly={activeClassRole !== ClassRole.Teacher}
+                    compact
+                  />
+                );
+              })}
             </Stack>
           )}
           <Divider className="mt-3" />
