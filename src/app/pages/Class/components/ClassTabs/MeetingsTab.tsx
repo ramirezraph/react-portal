@@ -1,4 +1,14 @@
-import { Text, Button, Group, ActionIcon, Chips, Chip } from '@mantine/core';
+import {
+  Text,
+  Button,
+  Group,
+  ActionIcon,
+  Chips,
+  Chip,
+  Menu,
+  Divider,
+  Switch,
+} from '@mantine/core';
 import { Video, Settings } from 'tabler-icons-react';
 import * as React from 'react';
 import { MeetingItem } from './components/MeetingItem/Loadable';
@@ -45,7 +55,11 @@ export function MeetingsTab(props: Props) {
 
   const { activeClassRole, activeClass } = useSelector(selectClassroom);
   const [meetings, setMeetings] = useState<ClassMeeting[]>([]);
+  const [fileteredMeetings, setFileteredMeetings] = useState<ClassMeeting[]>(
+    [],
+  );
   const [filterValue, setFilterValue] = useState('today');
+  const [isPastMeetingsVisible, setPastMeetingsVisible] = useState(false);
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
@@ -121,6 +135,24 @@ export function MeetingsTab(props: Props) {
     };
   }, [activeClass?.id, filterValue]);
 
+  React.useEffect(() => {
+    if (!activeClass?.id) return;
+
+    if (isPastMeetingsVisible) {
+      setFileteredMeetings(meetings);
+      return;
+    }
+
+    const filterPastMeetings = meetings.filter(
+      item => new Date(item.timeEnd) >= new Date(),
+    );
+    setFileteredMeetings(filterPastMeetings);
+
+    return () => {
+      setFileteredMeetings([]);
+    };
+  }, [activeClass?.id, isPastMeetingsVisible, meetings]);
+
   return (
     <div className="bg-white p-6">
       <CreateMeetingModal
@@ -166,30 +198,48 @@ export function MeetingsTab(props: Props) {
         </Text>
         {activeClassRole === ClassRole.Teacher && (
           <Group className="ml-auto">
-            <ActionIcon variant="hover">
-              <Settings size={28} />
-            </ActionIcon>
+            <Menu
+              size={250}
+              closeOnItemClick={false}
+              closeOnScroll={false}
+              control={
+                <ActionIcon variant="hover">
+                  <Settings size={28} />
+                </ActionIcon>
+              }
+            >
+              <Menu.Label>Filter</Menu.Label>
+              <Menu.Item>
+                <Switch
+                  checked={isPastMeetingsVisible}
+                  onChange={event =>
+                    setPastMeetingsVisible(event.currentTarget.checked)
+                  }
+                  label="Show past meetings"
+                />
+              </Menu.Item>
+            </Menu>
           </Group>
         )}
       </Group>
       <Group>
-        {meetings.length === 0 && filterValue === 'all' && (
+        {fileteredMeetings.length === 0 && filterValue === 'all' && (
           <Text size="sm" className="p-2 italic">
             Wohoo! no meeting on this class.
           </Text>
         )}
-        {meetings.length === 0 && filterValue === 'today' && (
+        {fileteredMeetings.length === 0 && filterValue === 'today' && (
           <Text size="sm" className="p-2 italic">
             Wohoo! no meeting today.
           </Text>
         )}
-        {meetings.length === 0 && filterValue === 'week' && (
+        {fileteredMeetings.length === 0 && filterValue === 'week' && (
           <Text size="sm" className="p-2 italic">
             Wohoo! no meeting this week.
           </Text>
         )}
-        {meetings.length > 0 &&
-          meetings.map((meeting, index) => (
+        {fileteredMeetings.length > 0 &&
+          fileteredMeetings.map((meeting, index) => (
             <MeetingItem
               key={index}
               shouldShowDescription={true}
