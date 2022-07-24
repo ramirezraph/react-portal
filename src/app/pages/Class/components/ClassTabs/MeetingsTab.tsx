@@ -6,7 +6,6 @@ import {
   Chips,
   Chip,
   Menu,
-  Divider,
   Switch,
 } from '@mantine/core';
 import { Video, Settings } from 'tabler-icons-react';
