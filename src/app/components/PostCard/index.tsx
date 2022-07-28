@@ -59,7 +59,11 @@ import { getNameAndPicture } from 'utils/userUtils';
 import parse from 'html-react-parser';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { getClassNameAndCode } from 'utils/classUtils';
+import {
+  canUserComment,
+  getClassNameAndCode,
+  getUserRole,
+} from 'utils/classUtils';
 import _ from 'underscore';
 dayjs.extend(relativeTime);
 
@@ -141,6 +145,7 @@ export function PostCard(props: Prop) {
   const [classTitle, setClassTitle] = React.useState('');
   const [classCode, setClassCode] = React.useState('');
   const [isLiked, setIsLiked] = React.useState(false);
+  const [canComment, setCanComment] = React.useState(true);
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
@@ -414,6 +419,27 @@ export function PostCard(props: Prop) {
     checkIfLiked();
   }, [currentUser?.sub, id]);
 
+  React.useEffect(() => {
+    const getClassPermissions = async () => {
+      if (!currentUser?.sub) return;
+
+      const docRef = doc(db, 'classes', classId);
+      const classDocSnap = await getDoc(docRef);
+      if (!classDocSnap.exists()) {
+        return;
+      }
+
+      const data = classDocSnap.data();
+      const permissions: Map<String, String> = data.permissions;
+      const role = await getUserRole(currentUser.sub, classId);
+      if (!role) return;
+      const canCommentResult = canUserComment(role, permissions);
+      setCanComment(canCommentResult);
+    };
+
+    getClassPermissions();
+  }, [classId, currentUser?.sub]);
+
   return (
     <Card className="mt-3 rounded-md">
       <Group direction="row" noWrap>
@@ -543,21 +569,23 @@ export function PostCard(props: Prop) {
                   />
                 ))}
               </Stack>
-              <Divider />
-              <Group spacing="xs" className="w-full" noWrap>
-                <UserAvatar currentUser radius="xl" size="md" />
-                <Textarea
-                  placeholder="Write a comment"
-                  radius="xl"
-                  className="flex-grow"
-                  autosize
-                  value={newComment}
-                  onChange={onCommentChange}
-                />
-                <ActionIcon onClick={onComment}>
-                  <Send />
-                </ActionIcon>
-              </Group>
+              {canComment && <Divider />}
+              {canComment && (
+                <Group spacing="xs" className="w-full" noWrap>
+                  <UserAvatar currentUser radius="xl" size="md" />
+                  <Textarea
+                    placeholder="Write a comment"
+                    radius="xl"
+                    className="flex-grow"
+                    autosize
+                    value={newComment}
+                    onChange={onCommentChange}
+                  />
+                  <ActionIcon onClick={onComment}>
+                    <Send />
+                  </ActionIcon>
+                </Group>
+              )}
             </Stack>
           </Collapse>
         </Group>

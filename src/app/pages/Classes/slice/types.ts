@@ -16,4 +16,6 @@ export interface Class {
 
   usersList: string[];
   pendingInvites: string[];
+
+  permissions: Map<String, String>;
 }

@@ -97,7 +97,9 @@ export function Main() {
           color: data.color,
           createdAt: data.createdAt && data.createdAt.toDate().toISOString(),
           updatedAt: data.updatedAt && data.updatedAt.toDate().toISOString(),
+          permissions: data.permissions,
         };
+
         classesList.push(newClass);
       });
       dispatch(classesSliceActions.fetchClasses({ classes: classesList }));

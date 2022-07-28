@@ -109,6 +109,37 @@ export function JoinClassCollapseCard(props: Props) {
           return;
         }
 
+        const classInvitePermission: Map<String, String> = data.permissions;
+        if (classInvitePermission['classInvite'] === 'Off') {
+          const failedModal = modals.openModal({
+            title: 'Join failed',
+            centered: true,
+            zIndex: 999,
+            closeOnClickOutside: false,
+            children: (
+              <Stack>
+                <Text>
+                  Class:{' '}
+                  <span className="font-semibold text-primary">
+                    {data.code} - {data.name}
+                  </span>
+                </Text>
+                <Text>
+                  Class invite is currently turned off on this class. If you
+                  think this is a mistake, please refer to your teacher.
+                </Text>
+                <Button
+                  fullWidth
+                  onClick={() => modals.closeModal(failedModal)}
+                >
+                  Ok
+                </Button>
+              </Stack>
+            ),
+          });
+          return;
+        }
+
         openConfirmJoinModal(
           classDoc.id,
           data.code,

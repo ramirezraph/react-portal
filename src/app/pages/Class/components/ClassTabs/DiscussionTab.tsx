@@ -30,6 +30,11 @@ export function DiscussionTab(props: Props) {
   const [posts, setPosts] = React.useState<Post[]>([]);
   const [postModalVisible, setPostModalVisible] = React.useState(false);
   const [postsNeedsUpdate, setPostsNeedsUpdate] = React.useState(true);
+  const [canPost, setCanPost] = React.useState(false);
+
+  React.useEffect(() => {
+    setCanPost(classroom.canPost);
+  }, [classroom.canPost]);
 
   React.useEffect(() => {
     const fetchPosts = async () => {
@@ -78,35 +83,37 @@ export function DiscussionTab(props: Props) {
         onToggle={setPostModalVisible}
         requestForUpdate={setPostsNeedsUpdate}
       />
-      <Card>
-        <Group noWrap className="rounded-md">
-          <UserAvatar currentUser radius="xl" size="md" />
-          <Button
-            variant="filled"
-            className="flex flex-grow items-start bg-gray-100 hover:bg-gray-200"
-            radius="xl"
-            onClick={() => setPostModalVisible(true)}
-          >
-            <Text
-              weight={400}
-              size="md"
-              color="gray"
-              className="w-full text-left"
+      {canPost && (
+        <Card>
+          <Group noWrap className="rounded-md">
+            <UserAvatar currentUser radius="xl" size="md" />
+            <Button
+              variant="filled"
+              className="flex flex-grow items-start bg-gray-100 hover:bg-gray-200"
+              radius="xl"
+              onClick={() => setPostModalVisible(true)}
             >
-              Write something for the class
-            </Text>
-          </Button>
-          <ActionIcon onClick={() => setPostModalVisible(true)}>
-            <Photo />
-          </ActionIcon>
-          <ActionIcon onClick={() => setPostModalVisible(true)}>
-            <File />
-          </ActionIcon>
-          <ActionIcon onClick={() => setPostModalVisible(true)}>
-            <At />
-          </ActionIcon>
-        </Group>
-      </Card>
+              <Text
+                weight={400}
+                size="md"
+                color="gray"
+                className="w-full text-left"
+              >
+                Write something for the class
+              </Text>
+            </Button>
+            <ActionIcon onClick={() => setPostModalVisible(true)}>
+              <Photo />
+            </ActionIcon>
+            <ActionIcon onClick={() => setPostModalVisible(true)}>
+              <File />
+            </ActionIcon>
+            <ActionIcon onClick={() => setPostModalVisible(true)}>
+              <At />
+            </ActionIcon>
+          </Group>
+        </Card>
+      )}
       <div className="mt-4">
         <Group position="apart">
           <Group spacing="xs">
