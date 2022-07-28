@@ -88,8 +88,13 @@ export function SettingsDrawer(props: Props) {
   }, [inviteCode]);
 
   React.useEffect(() => {
-    setPostAndCommentsPermValue(permissions['postAndComment']);
-    setClassInvitePermValue(permissions['classInvite']);
+    if (permissions['postAndComment']) {
+      setPostAndCommentsPermValue(permissions['postAndComment']);
+    }
+
+    if (permissions['classInvite']) {
+      setClassInvitePermValue(permissions['classInvite']);
+    }
   }, [permissions]);
 
   const isClassOwner = React.useMemo(() => {
