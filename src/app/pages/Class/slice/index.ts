@@ -15,6 +15,8 @@ export const initialState: ClassroomState = {
   classworkModalBackground: undefined,
   lessonModalBackground: undefined,
   activeClassRole: undefined,
+  canPost: false,
+  canComment: false,
 };
 
 const slice = createSlice({
@@ -53,6 +55,12 @@ const slice = createSlice({
     },
     setActiveClassRole(state, action: PayloadAction<{ role: ClassRole }>) {
       state.activeClassRole = action.payload.role;
+    },
+    setCanPost(state, action: PayloadAction<{ value: boolean }>) {
+      state.canPost = action.payload.value;
+    },
+    setCanComment(state, action: PayloadAction<{ value: boolean }>) {
+      state.canComment = action.payload.value;
     },
   },
 });

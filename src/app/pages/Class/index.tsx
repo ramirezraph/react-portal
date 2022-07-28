@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
+import { canUserComment, canUserPost } from 'utils/classUtils';
 import { CardColor, ClassCard } from '../../components/ClassCard';
 import { selectClasses } from '../Classes/slice/selectors';
 import { Class as IClass } from '../Classes/slice/types';
@@ -127,6 +128,25 @@ export function Class() {
   React.useEffect(() => {
     setUnitsList(classroom.units);
   }, [classroom]);
+
+  React.useEffect(() => {
+    const canPostResult = canUserPost(
+      classroom?.activeClassRole,
+      classroom.activeClass?.permissions,
+    );
+    const canCommentResult = canUserComment(
+      classroom?.activeClassRole,
+      classroom.activeClass?.permissions,
+    );
+
+    dispatch(classroomActions.setCanPost({ value: canPostResult }));
+    dispatch(classroomActions.setCanComment({ value: canCommentResult }));
+  }, [
+    classroom.activeClass?.permissions,
+    classroom?.activeClassRole,
+    classroomActions,
+    dispatch,
+  ]);
 
   return (
     <>

@@ -376,7 +376,7 @@ export function SettingsDrawer(props: Props) {
                   value={postAndCommentsPermValue}
                   onChange={postAndCommentPermChanged}
                   data={[
-                    'Students can post and comments',
+                    'Students can post and comment',
                     'Students can only comment',
                     'Only teachers can post or comment',
                   ]}
