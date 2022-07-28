@@ -54,7 +54,6 @@ export function SendClassInviteModal(props: Props) {
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [selected, setSelected] = React.useState<SearchResult[]>([]);
   const [inviteLoading, setInviteLoading] = React.useState(false);
-  const [classInviteCode, setClassInviteCode] = React.useState('');
   const [inviteCodeCopied, setInviteCodeCopied] = React.useState(false);
 
   const onSearchTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
