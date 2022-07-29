@@ -38,10 +38,12 @@ import {
   getDoc,
   getDocs,
   increment,
+  limit,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  Unsubscribe,
   updateDoc,
   where,
   writeBatch,
@@ -59,7 +61,11 @@ import { getNameAndPicture } from 'utils/userUtils';
 import parse from 'html-react-parser';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { getClassNameAndCode } from 'utils/classUtils';
+import {
+  canUserComment,
+  getClassNameAndCode,
+  getUserRole,
+} from 'utils/classUtils';
 import _ from 'underscore';
 dayjs.extend(relativeTime);
 
@@ -109,8 +115,9 @@ interface Prop {
   updatedAt: string;
   images: IFile[];
   files: IFile[];
-  requestForUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   showClassInfo?: boolean;
+  onPostChange: (postId: string, updatedPost: {}) => void;
+  onPostDelete: (postId: string) => void;
 }
 
 export function PostCard(props: Prop) {
@@ -123,8 +130,9 @@ export function PostCard(props: Prop) {
     files,
     likes,
     numberOfComments,
-    requestForUpdate,
     showClassInfo,
+    onPostChange,
+    onPostDelete,
   } = props;
 
   const modals = useModals();
@@ -141,6 +149,10 @@ export function PostCard(props: Prop) {
   const [classTitle, setClassTitle] = React.useState('');
   const [classCode, setClassCode] = React.useState('');
   const [isLiked, setIsLiked] = React.useState(false);
+  const [canComment, setCanComment] = React.useState(true);
+  const [hasMoreComments, setHasMoreComments] = React.useState(false);
+  let page_limit = React.useRef(2);
+  let commentsUnsubscribe = React.useRef<Unsubscribe | null>(null);
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
@@ -213,7 +225,7 @@ export function PostCard(props: Prop) {
     return () => {
       setImageList([]);
     };
-  }, [id]);
+  }, [id, numberOfComments]);
 
   React.useEffect(() => {
     if (currentUser?.sub === ownerId) {
@@ -221,17 +233,32 @@ export function PostCard(props: Prop) {
     }
   }, [currentUser?.sub, ownerId, setIsEditable]);
 
-  React.useEffect(() => {
+  const fetchComments = React.useCallback(async () => {
+    console.log(page_limit.current);
+
     if (!currentUser) return;
     if (!isCommentsVisible) return;
+    if (commentsUnsubscribe.current) {
+      // unsubscribe
+      console.log('should unsub');
+      commentsUnsubscribe.current();
+    }
 
     console.log('onSnapshot: comments');
 
     const q = query(
       collection(db, `posts/${id}/comments`),
-      orderBy('createdAt', 'asc'),
+      orderBy('createdAt', 'desc'),
+      limit(page_limit.current),
     );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
+
+    if (page_limit.current < numberOfComments) {
+      setHasMoreComments(true);
+    } else {
+      setHasMoreComments(false);
+    }
+
+    commentsUnsubscribe.current = onSnapshot(q, querySnapshot => {
       const list: IComment[] = [];
       querySnapshot.forEach(commentDoc => {
         const data = commentDoc.data();
@@ -246,15 +273,18 @@ export function PostCard(props: Prop) {
         };
         list.push(obj);
       });
-      setComments(list);
+      setComments(list.reverse());
     });
+  }, [currentUser, id, isCommentsVisible, numberOfComments]);
 
-    return () => {
-      console.log('onSnapshot: comments - unsubscribe');
-      unsubscribe();
-      setComments([]);
-    };
-  }, [currentUser, currentUser?.sub, id, isCommentsVisible]);
+  React.useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  const viewMoreComments = () => {
+    page_limit.current = page_limit.current + 4;
+    fetchComments();
+  };
 
   const onEdit = () => {};
 
@@ -292,7 +322,7 @@ export function PostCard(props: Prop) {
       });
       await deleteDoc(doc(db, 'posts', id));
       if (imageList.length === 0) {
-        requestForUpdate(true);
+        onPostDelete(id);
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -306,7 +336,7 @@ export function PostCard(props: Prop) {
         const fileStorageRef = ref(storage, item.fullPath);
         await deleteObject(fileStorageRef);
         await deleteDoc(doc(db, 'post-files', item.id));
-        requestForUpdate(true);
+        onPostDelete(id);
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -348,7 +378,7 @@ export function PostCard(props: Prop) {
       await updateDoc(postDocRef, {
         numberOfComments: increment(1),
       });
-
+      onPostChange(id, { numberOfComments: numberOfComments + 1 });
       // reset
       setNewComment('');
     } catch (e) {
@@ -377,7 +407,7 @@ export function PostCard(props: Prop) {
     });
     await batches.commit();
 
-    requestForUpdate(true);
+    onPostChange(id, { likes: likes + 1 });
     setIsLiked(true);
   };
   const like = _.debounce(onLikePost, 500, true);
@@ -394,7 +424,7 @@ export function PostCard(props: Prop) {
     });
     await batches.commit();
     setIsLiked(false);
-    requestForUpdate(true);
+    onPostChange(id, { likes: likes - 1 });
   };
   const unlike = _.debounce(onUnlikePost, 500, true);
 
@@ -413,6 +443,27 @@ export function PostCard(props: Prop) {
 
     checkIfLiked();
   }, [currentUser?.sub, id]);
+
+  React.useEffect(() => {
+    const getClassPermissions = async () => {
+      if (!currentUser?.sub) return;
+
+      const docRef = doc(db, 'classes', classId);
+      const classDocSnap = await getDoc(docRef);
+      if (!classDocSnap.exists()) {
+        return;
+      }
+
+      const data = classDocSnap.data();
+      const permissions: Map<String, String> = data.permissions;
+      const role = await getUserRole(currentUser.sub, classId);
+      if (!role) return;
+      const canCommentResult = canUserComment(role, permissions);
+      setCanComment(canCommentResult);
+    };
+
+    getClassPermissions();
+  }, [classId, currentUser?.sub]);
 
   return (
     <Card className="mt-3 rounded-md">
@@ -520,17 +571,20 @@ export function PostCard(props: Prop) {
           </Group>
           <Collapse in={isCommentsVisible} className="w-full">
             <Stack className="w-full">
-              <Button
-                variant="subtle"
-                color="dark"
-                size="xs"
-                compact
-                className="w-fit"
-              >
-                <Text size="sm" weight="bold">
-                  View more comments
-                </Text>
-              </Button>
+              {hasMoreComments && (
+                <Button
+                  variant="subtle"
+                  color="dark"
+                  size="xs"
+                  compact
+                  className="w-fit"
+                  onClick={viewMoreComments}
+                >
+                  <Text size="sm" weight="bold">
+                    View more comments
+                  </Text>
+                </Button>
+              )}
               <Stack spacing="xs">
                 {comments.map(comment => (
                   <Comment
@@ -543,21 +597,23 @@ export function PostCard(props: Prop) {
                   />
                 ))}
               </Stack>
-              <Divider />
-              <Group spacing="xs" className="w-full" noWrap>
-                <UserAvatar currentUser radius="xl" size="md" />
-                <Textarea
-                  placeholder="Write a comment"
-                  radius="xl"
-                  className="flex-grow"
-                  autosize
-                  value={newComment}
-                  onChange={onCommentChange}
-                />
-                <ActionIcon onClick={onComment}>
-                  <Send />
-                </ActionIcon>
-              </Group>
+              {canComment && <Divider />}
+              {canComment && (
+                <Group spacing="xs" className="w-full" noWrap>
+                  <UserAvatar currentUser radius="xl" size="md" />
+                  <Textarea
+                    placeholder="Write a comment"
+                    radius="xl"
+                    className="flex-grow"
+                    autosize
+                    value={newComment}
+                    onChange={onCommentChange}
+                  />
+                  <ActionIcon onClick={onComment}>
+                    <Send />
+                  </ActionIcon>
+                </Group>
+              )}
             </Stack>
           </Collapse>
         </Group>

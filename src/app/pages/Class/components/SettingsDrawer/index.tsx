@@ -55,6 +55,7 @@ interface Props {
   classShortDescription: string;
   ownerId: string;
   inviteCode: string;
+  permissions: Map<String, String>;
 }
 
 export function SettingsDrawer(props: Props) {
@@ -67,6 +68,7 @@ export function SettingsDrawer(props: Props) {
     classShortDescription,
     ownerId,
     inviteCode,
+    permissions,
   } = props;
 
   const modals = useModals();
@@ -74,15 +76,26 @@ export function SettingsDrawer(props: Props) {
 
   const { currentUser } = useSelector(selectUser);
   const { activeClassRole } = useSelector(selectClassroom);
-
   const [classInviteCode, setClassInviteCode] = React.useState('');
   const [generateCodeLoading, setGenerateCodeLoading] = React.useState(false);
-
   const [qrCodeImageUrl, setQrCodeImageUrl] = React.useState('');
+  const [postAndCommentsPermValue, setPostAndCommentsPermValue] =
+    React.useState('');
+  const [classInvitePermValue, setClassInvitePermValue] = React.useState('');
 
   React.useEffect(() => {
     setClassInviteCode(inviteCode);
   }, [inviteCode]);
+
+  React.useEffect(() => {
+    if (permissions['postAndComment']) {
+      setPostAndCommentsPermValue(permissions['postAndComment']);
+    }
+
+    if (permissions['classInvite']) {
+      setClassInvitePermValue(permissions['classInvite']);
+    }
+  }, [permissions]);
 
   const isClassOwner = React.useMemo(() => {
     if (currentUser?.sub) {
@@ -233,6 +246,27 @@ export function SettingsDrawer(props: Props) {
     generateQrCode();
   }, [classInviteCode]);
 
+  const postAndCommentPermChanged = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setPostAndCommentsPermValue(event.currentTarget.value);
+
+    const classDocRef = doc(db, 'classes', id);
+    updateDoc(classDocRef, {
+      'permissions.postAndComment': event.currentTarget.value,
+    });
+  };
+  const classInvitePermChanged = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setClassInvitePermValue(event.currentTarget.value);
+
+    const classDocRef = doc(db, 'classes', id);
+    updateDoc(classDocRef, {
+      'permissions.classInvite': event.currentTarget.value,
+    });
+  };
+
   return (
     <Drawer
       opened={visible}
@@ -339,8 +373,10 @@ export function SettingsDrawer(props: Props) {
                   Permissions
                 </Text>
                 <NativeSelect
+                  value={postAndCommentsPermValue}
+                  onChange={postAndCommentPermChanged}
                   data={[
-                    'Students can post and comments',
+                    'Students can post and comment',
                     'Students can only comment',
                     'Only teachers can post or comment',
                   ]}
@@ -356,7 +392,9 @@ export function SettingsDrawer(props: Props) {
                   description="Set who can post and comment"
                 />
                 <NativeSelect
-                  data={['Turn on', 'Turn off']}
+                  value={classInvitePermValue}
+                  onChange={classInvitePermChanged}
+                  data={['On', 'Off']}
                   placeholder="Pick one"
                   label={
                     <Group spacing="sm">

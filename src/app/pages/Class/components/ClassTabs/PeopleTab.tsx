@@ -55,6 +55,8 @@ export function PeopleTab(props: Props) {
   const [teachers, setTeachers] = useState<People[]>([]);
   const [students, setStudents] = useState<People[]>([]);
 
+  const [invitePermValue, setInvitePermValue] = useState('Off');
+
   React.useEffect(() => {
     if (!activeClass?.id) return;
 
@@ -109,6 +111,12 @@ export function PeopleTab(props: Props) {
     };
   }, [activeClass?.id]);
 
+  React.useEffect(() => {
+    if (activeClass?.permissions['classInvite']) {
+      setInvitePermValue(activeClass.permissions['classInvite']);
+    }
+  }, [activeClass]);
+
   return (
     <div className="bg-white p-6">
       <PendingInvitesModal
@@ -129,6 +137,7 @@ export function PeopleTab(props: Props) {
             leftIcon={<UserPlus size={19} />}
             variant="filled"
             size="md"
+            disabled={invitePermValue === 'Off'}
           >
             <Text weight={400} size="sm">
               Send Invite

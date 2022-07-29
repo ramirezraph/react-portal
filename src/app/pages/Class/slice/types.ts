@@ -10,6 +10,8 @@ export interface ClassroomState {
   classworkModalBackground: Location | undefined;
   lessonModalBackground: Location | undefined;
   activeClassRole: ClassRole | undefined;
+  canPost: boolean;
+  canComment: boolean;
 }
 
 export enum ClassRole {

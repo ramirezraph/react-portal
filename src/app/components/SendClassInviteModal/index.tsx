@@ -54,6 +54,7 @@ export function SendClassInviteModal(props: Props) {
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [selected, setSelected] = React.useState<SearchResult[]>([]);
   const [inviteLoading, setInviteLoading] = React.useState(false);
+  const [inviteCodeCopied, setInviteCodeCopied] = React.useState(false);
 
   const onSearchTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTextValue(event.target.value);
@@ -226,9 +227,29 @@ export function SendClassInviteModal(props: Props) {
         <Text size="xl" weight={600}>
           Send Invite
         </Text>
-        <Button variant="default" onClick={() => onToggle(false)}>
-          Close
-        </Button>
+        <Group>
+          <Button
+            variant="light"
+            color={inviteCodeCopied ? 'green' : 'primary'}
+            leftIcon={inviteCodeCopied ? <Check size={18} /> : null}
+            onClick={() => {
+              if (activeClass?.inviteCode) {
+                navigator.clipboard.writeText(activeClass.inviteCode);
+
+                navigator.clipboard.readText().then(clipText => {
+                  if (clipText) {
+                    setInviteCodeCopied(true);
+                  }
+                });
+              }
+            }}
+          >
+            Copy Invite Code
+          </Button>
+          <Button variant="default" onClick={() => onToggle(false)}>
+            Close
+          </Button>
+        </Group>
       </Group>
       <Divider my="sm" />
       <Stack className="mt-6">

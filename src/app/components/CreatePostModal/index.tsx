@@ -20,16 +20,16 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
-import { IFile } from '../PostCard';
+import { IFile, Post } from '../PostCard';
 
 interface Props {
   visible: boolean;
   onToggle: React.Dispatch<React.SetStateAction<boolean>>;
-  requestForUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+  onPostCreate: (newPost: Post) => void;
 }
 
 export function CreatePostModal(props: Props) {
-  const { visible, onToggle, requestForUpdate } = props;
+  const { visible, onToggle, onPostCreate } = props;
 
   const classroom = useSelector(selectClassroom);
 
@@ -75,6 +75,7 @@ export function CreatePostModal(props: Props) {
 
   const onSubmitPost = async () => {
     if (!user) return;
+    if (!user.sub) return;
     if (!classroom.activeClass) return;
 
     setLoading(true);
@@ -104,7 +105,15 @@ export function CreatePostModal(props: Props) {
       onToggle(false);
 
       if (images.length === 0) {
-        requestForUpdate(true);
+        const localPostObj: Post = {
+          id: newPostDoc.id,
+          ...newPost,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          images: [],
+          files: [],
+        };
+        onPostCreate(localPostObj);
         onToggle(false);
 
         updateNotification({
@@ -119,6 +128,7 @@ export function CreatePostModal(props: Props) {
         return;
       }
 
+      const postImages: IFile[] = [];
       for (const image of images) {
         const storageRef = ref(
           storage,
@@ -131,7 +141,7 @@ export function CreatePostModal(props: Props) {
           ref(storage, fileData.fullPath),
         );
 
-        await addDoc(postFilesColRef, {
+        const imageObj = {
           name: image.file.name,
           type: image.file.type,
           size: image.file.size,
@@ -141,10 +151,28 @@ export function CreatePostModal(props: Props) {
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           deletedAt: null,
-        });
+        };
+
+        const newDoc = await addDoc(postFilesColRef, imageObj);
+
+        const localPostObj = {
+          id: newDoc.id,
+          ...imageObj,
+          createdAt: imageObj.createdAt.toDate().toISOString(),
+          updatedAt: imageObj.updatedAt.toDate().toISOString(),
+        };
+        postImages.push(localPostObj);
       }
 
-      requestForUpdate(true);
+      const post: Post = {
+        id: newPostDoc.id,
+        ...newPost,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        images: postImages,
+        files: [],
+      };
+      onPostCreate(post);
 
       updateNotification({
         id: notificationId,

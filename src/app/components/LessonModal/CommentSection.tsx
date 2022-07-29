@@ -29,6 +29,7 @@ import { selectUser } from 'store/userSlice/selectors';
 import { Send, X } from 'tabler-icons-react';
 import { UserAvatar } from '../UserAvatar/Loadable';
 import { Comment } from '../Comment';
+import { selectClassroom } from 'app/pages/Class/slice/selectors';
 
 export interface IComment {
   id: string;
@@ -48,11 +49,12 @@ export function CommentSection(props: Props) {
   const { lessonId } = props;
 
   const { currentUser } = useSelector(selectUser);
-  // const { activeClassRole } = useSelector(selectClassroom);
+  const { canComment: canCommentPerm } = useSelector(selectClassroom);
 
   const [newComment, setNewComment] = React.useState('');
   const [sendCommentLoading, setSendCommentLoading] = React.useState(false);
   const [comments, setComments] = React.useState<IComment[]>([]);
+  const [canComment, setCanComment] = React.useState(false);
 
   React.useEffect(() => {
     if (!currentUser) return;
@@ -87,6 +89,10 @@ export function CommentSection(props: Props) {
       setComments([]);
     };
   }, [currentUser, currentUser?.sub, lessonId]);
+
+  React.useEffect(() => {
+    setCanComment(canCommentPerm);
+  }, [canCommentPerm]);
 
   const onCommentChange = (text: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewComment(text.target.value);
@@ -164,24 +170,26 @@ export function CommentSection(props: Props) {
                 </Card>
               ))}
             </Stack>
-            <Group
-              spacing="xs"
-              className="absolute bottom-0 w-full bg-white p-4"
-              noWrap
-            >
-              <UserAvatar currentUser radius="xl" size="md" />
-              <Textarea
-                placeholder="Write a comment"
-                radius="xl"
-                className="flex-grow"
-                autosize
-                value={newComment}
-                onChange={onCommentChange}
-              />
-              <ActionIcon onClick={onComment} loading={sendCommentLoading}>
-                <Send />
-              </ActionIcon>
-            </Group>
+            {canComment && (
+              <Group
+                spacing="xs"
+                className="absolute bottom-0 w-full bg-white p-4"
+                noWrap
+              >
+                <UserAvatar currentUser radius="xl" size="md" />
+                <Textarea
+                  placeholder="Write a comment"
+                  radius="xl"
+                  className="flex-grow"
+                  autosize
+                  value={newComment}
+                  onChange={onCommentChange}
+                />
+                <ActionIcon onClick={onComment} loading={sendCommentLoading}>
+                  <Send />
+                </ActionIcon>
+              </Group>
+            )}
           </ScrollArea>
         </Card.Section>
       )}
