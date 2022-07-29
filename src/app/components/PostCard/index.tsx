@@ -38,10 +38,12 @@ import {
   getDoc,
   getDocs,
   increment,
+  limit,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  Unsubscribe,
   updateDoc,
   where,
   writeBatch,
@@ -148,6 +150,9 @@ export function PostCard(props: Prop) {
   const [classCode, setClassCode] = React.useState('');
   const [isLiked, setIsLiked] = React.useState(false);
   const [canComment, setCanComment] = React.useState(true);
+  const [hasMoreComments, setHasMoreComments] = React.useState(false);
+  let page_limit = React.useRef(2);
+  let commentsUnsubscribe = React.useRef<Unsubscribe | null>(null);
 
   React.useEffect(() => {
     const getOwnerInfo = async () => {
@@ -220,7 +225,7 @@ export function PostCard(props: Prop) {
     return () => {
       setImageList([]);
     };
-  }, [id]);
+  }, [id, numberOfComments]);
 
   React.useEffect(() => {
     if (currentUser?.sub === ownerId) {
@@ -228,17 +233,32 @@ export function PostCard(props: Prop) {
     }
   }, [currentUser?.sub, ownerId, setIsEditable]);
 
-  React.useEffect(() => {
+  const fetchComments = React.useCallback(async () => {
+    console.log(page_limit.current);
+
     if (!currentUser) return;
     if (!isCommentsVisible) return;
+    if (commentsUnsubscribe.current) {
+      // unsubscribe
+      console.log('should unsub');
+      commentsUnsubscribe.current();
+    }
 
     console.log('onSnapshot: comments');
 
     const q = query(
       collection(db, `posts/${id}/comments`),
-      orderBy('createdAt', 'asc'),
+      orderBy('createdAt', 'desc'),
+      limit(page_limit.current),
     );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
+
+    if (page_limit.current < numberOfComments) {
+      setHasMoreComments(true);
+    } else {
+      setHasMoreComments(false);
+    }
+
+    commentsUnsubscribe.current = onSnapshot(q, querySnapshot => {
       const list: IComment[] = [];
       querySnapshot.forEach(commentDoc => {
         const data = commentDoc.data();
@@ -253,15 +273,18 @@ export function PostCard(props: Prop) {
         };
         list.push(obj);
       });
-      setComments(list);
+      setComments(list.reverse());
     });
+  }, [currentUser, id, isCommentsVisible, numberOfComments]);
 
-    return () => {
-      console.log('onSnapshot: comments - unsubscribe');
-      unsubscribe();
-      setComments([]);
-    };
-  }, [currentUser, currentUser?.sub, id, isCommentsVisible]);
+  React.useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  const viewMoreComments = () => {
+    page_limit.current = page_limit.current + 4;
+    fetchComments();
+  };
 
   const onEdit = () => {};
 
@@ -548,17 +571,20 @@ export function PostCard(props: Prop) {
           </Group>
           <Collapse in={isCommentsVisible} className="w-full">
             <Stack className="w-full">
-              <Button
-                variant="subtle"
-                color="dark"
-                size="xs"
-                compact
-                className="w-fit"
-              >
-                <Text size="sm" weight="bold">
-                  View more comments
-                </Text>
-              </Button>
+              {hasMoreComments && (
+                <Button
+                  variant="subtle"
+                  color="dark"
+                  size="xs"
+                  compact
+                  className="w-fit"
+                  onClick={viewMoreComments}
+                >
+                  <Text size="sm" weight="bold">
+                    View more comments
+                  </Text>
+                </Button>
+              )}
               <Stack spacing="xs">
                 {comments.map(comment => (
                   <Comment

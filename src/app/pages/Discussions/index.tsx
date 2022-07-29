@@ -91,10 +91,6 @@ export function Discussions() {
     setPosts(current => current.filter(obj => obj.id !== postId));
   };
 
-  const onPostCreated = (newPost: Post) => {
-    setPosts([newPost, ...posts]);
-  };
-
   const onSeeMorePosts = async () => {
     if (!postsDocSnapshot.current) return;
     if (hasNoMorePosts) return;
