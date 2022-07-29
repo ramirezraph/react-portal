@@ -39,9 +39,8 @@ export function DiscussionTab(props: Props) {
 
   const [posts, setPosts] = React.useState<Post[]>([]);
   const [postModalVisible, setPostModalVisible] = React.useState(false);
-  const [postsNeedsUpdate, setPostsNeedsUpdate] = React.useState(true);
+  const [hasNoMorePosts, setHasNoMorePosts] = React.useState(false);
   const [canPost, setCanPost] = React.useState(false);
-  let page_limit = React.useRef(2);
   let lastVisible = React.useRef<QueryDocumentSnapshot<DocumentData> | null>(
     null,
   );
@@ -55,7 +54,6 @@ export function DiscussionTab(props: Props) {
     console.log('callback runs');
 
     if (!classroom.activeClass) return;
-    if (!postsNeedsUpdate) return;
 
     // fetch posts with pagination
     const first = query(
@@ -67,8 +65,7 @@ export function DiscussionTab(props: Props) {
     );
     postsDocSnapshot.current = await getDocs(first);
     populatePosts(postsDocSnapshot.current);
-    setPostsNeedsUpdate(false);
-  }, [classroom.activeClass, postsNeedsUpdate]);
+  }, [classroom.activeClass]);
 
   const populatePosts = (snapshot: QuerySnapshot<DocumentData>) => {
     const list: Post[] = [];
@@ -93,14 +90,20 @@ export function DiscussionTab(props: Props) {
 
   React.useEffect(() => {
     fetchPosts();
-  }, [postsNeedsUpdate, classroom.activeClass, fetchPosts, page_limit]);
+  }, [classroom.activeClass, fetchPosts]);
 
   const onSeeMorePosts = async () => {
     if (!postsDocSnapshot.current) return;
     if (!classroom.activeClass) return;
+    if (hasNoMorePosts) return;
 
     lastVisible.current =
       postsDocSnapshot.current.docs[postsDocSnapshot.current.docs.length - 1];
+
+    if (!lastVisible.current) {
+      setHasNoMorePosts(true);
+      return;
+    }
 
     const next = query(
       postsColRef,
@@ -111,6 +114,11 @@ export function DiscussionTab(props: Props) {
       limit(2),
     );
     postsDocSnapshot.current = await getDocs(next);
+    if (postsDocSnapshot.current.empty) {
+      setHasNoMorePosts(true);
+      return;
+    }
+
     populatePosts(postsDocSnapshot.current);
   };
 
@@ -217,8 +225,9 @@ export function DiscussionTab(props: Props) {
               color="dark"
               variant="subtle"
               onClick={() => onSeeMorePosts()}
+              disabled={hasNoMorePosts}
             >
-              See more
+              {hasNoMorePosts ? 'No more posts to show' : 'See more'}
             </Button>
           </Center>
         )}
