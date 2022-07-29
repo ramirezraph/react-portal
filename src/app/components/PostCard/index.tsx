@@ -234,13 +234,10 @@ export function PostCard(props: Prop) {
   }, [currentUser?.sub, ownerId, setIsEditable]);
 
   const fetchComments = React.useCallback(async () => {
-    console.log(page_limit.current);
-
     if (!currentUser) return;
     if (!isCommentsVisible) return;
     if (commentsUnsubscribe.current) {
       // unsubscribe
-      console.log('should unsub');
       commentsUnsubscribe.current();
     }
 

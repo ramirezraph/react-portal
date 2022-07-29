@@ -51,8 +51,6 @@ export function DiscussionTab(props: Props) {
   }, [classroom.canPost]);
 
   const fetchPosts = React.useCallback(async () => {
-    console.log('callback runs');
-
     if (!classroom.activeClass) return;
 
     // fetch posts with pagination
