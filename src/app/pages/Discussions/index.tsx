@@ -120,7 +120,7 @@ export function Discussions() {
             </Text>
           </div>
         )}
-        {posts.length > 0 &&
+        {/* {posts.length > 0 &&
           posts.map(post => (
             <PostCard
               key={post.id}
@@ -134,10 +134,10 @@ export function Discussions() {
               updatedAt={post.updatedAt}
               images={post.images || []}
               files={post.files || []}
-              requestForUpdate={setPostsNeedsUpdate}
+              // requestForUpdate={setPostsNeedsUpdate}
               showClassInfo
             />
-          ))}
+          ))} */}
       </PageContainer>
     </>
   );

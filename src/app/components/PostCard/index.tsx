@@ -113,8 +113,9 @@ interface Prop {
   updatedAt: string;
   images: IFile[];
   files: IFile[];
-  requestForUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   showClassInfo?: boolean;
+  onPostChange: (postId: string, updatedPost: {}) => void;
+  onPostDelete: (postId: string) => void;
 }
 
 export function PostCard(props: Prop) {
@@ -127,8 +128,9 @@ export function PostCard(props: Prop) {
     files,
     likes,
     numberOfComments,
-    requestForUpdate,
     showClassInfo,
+    onPostChange,
+    onPostDelete,
   } = props;
 
   const modals = useModals();
@@ -297,7 +299,7 @@ export function PostCard(props: Prop) {
       });
       await deleteDoc(doc(db, 'posts', id));
       if (imageList.length === 0) {
-        requestForUpdate(true);
+        onPostDelete(id);
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -311,7 +313,7 @@ export function PostCard(props: Prop) {
         const fileStorageRef = ref(storage, item.fullPath);
         await deleteObject(fileStorageRef);
         await deleteDoc(doc(db, 'post-files', item.id));
-        requestForUpdate(true);
+        onPostDelete(id);
         updateNotification({
           id: notificationId,
           title: 'Success',
@@ -353,7 +355,7 @@ export function PostCard(props: Prop) {
       await updateDoc(postDocRef, {
         numberOfComments: increment(1),
       });
-
+      onPostChange(id, { numberOfComments: numberOfComments + 1 });
       // reset
       setNewComment('');
     } catch (e) {
@@ -382,7 +384,7 @@ export function PostCard(props: Prop) {
     });
     await batches.commit();
 
-    requestForUpdate(true);
+    onPostChange(id, { likes: likes + 1 });
     setIsLiked(true);
   };
   const like = _.debounce(onLikePost, 500, true);
@@ -399,7 +401,7 @@ export function PostCard(props: Prop) {
     });
     await batches.commit();
     setIsLiked(false);
-    requestForUpdate(true);
+    onPostChange(id, { likes: likes - 1 });
   };
   const unlike = _.debounce(onUnlikePost, 500, true);
 
