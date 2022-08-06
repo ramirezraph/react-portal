@@ -2,7 +2,7 @@ import { Group } from '@mantine/core';
 import { NavButton } from 'app/components/Navbar/components/navButton';
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Message, Notes, Users, Video } from 'tabler-icons-react';
+import { Message, Users, Video } from 'tabler-icons-react';
 
 interface Props {
   // someProps: string
@@ -26,12 +26,19 @@ export function ClassTabs(props: Props) {
           text="Discussions"
           icon={<Message size={21} />}
         />
-        <NavButton
+        {/* <NavButton
           centered
           smallText
           to="classwork"
           text="Classwork"
           icon={<Notes size={21} />}
+        /> */}
+        <NavButton
+          centered
+          smallText
+          to="meetings"
+          text="Meetings"
+          icon={<Video size={21} />}
         />
         <NavButton
           centered
@@ -39,13 +46,6 @@ export function ClassTabs(props: Props) {
           to="people"
           text="People"
           icon={<Users size={21} />}
-        />
-        <NavButton
-          centered
-          smallText
-          to="meetings"
-          text="Meetings"
-          icon={<Video size={21} />}
         />
       </Group>
       <Outlet />

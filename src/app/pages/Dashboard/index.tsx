@@ -5,7 +5,6 @@ import { Helmet } from 'react-helmet-async';
 import { CalendarToday } from './components/CalendarToday/Loadable';
 import { ClassMeetings } from './components/ClassMeetings';
 import { Stats } from './components/Stats/Loadable';
-import { Todos } from './components/Todos/Loadable';
 
 export function Dashboard() {
   return (
@@ -25,7 +24,7 @@ export function Dashboard() {
               Dashboard
             </Text>
             <Stats />
-            <Todos />
+            {/* <Todos /> */}
             <ClassMeetings />
           </Stack>
           <div className="flex h-full w-1/3 flex-col bg-white p-6">

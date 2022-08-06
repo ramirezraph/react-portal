@@ -1,14 +1,9 @@
 import * as React from 'react';
-import { Button, Group, Text } from '@mantine/core';
-import { EyeOff } from 'tabler-icons-react';
+import { Group, Text } from '@mantine/core';
 import FullCalendar from '@fullcalendar/react';
-
 import timeGridPlugin from '@fullcalendar/timegrid';
-
 import '@fullcalendar/daygrid/main.css';
-
 import './custom-fullcalendar.css';
-
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
@@ -110,14 +105,14 @@ export function CalendarToday(props: Props) {
         <Text size="xl" className="font-semibold">
           Calendar
         </Text>
-        <Button
+        {/* <Button
           size="sm"
           leftIcon={<EyeOff size={16} />}
           color={'gray'}
           variant="subtle"
         >
           Hide
-        </Button>
+        </Button> */}
       </Group>
       <div className="flex-1">
         <FullCalendar

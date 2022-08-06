@@ -16,7 +16,7 @@ export function Stats(props: Props) {
   return (
     <Group className="mt-6 drop-shadow-md">
       <StatsItem title="Class" value={numberOFClasses} color="bg-violet-500" />
-      <StatsItem title="Todo" value={4} color="bg-pink-500" />
+      <StatsItem title="Meetings today" value={4} color="bg-pink-500" />
     </Group>
   );
 }

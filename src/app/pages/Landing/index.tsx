@@ -24,10 +24,10 @@ export function Landing() {
               welcome to
             </Text>
             <Text className="select-none text-6xl font-semibold leading-normal">
-              DPVMHS Portal
+              Student Portal
             </Text>
             <Text className="select-none text-xl leading-loose text-gray-600">
-              Dr. Pablito V. Mendoza Sr. High School
+              At vero eos et accusamus et iusto odio dignissimos.
             </Text>
             <Button
               className="mt-24 w-fit rounded-sm bg-primary py-2 px-24 text-white"

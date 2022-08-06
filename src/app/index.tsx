@@ -25,11 +25,9 @@ import { Dashboard } from './pages/Dashboard/Loadable';
 import { Discussions } from './pages/Discussions/Loadable';
 import { Classes } from './pages/Classes/Loadable';
 import { Class } from './pages/Class/Loadable';
-import { Grades } from './pages/Grades/Loadable';
 import { Calendar } from './pages/Calendar/Loadable';
 import {
   DiscussionTab,
-  ClassworkTab,
   PeopleTab,
   MeetingsTab,
 } from './pages/Class/components/ClassTabs/Loadable';
@@ -68,7 +66,7 @@ export function App() {
   return (
     <>
       <Helmet
-        titleTemplate="%s - DPVMSHS Portal"
+        titleTemplate="%s | Student Portal"
         defaultTitle="DPVMSHS Portal"
         htmlAttributes={{ lang: i18n.language }}
       >
@@ -87,11 +85,11 @@ export function App() {
               element={<Navigate to="discussions" replace={true} />}
             />
             <Route path="discussions" element={<DiscussionTab />} />
-            <Route path="classwork" element={<ClassworkTab />} />
+            {/* <Route path="classwork" element={<ClassworkTab />} /> */}
             <Route path="people" element={<PeopleTab />} />
             <Route path="meetings" element={<MeetingsTab />} />
           </Route>
-          <Route path="/grades" element={<Grades />} />
+          {/* <Route path="/grades" element={<Grades />} /> */}
           <Route path="/calendar" element={<Calendar />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

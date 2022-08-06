@@ -92,7 +92,7 @@ export function AppHeader(props: Props) {
           />
         </MediaQuery>
         <Group position="apart" className="w-full">
-          <Text weight="bold">DPVMHS Portal</Text>
+          <Text weight="bold">Student Portal</Text>
           <Group spacing={'xl'}>
             <ActionIcon
               className="text-white hover:bg-transparent hover:text-secondary"
