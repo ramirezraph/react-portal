@@ -357,9 +357,9 @@ export function SettingsDrawer(props: Props) {
                       Leave this class
                     </Button>
                   )}
-                  {isClassOwner && (
+                  {/* {isClassOwner && (
                     <Button color="cyan">Pass Class Ownership</Button>
-                  )}
+                  )} */}
                 </Group>
               </Stack>
             </form>

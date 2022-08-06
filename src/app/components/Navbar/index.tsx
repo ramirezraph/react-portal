@@ -1,13 +1,6 @@
 import * as React from 'react';
 import { Divider, Group, Navbar, Text } from '@mantine/core';
-import {
-  Book,
-  Calendar,
-  ChartArrowsVertical,
-  Home,
-  Message,
-  Users,
-} from 'tabler-icons-react';
+import { Book, Calendar, Home, Message, Users } from 'tabler-icons-react';
 import { NavButton } from './components/navButton';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'store/userSlice/selectors';
@@ -67,7 +60,7 @@ export function AppNavbar(props: Props) {
         <NavButton to="/" text="Dashboard" icon={<Home />} />
         <NavButton to="/discussions" text="Discussions" icon={<Message />} />
         <NavButton to="/classes" text="Classes" icon={<Users />} />
-        <NavButton to="/grades" text="Grades" icon={<ChartArrowsVertical />} />
+        {/* <NavButton to="/grades" text="Grades" icon={<ChartArrowsVertical />} /> */}
         <NavButton to="/calendar" text="Calendar" icon={<Calendar />} />
         <Divider
           variant="solid"
