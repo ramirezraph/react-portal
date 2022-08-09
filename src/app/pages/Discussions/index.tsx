@@ -17,7 +17,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSelector } from 'react-redux';
 import { postsColRef } from 'services/firebase';
-import { Adjustments, Search, Settings } from 'tabler-icons-react';
+import { Book, Books, Search } from 'tabler-icons-react';
 import { selectClasses } from '../Classes/slice/selectors';
 
 export function Discussions() {
@@ -25,6 +25,10 @@ export function Discussions() {
 
   const [posts, setPosts] = React.useState<Post[]>([]);
   const [hasNoMorePosts, setHasNoMorePosts] = React.useState(false);
+  const [filterValue, setFilterValue] = React.useState<{
+    classCode: string;
+    classId: string;
+  } | null>(null);
 
   let lastVisible = React.useRef<QueryDocumentSnapshot<DocumentData> | null>(
     null,
@@ -35,17 +39,26 @@ export function Discussions() {
     return classes.map(x => x.id);
   }, [classes]);
 
+  const getClassCodes = React.useMemo(() => {
+    return classes.map(x => {
+      return {
+        classCode: x.code,
+        classId: x.id,
+      };
+    });
+  }, [classes]);
+
   const fetchPosts = React.useCallback(async () => {
     if (getClassesIds.length === 0) return;
 
-    // fetch posts with pagination
-    const first = query(
+    let first = query(
       postsColRef,
       where('classId', 'in', getClassesIds),
       orderBy('updatedAt', 'desc'),
       orderBy('createdAt', 'desc'),
       limit(4),
     );
+    // fetch posts with pagination
     postsDocSnapshot.current = await getDocs(first);
     populatePosts(postsDocSnapshot.current);
   }, [getClassesIds]);
@@ -129,48 +142,58 @@ export function Discussions() {
         <Text weight="bold" className="pt-6">
           Discussions
         </Text>
-        <Group spacing={'xs'}>
+        <Group spacing={'xs'} className="mt-6">
           <Menu
-            className="pt-6"
             control={
               <Button
-                leftIcon={<Adjustments size={19} color="gray" />}
+                leftIcon={
+                  filterValue === null ? (
+                    <Books size={19} color="gray" />
+                  ) : (
+                    <Book size={19} color="gray" />
+                  )
+                }
                 color="gray"
                 variant="default"
                 size="md"
               >
                 <Text size="sm" weight={400} color="black">
-                  All Classes
+                  {filterValue ? filterValue.classCode : 'All classes'}
                 </Text>
               </Button>
             }
           >
-            <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
-          </Menu>
-          <Menu
-            className="pt-6"
-            control={
-              <Button
-                leftIcon={<Adjustments size={19} color="gray" />}
-                color="gray"
-                variant="default"
-                size="md"
-              >
-                <Text size="sm" weight={400} color="black">
-                  Newest
-                </Text>
-              </Button>
-            }
-          >
-            <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
+            <Menu.Label>Filter</Menu.Label>
+            <Menu.Item
+              onClick={() => setFilterValue(null)}
+              icon={<Books size={19} color="gray" />}
+            >
+              All classes
+            </Menu.Item>
+            {getClassCodes.map(item => {
+              return (
+                <Menu.Item
+                  key={item.classId}
+                  icon={<Book size={19} color="gray" />}
+                  onClick={() => setFilterValue(item)}
+                >
+                  {item.classCode}
+                </Menu.Item>
+              );
+            })}
           </Menu>
           <TextInput
-            className="flex-grow pt-6"
+            className="w-2/5"
             placeholder="Search"
             size="md"
             required
             icon={<Search size={20} />}
           />
+          <Button color="gray" variant="default" size="md">
+            <Text size="sm" weight={400} color="black">
+              Search
+            </Text>
+          </Button>
         </Group>
 
         {posts.length === 0 && (
