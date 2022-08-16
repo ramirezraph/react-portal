@@ -22,15 +22,13 @@ import { selectClasses } from '../Classes/slice/selectors';
 
 export function Discussions() {
   const { classes } = useSelector(selectClasses);
-
   const [posts, setPosts] = React.useState<Post[]>([]);
-  const [filteredPosts, setFilteredPosts] = React.useState<Post[]>([]);
-  const [searchedPosts, setSearchedPosts] = React.useState<Post[]>([]);
   const [hasNoMorePosts, setHasNoMorePosts] = React.useState(false);
   const [filterValue, setFilterValue] = React.useState<{
     classCode: string;
     classId: string;
   } | null>(null);
+  const [searchTextValue, setSearchTextValue] = React.useState('');
 
   let lastVisible = React.useRef<QueryDocumentSnapshot<DocumentData> | null>(
     null,
@@ -106,7 +104,12 @@ export function Discussions() {
   };
 
   React.useEffect(() => {
-    fetchPosts();
+    const fetch = () => {
+      setHasNoMorePosts(false);
+      fetchPosts();
+    };
+
+    fetch();
   }, [fetchPosts, getClassesIds, filterValue]);
 
   const onPostChanged = (postId: string, changes: {}) => {
@@ -126,8 +129,6 @@ export function Discussions() {
   };
 
   const onSeeMorePosts = React.useCallback(async () => {
-    console.log('see more post callback runs');
-
     if (!postsDocSnapshot.current) return;
     if (hasNoMorePosts) return;
 
@@ -166,7 +167,7 @@ export function Discussions() {
     }
 
     populatePosts(postsDocSnapshot.current);
-  }, [getClassesIds, filterValue]);
+  }, [getClassesIds, filterValue, hasNoMorePosts]);
 
   const renderPostItems = () => {
     if (posts.length === 0) {
@@ -177,27 +178,6 @@ export function Discussions() {
           </Text>
         </div>
       );
-    }
-
-    if (filteredPosts.length > 0) {
-      return filteredPosts.map(post => (
-        <PostCard
-          key={post.id}
-          classId={post.classId}
-          id={post.id}
-          ownerId={post.ownerId}
-          content={post.content}
-          numberOfComments={post.numberOfComments}
-          likes={post.likes}
-          createdAt={post.createdAt}
-          updatedAt={post.updatedAt}
-          images={post.images || []}
-          files={post.files || []}
-          onPostChange={onPostChanged}
-          onPostDelete={onPostDeleted}
-          showClassInfo
-        />
-      ));
     }
 
     return posts.map(post => (
@@ -270,6 +250,8 @@ export function Discussions() {
             })}
           </Menu>
           <TextInput
+            value={searchTextValue}
+            onChange={e => setSearchTextValue(e.target.value)}
             className="w-2/5"
             placeholder="Search"
             size="md"
