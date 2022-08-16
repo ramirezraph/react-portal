@@ -24,6 +24,8 @@ export function Discussions() {
   const { classes } = useSelector(selectClasses);
 
   const [posts, setPosts] = React.useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = React.useState<Post[]>([]);
+  const [searchedPosts, setSearchedPosts] = React.useState<Post[]>([]);
   const [hasNoMorePosts, setHasNoMorePosts] = React.useState(false);
   const [filterValue, setFilterValue] = React.useState<{
     classCode: string;
@@ -58,12 +60,25 @@ export function Discussions() {
       orderBy('createdAt', 'desc'),
       limit(4),
     );
-    // fetch posts with pagination
-    postsDocSnapshot.current = await getDocs(first);
-    populatePosts(postsDocSnapshot.current);
-  }, [getClassesIds]);
 
-  const populatePosts = (snapshot: QuerySnapshot<DocumentData>) => {
+    if (filterValue) {
+      first = query(
+        postsColRef,
+        where('classId', '==', filterValue.classId),
+        orderBy('updatedAt', 'desc'),
+        orderBy('createdAt', 'desc'),
+        limit(4),
+      );
+    }
+
+    postsDocSnapshot.current = await getDocs(first);
+    populatePosts(postsDocSnapshot.current, true);
+  }, [getClassesIds, filterValue]);
+
+  const populatePosts = (
+    snapshot: QuerySnapshot<DocumentData>,
+    clear?: boolean,
+  ) => {
     const list: Post[] = [];
     snapshot.forEach(postDoc => {
       const data = postDoc.data();
@@ -81,12 +96,18 @@ export function Discussions() {
       };
       list.push(post);
     });
+
+    if (clear) {
+      setPosts(list);
+      return;
+    }
+
     setPosts(prev => prev.concat(list));
   };
 
   React.useEffect(() => {
     fetchPosts();
-  }, [fetchPosts, getClassesIds]);
+  }, [fetchPosts, getClassesIds, filterValue]);
 
   const onPostChanged = (postId: string, changes: {}) => {
     setPosts(current =>
@@ -104,7 +125,9 @@ export function Discussions() {
     setPosts(current => current.filter(obj => obj.id !== postId));
   };
 
-  const onSeeMorePosts = async () => {
+  const onSeeMorePosts = React.useCallback(async () => {
+    console.log('see more post callback runs');
+
     if (!postsDocSnapshot.current) return;
     if (hasNoMorePosts) return;
 
@@ -116,7 +139,7 @@ export function Discussions() {
       return;
     }
 
-    const next = query(
+    let next = query(
       postsColRef,
       where('classId', 'in', getClassesIds),
       orderBy('updatedAt', 'desc'),
@@ -124,6 +147,18 @@ export function Discussions() {
       startAfter(lastVisible.current),
       limit(3),
     );
+
+    if (filterValue) {
+      next = query(
+        postsColRef,
+        where('classId', '==', filterValue.classId),
+        orderBy('updatedAt', 'desc'),
+        orderBy('createdAt', 'desc'),
+        startAfter(lastVisible.current),
+        limit(3),
+      );
+    }
+
     postsDocSnapshot.current = await getDocs(next);
     if (postsDocSnapshot.current.empty) {
       setHasNoMorePosts(true);
@@ -131,6 +166,58 @@ export function Discussions() {
     }
 
     populatePosts(postsDocSnapshot.current);
+  }, [getClassesIds, filterValue]);
+
+  const renderPostItems = () => {
+    if (posts.length === 0) {
+      return (
+        <div className="p-6">
+          <Text size="sm" color="gray">
+            No discussions yet.
+          </Text>
+        </div>
+      );
+    }
+
+    if (filteredPosts.length > 0) {
+      return filteredPosts.map(post => (
+        <PostCard
+          key={post.id}
+          classId={post.classId}
+          id={post.id}
+          ownerId={post.ownerId}
+          content={post.content}
+          numberOfComments={post.numberOfComments}
+          likes={post.likes}
+          createdAt={post.createdAt}
+          updatedAt={post.updatedAt}
+          images={post.images || []}
+          files={post.files || []}
+          onPostChange={onPostChanged}
+          onPostDelete={onPostDeleted}
+          showClassInfo
+        />
+      ));
+    }
+
+    return posts.map(post => (
+      <PostCard
+        key={post.id}
+        classId={post.classId}
+        id={post.id}
+        ownerId={post.ownerId}
+        content={post.content}
+        numberOfComments={post.numberOfComments}
+        likes={post.likes}
+        createdAt={post.createdAt}
+        updatedAt={post.updatedAt}
+        images={post.images || []}
+        files={post.files || []}
+        onPostChange={onPostChanged}
+        onPostDelete={onPostDeleted}
+        showClassInfo
+      />
+    ));
   };
 
   return (
@@ -196,32 +283,8 @@ export function Discussions() {
           </Button>
         </Group>
 
-        {posts.length === 0 && (
-          <div className="p-6">
-            <Text size="sm" color="gray">
-              No discussions yet.
-            </Text>
-          </div>
-        )}
-        {posts.length > 0 &&
-          posts.map(post => (
-            <PostCard
-              key={post.id}
-              classId={post.classId}
-              id={post.id}
-              ownerId={post.ownerId}
-              content={post.content}
-              numberOfComments={post.numberOfComments}
-              likes={post.likes}
-              createdAt={post.createdAt}
-              updatedAt={post.updatedAt}
-              images={post.images || []}
-              files={post.files || []}
-              onPostChange={onPostChanged}
-              onPostDelete={onPostDeleted}
-              showClassInfo
-            />
-          ))}
+        {renderPostItems()}
+
         {posts.length > 0 && (
           <Center className="mt-3">
             <Button
