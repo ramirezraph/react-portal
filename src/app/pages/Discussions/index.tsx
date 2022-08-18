@@ -48,30 +48,52 @@ export function Discussions() {
     });
   }, [classes]);
 
-  const fetchPosts = React.useCallback(async () => {
-    if (getClassesIds.length === 0) return;
+  const fetchPosts = React.useCallback(
+    async (searchText?: string) => {
+      if (getClassesIds.length === 0) return;
 
-    let first = query(
-      postsColRef,
-      where('classId', 'in', getClassesIds),
-      orderBy('updatedAt', 'desc'),
-      orderBy('createdAt', 'desc'),
-      limit(4),
-    );
-
-    if (filterValue) {
-      first = query(
-        postsColRef,
-        where('classId', '==', filterValue.classId),
+      const orderByParam = [
         orderBy('updatedAt', 'desc'),
         orderBy('createdAt', 'desc'),
-        limit(4),
-      );
-    }
+      ];
 
-    postsDocSnapshot.current = await getDocs(first);
-    populatePosts(postsDocSnapshot.current, true);
-  }, [getClassesIds, filterValue]);
+      const limitParam = [limit(4)];
+
+      let first = query(
+        postsColRef,
+        where('classId', 'in', getClassesIds),
+        ...limitParam,
+        ...orderByParam,
+      );
+      if (filterValue) {
+        first = query(
+          postsColRef,
+          where('classId', '==', filterValue.classId),
+          ...limitParam,
+          ...orderByParam,
+        );
+      }
+      if (searchText) {
+        // NOT WORKING
+        // Recommends to use Algolia
+        let searchParams = [
+          where('content', '>=', searchText),
+          where('content', '<=', searchText + '\uf8ff'),
+        ];
+
+        first = query(
+          postsColRef,
+          where('classId', 'in', getClassesIds),
+          ...searchParams,
+          ...limitParam,
+        );
+      }
+
+      postsDocSnapshot.current = await getDocs(first);
+      populatePosts(postsDocSnapshot.current, true);
+    },
+    [getClassesIds, filterValue],
+  );
 
   const populatePosts = (
     snapshot: QuerySnapshot<DocumentData>,
@@ -169,12 +191,16 @@ export function Discussions() {
     populatePosts(postsDocSnapshot.current);
   }, [getClassesIds, filterValue, hasNoMorePosts]);
 
+  const onSearch = () => {
+    fetchPosts(searchTextValue);
+  };
+
   const renderPostItems = () => {
     if (posts.length === 0) {
       return (
         <div className="p-6">
           <Text size="sm" color="gray">
-            No discussions yet.
+            No post found.
           </Text>
         </div>
       );
@@ -258,7 +284,7 @@ export function Discussions() {
             required
             icon={<Search size={20} />}
           />
-          <Button color="gray" variant="default" size="md">
+          <Button color="gray" variant="default" size="md" onClick={onSearch}>
             <Text size="sm" weight={400} color="black">
               Search
             </Text>
