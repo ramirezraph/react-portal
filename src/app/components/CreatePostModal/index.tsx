@@ -38,6 +38,7 @@ export function CreatePostModal(props: Props) {
   const [imageDropzoneVisible, setImageDropzoneVisible] = React.useState(false);
   const [temporaryImages, setTemporaryImages] = React.useState<IFile[]>([]);
   const [images, setImages] = React.useState<{ id: string; file: File }[]>([]);
+  const [btnEnabled, setBtnEnabled] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
   const onImageDropReject = () => {};
@@ -198,6 +199,20 @@ export function CreatePostModal(props: Props) {
     }
   };
 
+  React.useEffect(() => {
+    const regex = /(<([^>]+)>)/gi;
+    const hasText = !!value.replace(regex, '').length;
+
+    console.log(images.length, hasText);
+
+    if (hasText || images.length > 0) {
+      setBtnEnabled(true);
+      return;
+    }
+
+    setBtnEnabled(false);
+  }, [images, value]);
+
   const resetForm = () => {
     onChange('');
     setImageDropzoneVisible(false);
@@ -274,6 +289,7 @@ export function CreatePostModal(props: Props) {
           size="md"
           className="mt-3 w-full"
           onClick={() => onSubmitPost()}
+          disabled={!btnEnabled}
         >
           POST
         </Button>
