@@ -21,7 +21,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { ChevronDown, InfoCircle } from 'tabler-icons-react';
+import { Book, Books, ChevronDown, InfoCircle } from 'tabler-icons-react';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -30,6 +30,10 @@ dayjs.extend(relativeTime);
 export function ClassMeetings() {
   const [allMeetings, setAllMeetings] = React.useState<ClassMeeting[]>([]);
   const [filterValue, setFilterValue] = React.useState('today');
+  const [classFilterValue, setClassFilterValue] = React.useState<{
+    classCode: string;
+    classId: string;
+  } | null>(null);
 
   const { classes } = useSelector(selectClasses);
 
@@ -37,46 +41,45 @@ export function ClassMeetings() {
     return classes.map(x => x.id);
   }, [classes]);
 
+  const getClassCodes = React.useMemo(() => {
+    return classes.map(x => {
+      return {
+        classCode: x.code,
+        classId: x.id,
+      };
+    });
+  }, [classes]);
+
   React.useEffect(() => {
     if (getClassesIds.length <= 0) return;
 
     console.log('onSnapshot: all meetings');
+
+    const dayOrWeek = filterValue === 'day' ? 'day' : 'week';
+    let start = dayjs().startOf(dayOrWeek).toDate();
+    let end = dayjs().endOf(dayOrWeek).toDate();
+    const startOfDay = Timestamp.fromDate(start);
+    const endOfDay = Timestamp.fromDate(end);
+
+    const orderByParam = [orderBy('date', 'asc'), orderBy('timeStart', 'asc')];
+    const whereStartEndParam = [
+      where('date', '>=', startOfDay),
+      where('date', '<=', endOfDay),
+    ];
+
     let q = query(
       meetingsColRef,
       where('classId', 'in', getClassesIds),
-      orderBy('date', 'asc'),
-      orderBy('timeStart', 'asc'),
+      ...whereStartEndParam,
+      ...orderByParam,
     );
 
-    if (filterValue === 'today') {
-      let start = dayjs().startOf('day').toDate();
-      let end = dayjs().endOf('day').toDate();
-
-      const startOfDay = Timestamp.fromDate(start);
-      const endOfDay = Timestamp.fromDate(end);
-
+    if (classFilterValue) {
       q = query(
         meetingsColRef,
-        where('classId', 'in', getClassesIds),
-        where('date', '>=', startOfDay),
-        where('date', '<=', endOfDay),
-        orderBy('date', 'asc'),
-        orderBy('timeStart', 'asc'),
-      );
-    } else if (filterValue === 'week') {
-      let start = dayjs().startOf('week').toDate();
-      let end = dayjs().endOf('week').toDate();
-
-      const startOfDay = Timestamp.fromDate(start);
-      const endOfDay = Timestamp.fromDate(end);
-
-      q = query(
-        meetingsColRef,
-        where('classId', 'in', getClassesIds),
-        where('date', '>=', startOfDay),
-        where('date', '<=', endOfDay),
-        orderBy('date', 'asc'),
-        orderBy('timeStart', 'asc'),
+        where('classId', '==', classFilterValue.classId),
+        ...whereStartEndParam,
+        ...orderByParam,
       );
     }
 
@@ -107,7 +110,7 @@ export function ClassMeetings() {
       console.log('onSnapshot: all meetings - unsubscribe');
       unsubscribe();
     };
-  }, [filterValue, getClassesIds]);
+  }, [getClassesIds, filterValue, classFilterValue]);
 
   return (
     <Stack spacing="sm">
@@ -129,7 +132,7 @@ export function ClassMeetings() {
           spacing={5}
           size="sm"
         >
-          <Chip value="today">Today</Chip>
+          <Chip value="day">Today</Chip>
           <Chip value="week">This Week</Chip>
         </Chips>
         <Menu
@@ -141,13 +144,29 @@ export function ClassMeetings() {
               rightIcon={<ChevronDown size={20} />}
             >
               <Text size="sm" weight={'normal'}>
-                Filter by Class
+                {classFilterValue ? classFilterValue.classCode : 'All classes'}
               </Text>
             </Button>
           }
         >
-          <Menu.Item>CPE 403</Menu.Item>
-          <Menu.Item>CPE 401</Menu.Item>
+          <Menu.Label>Filter</Menu.Label>
+          <Menu.Item
+            onClick={() => setClassFilterValue(null)}
+            icon={<Books size={19} color="gray" />}
+          >
+            All classes
+          </Menu.Item>
+          {getClassCodes.map(item => {
+            return (
+              <Menu.Item
+                key={item.classId}
+                icon={<Book size={19} color="gray" />}
+                onClick={() => setClassFilterValue(item)}
+              >
+                {item.classCode}
+              </Menu.Item>
+            );
+          })}
         </Menu>
       </Group>
 
