@@ -8,7 +8,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { meetingsColRef } from 'services/firebase';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectClasses } from 'app/pages/Classes/slice/selectors';
 import { MeetingItem } from 'app/pages/Class/components/ClassTabs/components/MeetingItem/Loadable';
 import {
@@ -25,17 +25,20 @@ import { Book, Books, ChevronDown, InfoCircle } from 'tabler-icons-react';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDashboardSlice } from '../../slice';
 dayjs.extend(relativeTime);
 
 export function ClassMeetings() {
   const [allMeetings, setAllMeetings] = React.useState<ClassMeeting[]>([]);
-  const [filterValue, setFilterValue] = React.useState('today');
+  const [filterValue, setFilterValue] = React.useState('day');
   const [classFilterValue, setClassFilterValue] = React.useState<{
     classCode: string;
     classId: string;
   } | null>(null);
 
   const { classes } = useSelector(selectClasses);
+  const { actions } = useDashboardSlice();
+  const dispatch = useDispatch();
 
   const getClassesIds = React.useMemo(() => {
     return classes.map(x => x.id);
@@ -104,13 +107,17 @@ export function ClassMeetings() {
         meetings.push(meeting);
       });
       setAllMeetings(meetings);
+
+      if (filterValue === 'day' && !classFilterValue) {
+        dispatch(actions.setNumberOfTodaysMeetings({ to: meetings.length }));
+      }
     });
 
     return () => {
       console.log('onSnapshot: all meetings - unsubscribe');
       unsubscribe();
     };
-  }, [getClassesIds, filterValue, classFilterValue]);
+  }, [getClassesIds, filterValue, classFilterValue, actions, dispatch]);
 
   return (
     <Stack spacing="sm">
