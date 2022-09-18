@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Group, Text } from '@mantine/core';
+import { createStyles, Group, Text } from '@mantine/core';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import '@fullcalendar/daygrid/main.css';
@@ -27,9 +27,16 @@ interface CalendarEvent {
   end: string;
 }
 
+const useStyles = createStyles(theme => ({
+  calendar: {
+    minHeight: 400,
+  },
+}));
+
 interface Props {}
 
 export function CalendarToday(props: Props) {
+  const { classes: styles } = useStyles();
   const { classes } = useSelector(selectClasses);
 
   const [allMeetings, setAllMeetings] = React.useState<ClassMeeting[]>([]);
@@ -114,7 +121,7 @@ export function CalendarToday(props: Props) {
           Hide
         </Button> */}
       </Group>
-      <div className="flex-1">
+      <div className={`flex-1 ${styles.calendar}`}>
         <FullCalendar
           height={'100%'}
           plugins={[timeGridPlugin]}

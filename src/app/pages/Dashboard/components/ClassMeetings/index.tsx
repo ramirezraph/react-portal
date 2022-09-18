@@ -120,16 +120,51 @@ export function ClassMeetings() {
   }, [getClassesIds, filterValue, classFilterValue, actions, dispatch]);
 
   return (
-    <Stack spacing="sm">
+    <Stack spacing="sm" className="w-full">
       <Group>
-        <Text size="lg" className="-mr-2">
-          Class Meetings
-        </Text>
-        <ActionIcon>
-          <InfoCircle size={16} />
-        </ActionIcon>
+        <Group>
+          <Text size="lg" className="-mr-2">
+            Class Meetings
+          </Text>
+          <ActionIcon>
+            <InfoCircle size={16} />
+          </ActionIcon>
+        </Group>
+        <Menu
+          className="ml-auto xl:hidden"
+          control={
+            <Button
+              variant="subtle"
+              color="dark"
+              rightIcon={<ChevronDown size={20} />}
+            >
+              <Text size="sm" weight={'normal'}>
+                {classFilterValue ? classFilterValue.classCode : 'All classes'}
+              </Text>
+            </Button>
+          }
+        >
+          <Menu.Label>Filter</Menu.Label>
+          <Menu.Item
+            onClick={() => setClassFilterValue(null)}
+            icon={<Books size={19} color="gray" />}
+          >
+            All classes
+          </Menu.Item>
+          {getClassCodes.map(item => {
+            return (
+              <Menu.Item
+                key={item.classId}
+                icon={<Book size={19} color="gray" />}
+                onClick={() => setClassFilterValue(item)}
+              >
+                {item.classCode}
+              </Menu.Item>
+            );
+          })}
+        </Menu>
       </Group>
-      <Group position="apart">
+      <Group position="apart" noWrap>
         <Chips
           value={filterValue}
           onChange={setFilterValue}
@@ -143,7 +178,7 @@ export function ClassMeetings() {
           <Chip value="week">This Week</Chip>
         </Chips>
         <Menu
-          className="ml-auto"
+          className="ml-auto hidden xl:block"
           control={
             <Button
               variant="subtle"
@@ -178,7 +213,7 @@ export function ClassMeetings() {
       </Group>
 
       <Stack className="w-full drop-shadow-md">
-        {allMeetings.length === 0 && filterValue === 'today' && (
+        {allMeetings.length === 0 && filterValue === 'day' && (
           <Text size="sm" className="p-2 italic">
             You have no meeting for today!
           </Text>
