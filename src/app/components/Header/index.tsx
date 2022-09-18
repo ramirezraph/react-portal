@@ -23,14 +23,14 @@ import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from 'services/firebase';
 
 interface Props {
-  opened: boolean;
-  burgerOnClick: React.Dispatch<React.SetStateAction<boolean>>;
+  navbarVisible: boolean;
+  setNavbarVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function AppHeader(props: Props) {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const { opened, burgerOnClick } = props;
+  const { navbarVisible, setNavbarVisible } = props;
   const { logout } = useAuth0();
 
   const { currentUser } = useSelector(selectUser);
@@ -84,8 +84,8 @@ export function AppHeader(props: Props) {
       <div className="flex h-full items-center">
         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
           <Burger
-            opened={opened}
-            onClick={() => burgerOnClick(o => !o)}
+            opened={navbarVisible}
+            onClick={() => setNavbarVisible(o => !o)}
             size="sm"
             color={theme.colors.gray[6]}
             mr="xl"

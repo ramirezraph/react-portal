@@ -131,7 +131,7 @@ export function ClassMeetings() {
           </ActionIcon>
         </Group>
         <Menu
-          className="ml-auto xl:hidden"
+          className="ml-auto md:hidden"
           control={
             <Button
               variant="subtle"
@@ -178,7 +178,7 @@ export function ClassMeetings() {
           <Chip value="week">This Week</Chip>
         </Chips>
         <Menu
-          className="ml-auto hidden xl:block"
+          className="ml-auto hidden md:block"
           control={
             <Button
               variant="subtle"

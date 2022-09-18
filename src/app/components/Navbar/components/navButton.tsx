@@ -10,13 +10,14 @@ interface Props {
   className?: string;
   centered?: boolean;
   smallText?: boolean;
+  onClick?: () => void;
 }
 
 export function NavButton(props: Props) {
-  const { icon, to, text, className, centered, smallText } = props;
+  const { icon, to, text, className, centered, smallText, onClick } = props;
 
   return (
-    <UnstyledButton className="w-full py-1">
+    <UnstyledButton className="w-full py-1" onClick={onClick}>
       <NavLink
         className={({ isActive }) =>
           ` no-underline ${
