@@ -78,17 +78,21 @@ export function PopoverNotification(props: Prop) {
           />
         </Indicator>
       }
-      width={400}
       position="top"
       placement="end"
       gutter={30}
       withArrow
-      styles={{
+      styles={theme => ({
         inner: {
           overflowY: 'auto',
           maxHeight: 600,
+          width: 400,
+
+          [`@media (max-width: ${theme.breakpoints.md}px)`]: {
+            width: 300,
+          },
         },
-      }}
+      })}
     >
       <Group position="apart">
         <Text>Earlier</Text>

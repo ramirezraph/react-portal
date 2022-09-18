@@ -91,8 +91,10 @@ export function AppHeader(props: Props) {
             mr="xl"
           />
         </MediaQuery>
-        <Group position="apart" className="w-full">
-          <Text weight="bold">Student Portal</Text>
+        <Group className="w-full justify-end md:justify-between">
+          <Text className="hidden md:inline" weight="bold">
+            Student Portal
+          </Text>
           <Group spacing={'xl'}>
             <ActionIcon
               className="text-white hover:bg-transparent hover:text-secondary"
