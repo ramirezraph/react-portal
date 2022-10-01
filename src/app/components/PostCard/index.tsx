@@ -469,10 +469,16 @@ export function PostCard(props: Prop) {
           src={ownerPicture}
           color={'primary'}
           radius="xl"
-          className="self-start"
+          className="hidden self-start md:inline"
         />
         <Group direction="column" className="flex-grow" noWrap>
           <Group direction="row" position="apart" className="w-full" noWrap>
+            <Avatar
+              src={ownerPicture}
+              color={'primary'}
+              radius="xl"
+              className="self-center md:hidden"
+            />
             <div className="flex-grow">
               <Text className="font-semibold">{ownerFullname}</Text>
               <Text color={'gray'} size="xs">

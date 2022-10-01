@@ -279,7 +279,7 @@ export function Discussions() {
             <TextInput
               value={searchTextValue}
               onChange={e => setSearchTextValue(e.target.value)}
-              className="xl:w-2/5"
+              className="w-full xl:w-2/5"
               placeholder="Search"
               size="md"
               required
