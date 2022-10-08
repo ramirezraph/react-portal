@@ -2,6 +2,7 @@ import { PageContainer } from 'app/components/PageContainer/Loadable';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
+  ActionIcon,
   Button,
   Group,
   LoadingOverlay,
@@ -10,6 +11,7 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  useMantineTheme,
 } from '@mantine/core';
 import {
   Calendar,
@@ -46,6 +48,7 @@ import { ClassRole } from '../Class/slice/types';
 import { useModals } from '@mantine/modals';
 import { v4 as uuidv4 } from 'uuid';
 import { showNotification, updateNotification } from '@mantine/notifications';
+import { useMediaQuery } from '@mantine/hooks';
 
 export function Classes() {
   const navigate = useNavigate();
@@ -65,6 +68,9 @@ export function Classes() {
   React.useEffect(() => {
     setClasses(classesSlice.classes);
   }, [classesSlice]);
+
+  const theme = useMantineTheme();
+  const isTablet = useMediaQuery(`(min-width: ${theme.breakpoints.md}px)`);
 
   const onCaptureResult = async (classKey: string) => {
     if (!currentUser?.sub) return;
@@ -271,59 +277,105 @@ export function Classes() {
         <Text className="text-lg" weight={'bold'}>
           Classes
         </Text>
-        <Group spacing={'xs'} className="mt-3">
-          <Button
-            leftIcon={<Calendar size={19} color="gray" />}
-            color="gray"
-            variant="default"
-            size="md"
-            onClick={() => navigate('/calendar')}
-          >
-            <Text size="sm" weight={400} color="black">
-              Calendar
-            </Text>
-          </Button>
-          <Menu
-            size="lg"
-            control={
-              <Button
-                leftIcon={<Link size={19} color="gray" />}
-                color="gray"
-                variant="default"
-                size="md"
+        {isTablet ? (
+          <Group spacing={'xs'} className="mt-3 hidden md:flex">
+            <Button
+              leftIcon={<Calendar size={19} color="gray" />}
+              color="gray"
+              variant="default"
+              size="md"
+              onClick={() => navigate('/calendar')}
+            >
+              <Text size="sm" weight={400} color="black">
+                Calendar
+              </Text>
+            </Button>
+            <Menu
+              size="lg"
+              control={
+                <Button
+                  leftIcon={<Link size={19} color="gray" />}
+                  color="gray"
+                  variant="default"
+                  size="md"
+                >
+                  <Text size="sm" weight={400} color="black">
+                    Join class
+                  </Text>
+                </Button>
+              }
+            >
+              <Menu.Label>How would you like to join?</Menu.Label>
+              <Menu.Item
+                icon={<ShieldLock size={18} />}
+                onClick={() => setJoinClassVisible(o => !o)}
               >
-                <Text size="sm" weight={400} color="black">
-                  Join class
-                </Text>
-              </Button>
-            }
-          >
-            <Menu.Label>How would you like to join?</Menu.Label>
-            <Menu.Item
-              icon={<ShieldLock size={18} />}
-              onClick={() => setJoinClassVisible(o => !o)}
+                Enter a class key
+              </Menu.Item>
+              <Menu.Item
+                icon={<Qrcode size={18} />}
+                onClick={() => setModalScanQrCodeVisible(o => !o)}
+              >
+                Scan a QR Code
+              </Menu.Item>
+            </Menu>
+            <Button
+              leftIcon={<Plus size={19} color="gray" />}
+              color="gray"
+              variant="default"
+              size="md"
+              onClick={() => setCreateClassVisible(true)}
             >
-              Enter a class key
-            </Menu.Item>
-            <Menu.Item
-              icon={<Qrcode size={18} />}
-              onClick={() => setModalScanQrCodeVisible(o => !o)}
+              <Text size="sm" weight={400} color="black">
+                Create class
+              </Text>
+            </Button>
+          </Group>
+        ) : (
+          <Group spacing="md" className="mt-3 md:hidden">
+            <ActionIcon
+              color="gray"
+              variant="outline"
+              size={'xl'}
+              onClick={() => navigate('/calendar')}
             >
-              Scan a QR Code
-            </Menu.Item>
-          </Menu>
-          <Button
-            leftIcon={<Plus size={19} color="gray" />}
-            color="gray"
-            variant="default"
-            size="md"
-            onClick={() => setCreateClassVisible(true)}
-          >
-            <Text size="sm" weight={400} color="black">
-              Create class
-            </Text>
-          </Button>
-        </Group>
+              <Calendar size={24} color="gray" />
+            </ActionIcon>
+            <Menu
+              size="lg"
+              control={
+                <ActionIcon color="gray" variant="outline" size={'xl'}>
+                  <Link size={24} color="gray" />
+                </ActionIcon>
+              }
+            >
+              <Menu.Label className="px-3 pt-3 font-semibold text-gray-700">
+                Join a class
+              </Menu.Label>
+              <Menu.Label>How would you like to join?</Menu.Label>
+              <Menu.Item
+                icon={<ShieldLock size={18} />}
+                onClick={() => setJoinClassVisible(o => !o)}
+              >
+                Enter a class key
+              </Menu.Item>
+              <Menu.Item
+                icon={<Qrcode size={18} />}
+                onClick={() => setModalScanQrCodeVisible(o => !o)}
+              >
+                Scan a QR Code
+              </Menu.Item>
+            </Menu>
+            <ActionIcon
+              color="gray"
+              variant="outline"
+              size={'xl'}
+              onClick={() => setCreateClassVisible(true)}
+            >
+              <Plus size={24} color="gray" />
+            </ActionIcon>
+          </Group>
+        )}
         <JoinClassCollapseCard
           visible={joinClassVisible}
           onToggle={setJoinClassVisible}
