@@ -79,7 +79,7 @@ export function AppHeader(props: Props) {
   }, [currentUser]);
 
   return (
-    <Header height={50} className="bg-zinc-800 text-white sm:px-6" p="md">
+    <Header height={50} className="bg-zinc-800 p-4 text-white md:px-6">
       {/* Handle other responsive styles with MediaQuery component or createStyles function */}
       <div className="flex h-full items-center">
         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
@@ -89,6 +89,7 @@ export function AppHeader(props: Props) {
             size="sm"
             color={theme.colors.gray[6]}
             mr="xl"
+            className="-ml-1"
           />
         </MediaQuery>
         <Group className="w-full justify-end md:justify-between">

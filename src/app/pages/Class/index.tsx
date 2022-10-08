@@ -204,7 +204,7 @@ export function Class() {
                   />
                 </Skeleton>
                 <Skeleton visible={loading} className="w-full">
-                  <Box className="w-full rounded-md bg-white p-6">
+                  <Box className="w-full rounded-md bg-white p-4 md:p-6">
                     <Text size="sm" weight={'bold'}>
                       Class materials
                     </Text>
