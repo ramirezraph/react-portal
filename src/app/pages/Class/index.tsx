@@ -1,4 +1,12 @@
-import { Box, Button, Group, Skeleton, Text } from '@mantine/core';
+import {
+  Box,
+  Button,
+  Group,
+  Skeleton,
+  Text,
+  useMantineTheme,
+} from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { CreateUnitModal } from 'app/components/CreateUnitModal/Loadable';
 import { PageContainer } from 'app/components/PageContainer/Loadable';
 import {
@@ -46,6 +54,9 @@ export function Class() {
     React.useState(false);
   const [classSettingsDrawerVisible, setClassSettingsDrawerVisible] =
     React.useState(false);
+
+  const theme = useMantineTheme();
+  const isLargeScreen = useMediaQuery(`(min-width: ${theme.breakpoints.xl}px)`);
 
   React.useEffect(() => {
     setLoading(true);
@@ -170,8 +181,17 @@ export function Class() {
             <Text size="lg" weight={'bold'}>
               Class
             </Text>
-            <Group noWrap position="apart" className="mt-3 h-full items-start">
-              <Group spacing={'md'} className="w-1/3" direction="column">
+            <Group
+              noWrap
+              position="apart"
+              direction={isLargeScreen ? 'row' : 'column'}
+              className="mt-3 h-full items-start"
+            >
+              <Group
+                spacing={'md'}
+                className="w-full xl:w-1/3"
+                direction="column"
+              >
                 <Skeleton visible={loading} className="w-full">
                   <ClassCard
                     id={openedClass.id}
@@ -235,7 +255,7 @@ export function Class() {
                   </Box>
                 </Skeleton>
               </Group>
-              <Skeleton visible={loading} className="w-2/3">
+              <Skeleton visible={loading} className="w-full xl:w-2/3">
                 <ClassTabs />
               </Skeleton>
             </Group>
