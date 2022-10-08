@@ -1,4 +1,5 @@
-import { Group } from '@mantine/core';
+import { Group, useMantineTheme } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { NavButton } from 'app/components/Navbar/components/navButton';
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
@@ -10,6 +11,9 @@ interface Props {
 
 export function ClassTabs(props: Props) {
   // const { units } = props;
+
+  const theme = useMantineTheme();
+  const isLargeScreen = useMediaQuery(`(min-width: ${theme.breakpoints.xl}px)`);
 
   return (
     <div className="h-full w-full">
@@ -23,7 +27,7 @@ export function ClassTabs(props: Props) {
           centered
           smallText
           to="discussions"
-          text="Discussions"
+          text={isLargeScreen ? 'Discussions' : undefined}
           icon={<Message size={21} />}
         />
         {/* <NavButton
@@ -37,14 +41,14 @@ export function ClassTabs(props: Props) {
           centered
           smallText
           to="meetings"
-          text="Meetings"
+          text={isLargeScreen ? 'Meetings' : undefined}
           icon={<Video size={21} />}
         />
         <NavButton
           centered
           smallText
           to="people"
-          text="People"
+          text={isLargeScreen ? 'People' : undefined}
           icon={<Users size={21} />}
         />
       </Group>

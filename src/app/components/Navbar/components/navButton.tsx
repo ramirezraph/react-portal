@@ -6,7 +6,7 @@ import { NavLink } from 'react-router-dom';
 interface Props {
   to: string;
   icon: IconProps;
-  text: string;
+  text?: string;
   className?: string;
   centered?: boolean;
   smallText?: boolean;
@@ -28,7 +28,7 @@ export function NavButton(props: Props) {
       >
         <Group className={`${centered && 'justify-center'}`}>
           {icon}
-          <Text className={`${smallText && 'text-sm'}`}>{text}</Text>
+          {text && <Text className={`${smallText && 'text-sm'}`}>{text}</Text>}
         </Group>
       </NavLink>
     </UnstyledButton>
