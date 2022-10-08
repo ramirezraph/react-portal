@@ -3,7 +3,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { NavButton } from 'app/components/Navbar/components/navButton';
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Message, Users, Video } from 'tabler-icons-react';
+import { Message, Notes, Users, Video } from 'tabler-icons-react';
 
 interface Props {
   // someProps: string
@@ -34,7 +34,6 @@ export function ClassTabs(props: Props) {
           centered
           smallText
           to="classwork"
-          text="Classwork"
           icon={<Notes size={21} />}
         /> */}
         <NavButton

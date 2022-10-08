@@ -6,7 +6,9 @@ import {
   Text,
   Button,
   Center,
+  useMantineTheme,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { CreatePostModal } from 'app/components/CreatePostModal/Loadable';
 import { Post } from 'app/components/PostCard';
 import { PostCard } from 'app/components/PostCard/Loadable';
@@ -45,6 +47,9 @@ export function DiscussionTab(props: Props) {
     null,
   );
   let postsDocSnapshot = React.useRef<QuerySnapshot<DocumentData> | null>(null);
+
+  const theme = useMantineTheme();
+  const isTablet = useMediaQuery(`(min-width: ${theme.breakpoints.md}px)`);
 
   React.useEffect(() => {
     setCanPost(classroom.canPost);
@@ -141,7 +146,10 @@ export function DiscussionTab(props: Props) {
   };
 
   return (
-    <ScrollArea className="h-screen bg-transparent py-3" scrollbarSize={5}>
+    <ScrollArea
+      className="h-screen w-full bg-transparent py-3"
+      scrollbarSize={5}
+    >
       <CreatePostModal
         visible={postModalVisible}
         onToggle={setPostModalVisible}
@@ -149,7 +157,7 @@ export function DiscussionTab(props: Props) {
       />
       {canPost && (
         <Card>
-          <Group noWrap className="rounded-md">
+          <Group noWrap className="w-full rounded-md">
             <UserAvatar currentUser radius="xl" size="md" />
             <Button
               variant="filled"
@@ -161,20 +169,25 @@ export function DiscussionTab(props: Props) {
                 weight={400}
                 size="md"
                 color="gray"
-                className="w-full text-left"
+                className="text-left"
+                lineClamp={1}
               >
                 Write something for the class
               </Text>
             </Button>
-            <ActionIcon onClick={() => setPostModalVisible(true)}>
-              <Photo />
-            </ActionIcon>
-            <ActionIcon onClick={() => setPostModalVisible(true)}>
-              <File />
-            </ActionIcon>
-            <ActionIcon onClick={() => setPostModalVisible(true)}>
-              <At />
-            </ActionIcon>
+            {isTablet && (
+              <Group>
+                <ActionIcon onClick={() => setPostModalVisible(true)}>
+                  <Photo />
+                </ActionIcon>
+                <ActionIcon onClick={() => setPostModalVisible(true)}>
+                  <File />
+                </ActionIcon>
+                <ActionIcon onClick={() => setPostModalVisible(true)}>
+                  <At />
+                </ActionIcon>
+              </Group>
+            )}
           </Group>
         </Card>
       )}
