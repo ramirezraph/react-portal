@@ -140,7 +140,7 @@ export function CreateUnitModal(props: Props) {
       <form onSubmit={form.onSubmit(values => onCreate(values))}>
         <Group direction="column" spacing="xs">
           <Text className="w-full" size="sm">
-            Please fill out the form.
+            Please fill out the required fields.
           </Text>
           <TextInput
             label={
