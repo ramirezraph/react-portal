@@ -1,4 +1,14 @@
-import { Group, Avatar, ActionIcon, Text, Checkbox } from '@mantine/core';
+import {
+  Group,
+  Avatar,
+  ActionIcon,
+  Text,
+  Checkbox,
+  useMantineTheme,
+  Stack,
+  Menu,
+} from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import {
@@ -12,7 +22,14 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-import { Check, Mail, UserCircle, UserX, X } from 'tabler-icons-react';
+import {
+  Check,
+  DotsVertical,
+  Mail,
+  UserCircle,
+  UserX,
+  X,
+} from 'tabler-icons-react';
 import { getNameAndPicture } from 'utils/userUtils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -32,6 +49,9 @@ export function PeopleItem(props: Prop) {
   const [picture, setPicture] = React.useState('');
 
   const [isCurrentUser, setIsCurrentUser] = React.useState(false);
+
+  const theme = useMantineTheme();
+  const isTablet = useMediaQuery(`(min-width: ${theme.breakpoints.md}px)`);
 
   React.useEffect(() => {
     const fetchInfo = async () => {
@@ -118,8 +138,8 @@ export function PeopleItem(props: Prop) {
   };
 
   return (
-    <Group position="apart" className="mt-4 w-full">
-      <Group>
+    <Group position="apart" className="mt-4 w-full" noWrap>
+      <Group noWrap>
         {!viewOnly && <Checkbox />}
         <Avatar radius="xl" src={picture} size="md" />
         <Text size="md">{fullname}</Text>
@@ -129,8 +149,36 @@ export function PeopleItem(props: Prop) {
           you
         </Text>
       )}
-      {!isCurrentUser && (
-        <Group>
+      {!isCurrentUser && !isTablet && (
+        <Menu
+          withArrow
+          position="bottom"
+          control={
+            <ActionIcon>
+              <DotsVertical size={16} />
+            </ActionIcon>
+          }
+        >
+          <Menu.Item color="gray" icon={<Mail size={20} />}>
+            Send an email
+          </Menu.Item>
+          <Menu.Item color="gray" icon={<UserCircle size={20} />}>
+            View profile
+          </Menu.Item>
+          {!viewOnly && (
+            <Menu.Item
+              onClick={openConfirmRemoveUserModal}
+              color="red"
+              icon={<UserX size={20} />}
+            >
+              Kick
+            </Menu.Item>
+          )}
+        </Menu>
+      )}
+
+      {!isCurrentUser && isTablet && (
+        <Group noWrap>
           <ActionIcon>
             <Mail />
           </ActionIcon>
@@ -138,7 +186,7 @@ export function PeopleItem(props: Prop) {
             <UserCircle />
           </ActionIcon>
           {!viewOnly && (
-            <ActionIcon onClick={openConfirmRemoveUserModal}>
+            <ActionIcon onClick={openConfirmRemoveUserModal} color="red">
               <UserX />
             </ActionIcon>
           )}

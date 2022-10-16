@@ -6,8 +6,9 @@ import {
   Divider,
   TextInput,
   Stack,
+  useMantineTheme,
 } from '@mantine/core';
-import { useDebouncedValue } from '@mantine/hooks';
+import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import {
@@ -55,6 +56,9 @@ export function SendClassInviteModal(props: Props) {
   const [selected, setSelected] = React.useState<SearchResult[]>([]);
   const [inviteLoading, setInviteLoading] = React.useState(false);
   const [inviteCodeCopied, setInviteCodeCopied] = React.useState(false);
+
+  const theme = useMantineTheme();
+  const isTablet = useMediaQuery(`(min-width: ${theme.breakpoints.md}px)`);
 
   const onSearchTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTextValue(event.target.value);
@@ -221,36 +225,60 @@ export function SendClassInviteModal(props: Props) {
       opened={visible}
       onClose={() => onToggle(false)}
       centered
-      size="lg"
+      size={500}
     >
       <Group position="apart">
         <Text size="xl" weight={600}>
           Send Invite
         </Text>
         <Group>
-          <Button
-            variant="light"
-            color={inviteCodeCopied ? 'green' : 'primary'}
-            leftIcon={inviteCodeCopied ? <Check size={18} /> : null}
-            onClick={() => {
-              if (activeClass?.inviteCode) {
-                navigator.clipboard.writeText(activeClass.inviteCode);
+          {isTablet && (
+            <Button
+              variant="light"
+              color={inviteCodeCopied ? 'green' : 'primary'}
+              leftIcon={inviteCodeCopied ? <Check size={18} /> : null}
+              onClick={() => {
+                if (activeClass?.inviteCode) {
+                  navigator.clipboard.writeText(activeClass.inviteCode);
 
-                navigator.clipboard.readText().then(clipText => {
-                  if (clipText) {
-                    setInviteCodeCopied(true);
-                  }
-                });
-              }
-            }}
-          >
-            Copy Invite Code
-          </Button>
+                  navigator.clipboard.readText().then(clipText => {
+                    if (clipText) {
+                      setInviteCodeCopied(true);
+                    }
+                  });
+                }
+              }}
+            >
+              Copy Invite Code
+            </Button>
+          )}
+
           <Button variant="default" onClick={() => onToggle(false)}>
             Close
           </Button>
         </Group>
       </Group>
+      {!isTablet && (
+        <Button
+          variant="light"
+          color={inviteCodeCopied ? 'green' : 'primary'}
+          leftIcon={inviteCodeCopied ? <Check size={18} /> : null}
+          className="mt-3"
+          onClick={() => {
+            if (activeClass?.inviteCode) {
+              navigator.clipboard.writeText(activeClass.inviteCode);
+
+              navigator.clipboard.readText().then(clipText => {
+                if (clipText) {
+                  setInviteCodeCopied(true);
+                }
+              });
+            }
+          }}
+        >
+          Copy Invite Code
+        </Button>
+      )}
       <Divider my="sm" />
       <Stack className="mt-6">
         {selected.length > 0 && (
