@@ -17,12 +17,12 @@ export function PendingInvitesModal(props: Prop) {
   return (
     <Modal
       withCloseButton={false}
-      size="xl"
+      size={500}
       centered
       opened={visible}
       onClose={() => onToggle(false)}
     >
-      <Group position="apart">
+      <Group position="apart" noWrap>
         <Text size="xl" weight={600}>
           Pending Invites
         </Text>

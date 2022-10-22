@@ -6,17 +6,18 @@ import { NavLink } from 'react-router-dom';
 interface Props {
   to: string;
   icon: IconProps;
-  text: string;
+  text?: string;
   className?: string;
   centered?: boolean;
   smallText?: boolean;
+  onClick?: () => void;
 }
 
 export function NavButton(props: Props) {
-  const { icon, to, text, className, centered, smallText } = props;
+  const { icon, to, text, className, centered, smallText, onClick } = props;
 
   return (
-    <UnstyledButton className="w-full py-1">
+    <UnstyledButton className="w-full py-1" onClick={onClick}>
       <NavLink
         className={({ isActive }) =>
           ` no-underline ${
@@ -27,7 +28,7 @@ export function NavButton(props: Props) {
       >
         <Group className={`${centered && 'justify-center'}`}>
           {icon}
-          <Text className={`${smallText && 'text-sm'}`}>{text}</Text>
+          {text && <Text className={`${smallText && 'text-sm'}`}>{text}</Text>}
         </Group>
       </NavLink>
     </UnstyledButton>

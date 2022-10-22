@@ -25,11 +25,9 @@ import { Dashboard } from './pages/Dashboard/Loadable';
 import { Discussions } from './pages/Discussions/Loadable';
 import { Classes } from './pages/Classes/Loadable';
 import { Class } from './pages/Class/Loadable';
-import { Grades } from './pages/Grades/Loadable';
 import { Calendar } from './pages/Calendar/Loadable';
 import {
   DiscussionTab,
-  ClassworkTab,
   PeopleTab,
   MeetingsTab,
 } from './pages/Class/components/ClassTabs/Loadable';
@@ -37,6 +35,9 @@ import {
 import * as JSURL from 'jsurl';
 import { ClassworkModal } from './components/ClassworkModal';
 import { LessonModal } from './components/LessonModal';
+import { ClassMaterialsTab } from './pages/Class/components/ClassTabs/ClassMaterialsTab';
+import { useMantineTheme } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 
 export function useQueryParam<T>(
   key: string,
@@ -65,10 +66,13 @@ export function App() {
 
   let state = location.state as { backgroundLocation?: Location };
 
+  const theme = useMantineTheme();
+  const isLargeScreen = useMediaQuery(`(min-width: ${theme.breakpoints.xl}px)`);
+
   return (
     <>
       <Helmet
-        titleTemplate="%s - DPVMSHS Portal"
+        titleTemplate="%s | Student Portal"
         defaultTitle="DPVMSHS Portal"
         htmlAttributes={{ lang: i18n.language }}
       >
@@ -84,14 +88,22 @@ export function App() {
           <Route path="/class/:id" element={<Class />}>
             <Route
               index
-              element={<Navigate to="discussions" replace={true} />}
+              element={
+                <Navigate
+                  to={isLargeScreen ? 'discussions' : 'materials'}
+                  replace={true}
+                />
+              }
             />
+            {!isLargeScreen && (
+              <Route path="materials" element={<ClassMaterialsTab />} />
+            )}
             <Route path="discussions" element={<DiscussionTab />} />
-            <Route path="classwork" element={<ClassworkTab />} />
+            {/* <Route path="classwork" element={<ClassworkTab />} /> */}
             <Route path="people" element={<PeopleTab />} />
             <Route path="meetings" element={<MeetingsTab />} />
           </Route>
-          <Route path="/grades" element={<Grades />} />
+          {/* <Route path="/grades" element={<Grades />} /> */}
           <Route path="/calendar" element={<Calendar />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

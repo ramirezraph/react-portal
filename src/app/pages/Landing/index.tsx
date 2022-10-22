@@ -1,13 +1,25 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import { Button, Image, Text } from '@mantine/core';
+import { Button, createStyles, Image, Text } from '@mantine/core';
 
 import image from './images/undraw_communicate.svg';
 import { useAuth0 } from '@auth0/auth0-react';
 
+const useStyles = createStyles(theme => ({
+  landingImage: {
+    width: 600,
+
+    [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
+      width: 350,
+    },
+  },
+}));
+
 export function Landing() {
   const { loginWithRedirect } = useAuth0();
+
+  const { classes } = useStyles();
 
   return (
     <>
@@ -15,22 +27,27 @@ export function Landing() {
         <title>Welcome</title>
       </Helmet>
       <div className="flex h-screen w-screen flex-col justify-between">
-        <section className="flex w-full flex-1 items-center space-x-10">
-          <div className="flex flex-1 justify-end ">
-            <Image src={image} fit="cover" alt="Undraw" width={600} />
+        <section className="mt-8 flex w-full flex-1 flex-col items-center space-x-6 xl:mt-0 xl:flex-row xl:space-x-10">
+          <div className="flex justify-end xl:flex-1">
+            <Image
+              src={image}
+              fit="cover"
+              alt="Undraw"
+              className={classes.landingImage}
+            />
           </div>
-          <div className="flex h-full flex-1 flex-col justify-center">
-            <Text className="select-none text-xl leading-loose text-gray-600">
+          <div className="mt-12 flex w-11/12 flex-1 flex-col md:mt-16 md:px-20 xl:mt-0 xl:justify-center">
+            <Text className="w-full select-none text-xl leading-loose text-gray-600 xl:w-full xl:text-xl">
               welcome to
             </Text>
-            <Text className="select-none text-6xl font-semibold leading-normal">
-              DPVMHS Portal
+            <Text className="select-none text-4xl font-bold leading-normal md:text-6xl md:font-semibold">
+              Student Portal
             </Text>
-            <Text className="select-none text-xl leading-loose text-gray-600">
-              Dr. Pablito V. Mendoza Sr. High School
+            <Text className="w-11/12 select-none text-xl leading-loose text-gray-600 md:mt-6 md:w-full md:text-xl">
+              At vero eos et accusamus et iusto odio dignissimos.
             </Text>
             <Button
-              className="mt-24 w-fit rounded-sm bg-primary py-2 px-24 text-white"
+              className="mt-12 w-fit rounded-sm bg-primary py-2 px-24 text-white md:mt-24"
               onClick={() => loginWithRedirect()}
             >
               Get Started

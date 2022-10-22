@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   TextInput,
+  useMantineTheme,
 } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import {
@@ -48,6 +49,7 @@ import RichTextEditor, { Editor } from '@mantine/rte';
 import { Topbar } from './Topbar';
 import { CommentSection } from './CommentSection';
 import { Attachments } from './Attachments';
+import { useMediaQuery } from '@mantine/hooks';
 
 interface Prop {}
 
@@ -93,6 +95,9 @@ export function LessonModal(props: Prop) {
   const classroom = useSelector(selectClassroom);
 
   const richTextEditorRef = React.useRef<Editor>(null);
+
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.md}px)`);
 
   const onLessonNumberChange = event => {
     if (event.currentTarget.value.substring(0, 7) !== 'Lesson ') return;
@@ -410,7 +415,12 @@ export function LessonModal(props: Prop) {
           student={classroom.activeClassRole === ClassRole.Student}
           onClose={onClose}
         />
-        <Group className="w-full rounded-md" direction="row" spacing={0} grow>
+        <Group
+          className="w-full rounded-md"
+          direction={isMobile ? 'column' : 'row'}
+          spacing={0}
+          grow
+        >
           <Card withBorder radius={0} className="h-full">
             {classroom.activeClassRole === ClassRole.Teacher && (
               <Card.Section className="p-4">
@@ -463,18 +473,24 @@ export function LessonModal(props: Prop) {
                         <Text className="text-md font-normal">Edit</Text>
                       </Button>
                     )}
-
-                    <LiveSwitch live={isLive} onToggle={onLiveToggle} />
+                    {!isMobile && (
+                      <LiveSwitch live={isLive} onToggle={onLiveToggle} />
+                    )}
                   </Group>
                   {!lessonIsNew && (
-                    <ActionIcon
-                      size="lg"
-                      variant="filled"
-                      color="red"
-                      onClick={displayDeleteLessonModal}
-                    >
-                      <Trash size={18} />
-                    </ActionIcon>
+                    <Group>
+                      {isMobile && (
+                        <LiveSwitch live={isLive} onToggle={onLiveToggle} />
+                      )}
+                      <ActionIcon
+                        size="lg"
+                        variant="filled"
+                        color="red"
+                        onClick={displayDeleteLessonModal}
+                      >
+                        <Trash size={18} />
+                      </ActionIcon>
+                    </Group>
                   )}
                 </Group>
               </Card.Section>
@@ -495,58 +511,109 @@ export function LessonModal(props: Prop) {
                 className="rounded-md"
               >
                 <div className="p-4">
-                  <Group noWrap spacing={4}>
-                    <Popover
-                      opened={popoverNumberVisible}
-                      onClose={() => setPopoverNumberVisible(false)}
-                      target={
-                        <TextInput
-                          value={lessonNumber}
-                          size="xl"
-                          placeholder="Lesson number"
-                          onChange={onLessonNumberChange}
-                          readOnly={!isOnEditMode}
-                          required
-                        />
-                      }
-                      position="bottom"
-                      withArrow
-                    >
-                      <Group>
-                        <CircleX color="red" />
-                        <Text color="red" size="sm">
-                          {popoverNumberText}
-                        </Text>
-                      </Group>
-                    </Popover>
+                  {isMobile && (
+                    <Stack spacing={0}>
+                      <Popover
+                        opened={popoverNumberVisible}
+                        onClose={() => setPopoverNumberVisible(false)}
+                        target={
+                          <TextInput
+                            value={lessonNumber}
+                            size="xl"
+                            placeholder="Lesson number"
+                            onChange={onLessonNumberChange}
+                            readOnly={!isOnEditMode}
+                            required
+                          />
+                        }
+                        position="bottom"
+                        withArrow
+                      >
+                        <Group>
+                          <CircleX color="red" />
+                          <Text color="red" size="sm">
+                            {popoverNumberText}
+                          </Text>
+                        </Group>
+                      </Popover>
+                      <Popover
+                        className="w-full"
+                        opened={popoverTitleVisible}
+                        onClose={() => setPopoverTitleVisible(false)}
+                        target={
+                          <TextInput
+                            value={title}
+                            size="xl"
+                            placeholder="Lesson title"
+                            onChange={onTitleChange}
+                            readOnly={!isOnEditMode}
+                            required
+                          />
+                        }
+                        position="bottom"
+                        withArrow
+                      >
+                        <Group>
+                          <CircleX color="red" />
+                          <Text color="red" size="sm">
+                            Lesson title is required.
+                          </Text>
+                        </Group>
+                      </Popover>
+                    </Stack>
+                  )}
+                  {!isMobile && (
+                    <Group spacing={4} noWrap>
+                      <Popover
+                        opened={popoverNumberVisible}
+                        onClose={() => setPopoverNumberVisible(false)}
+                        target={
+                          <TextInput
+                            value={lessonNumber}
+                            size="xl"
+                            placeholder="Lesson number"
+                            onChange={onLessonNumberChange}
+                            readOnly={!isOnEditMode}
+                            required
+                          />
+                        }
+                        position="bottom"
+                        withArrow
+                      >
+                        <Group>
+                          <CircleX color="red" />
+                          <Text color="red" size="sm">
+                            {popoverNumberText}
+                          </Text>
+                        </Group>
+                      </Popover>
 
-                    <Popover
-                      className="w-full"
-                      opened={popoverTitleVisible}
-                      onClose={() => setPopoverTitleVisible(false)}
-                      target={
-                        <TextInput
-                          value={title}
-                          className="w-full"
-                          size="xl"
-                          placeholder="Lesson title"
-                          onChange={onTitleChange}
-                          readOnly={!isOnEditMode}
-                          required
-                        />
-                      }
-                      position="bottom"
-                      withArrow
-                    >
-                      <Group>
-                        <CircleX color="red" />
-                        <Text color="red" size="sm">
-                          Lesson title is required.
-                        </Text>
-                      </Group>
-                    </Popover>
-                  </Group>
-
+                      <Popover
+                        className="w-full"
+                        opened={popoverTitleVisible}
+                        onClose={() => setPopoverTitleVisible(false)}
+                        target={
+                          <TextInput
+                            value={title}
+                            size="xl"
+                            placeholder="Lesson title"
+                            onChange={onTitleChange}
+                            readOnly={!isOnEditMode}
+                            required
+                          />
+                        }
+                        position="bottom"
+                        withArrow
+                      >
+                        <Group>
+                          <CircleX color="red" />
+                          <Text color="red" size="sm">
+                            Lesson title is required.
+                          </Text>
+                        </Group>
+                      </Popover>
+                    </Group>
+                  )}
                   <RichTextEditor
                     value={content}
                     onChange={setContent}

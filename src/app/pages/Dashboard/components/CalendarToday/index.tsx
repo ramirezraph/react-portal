@@ -1,14 +1,9 @@
 import * as React from 'react';
-import { Button, Group, Text } from '@mantine/core';
-import { EyeOff } from 'tabler-icons-react';
+import { createStyles, Group, Text } from '@mantine/core';
 import FullCalendar from '@fullcalendar/react';
-
 import timeGridPlugin from '@fullcalendar/timegrid';
-
 import '@fullcalendar/daygrid/main.css';
-
 import './custom-fullcalendar.css';
-
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
@@ -32,9 +27,16 @@ interface CalendarEvent {
   end: string;
 }
 
+const useStyles = createStyles(theme => ({
+  calendar: {
+    minHeight: 400,
+  },
+}));
+
 interface Props {}
 
 export function CalendarToday(props: Props) {
+  const { classes: styles } = useStyles();
   const { classes } = useSelector(selectClasses);
 
   const [allMeetings, setAllMeetings] = React.useState<ClassMeeting[]>([]);
@@ -110,16 +112,16 @@ export function CalendarToday(props: Props) {
         <Text size="xl" className="font-semibold">
           Calendar
         </Text>
-        <Button
+        {/* <Button
           size="sm"
           leftIcon={<EyeOff size={16} />}
           color={'gray'}
           variant="subtle"
         >
           Hide
-        </Button>
+        </Button> */}
       </Group>
-      <div className="flex-1">
+      <div className={`flex-1 ${styles.calendar}`}>
         <FullCalendar
           height={'100%'}
           plugins={[timeGridPlugin]}

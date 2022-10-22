@@ -6,5 +6,7 @@ interface Prop {
 }
 
 export function PageContainer(props: Prop) {
-  return <div className={`p-6 ${props.className}`}>{props.children}</div>;
+  return (
+    <div className={`p-4 md:p-6 ${props.className}`}>{props.children}</div>
+  );
 }

@@ -1,4 +1,13 @@
-import { Group, Text, Stack, Menu, Textarea } from '@mantine/core';
+import {
+  Group,
+  Text,
+  Stack,
+  Menu,
+  Textarea,
+  Popover,
+  ActionIcon,
+  useMantineTheme,
+} from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import {
@@ -12,12 +21,13 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { db } from 'services/firebase';
 import { selectUser } from 'store/userSlice/selectors';
-import { X } from 'tabler-icons-react';
+import { Clock, X } from 'tabler-icons-react';
 import { getFullname } from 'utils/userUtils';
 import { UserAvatar } from '../UserAvatar';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 dayjs.extend(relativeTime);
 
 interface Props {
@@ -33,8 +43,12 @@ export function Comment(props: Props) {
 
   const modals = useModals();
   const { currentUser } = useSelector(selectUser);
+  const theme = useMantineTheme();
+  const isTablet = useMediaQuery(`(min-width: ${theme.breakpoints.md}px)`);
 
   const [name, setName] = React.useState('');
+  const [clockPopupOpened, { close: closeClockPopup, open: openClockPopup }] =
+    useDisclosure(false);
 
   React.useEffect(() => {
     const fullname = async () => {
@@ -89,16 +103,41 @@ export function Comment(props: Props) {
 
   return (
     <Group className="w-full items-start" noWrap>
-      <UserAvatar userId={ownerId} radius="xl" size="md" />
+      <UserAvatar
+        userId={ownerId}
+        radius="xl"
+        size={isTablet ? 'md' : 'sm'}
+        className="inline"
+      />
       <Stack className="w-full" spacing={0}>
-        <Group position="apart" className="items-start">
+        <Group position="apart" className="items-start" noWrap>
           <Text size="sm" className="font-semibold">
             {name}
           </Text>
-          <Group>
-            <Text size="xs" weight="normal">
+          <Group noWrap>
+            <Text size="xs" weight="normal" className="hidden md:inline">
               {dayjs(createdAt).fromNow()}
             </Text>
+            <Popover
+              position="bottom"
+              opened={clockPopupOpened}
+              className="md:hidden"
+              shadow="sm"
+              target={
+                <ActionIcon
+                  onMouseEnter={openClockPopup}
+                  onMouseLeave={closeClockPopup}
+                >
+                  <Clock color="gray" size={16} />
+                </ActionIcon>
+              }
+            >
+              <Group spacing="xs">
+                <Text size="xs" weight="normal">
+                  {dayjs(createdAt).fromNow()}
+                </Text>
+              </Group>
+            </Popover>
             {currentUser && currentUser.sub === ownerId && (
               <Menu size="sm">
                 <Menu.Item color="red" onClick={openConfirmDeleteModal}>

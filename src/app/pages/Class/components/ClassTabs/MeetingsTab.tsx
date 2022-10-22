@@ -7,6 +7,7 @@ import {
   Chip,
   Menu,
   Switch,
+  useMantineTheme,
 } from '@mantine/core';
 import { Video, Settings } from 'tabler-icons-react';
 import * as React from 'react';
@@ -29,6 +30,7 @@ import { meetingsColRef } from 'services/firebase';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useMediaQuery } from '@mantine/hooks';
 dayjs.extend(relativeTime);
 
 export interface ClassMeeting {
@@ -59,6 +61,9 @@ export function MeetingsTab(props: Props) {
   );
   const [filterValue, setFilterValue] = useState('today');
   const [isPastMeetingsVisible, setPastMeetingsVisible] = useState(false);
+
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.md}px)`);
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
@@ -173,23 +178,25 @@ export function MeetingsTab(props: Props) {
           </Button>
         )}
 
-        <Group
-          className={activeClassRole === ClassRole.Teacher ? 'ml-auto' : ''}
-        >
-          <Chips
-            value={filterValue}
-            onChange={setFilterValue}
-            multiple={false}
-            color="primary"
-            variant="filled"
-            spacing={5}
-            size="sm"
+        {!isMobile && (
+          <Group
+            className={activeClassRole === ClassRole.Teacher ? 'ml-auto' : ''}
           >
-            <Chip value="today">Today</Chip>
-            <Chip value="week">This Week</Chip>
-            <Chip value="all">All Meetings</Chip>
-          </Chips>
-        </Group>
+            <Chips
+              value={filterValue}
+              onChange={setFilterValue}
+              multiple={false}
+              color="primary"
+              variant="filled"
+              spacing={5}
+              size="sm"
+            >
+              <Chip value="today">Today</Chip>
+              <Chip value="week">This Week</Chip>
+              <Chip value="all">All Meetings</Chip>
+            </Chips>
+          </Group>
+        )}
       </Group>
       <Group className="py-6 px-2">
         <Text size="lg" weight={500}>
@@ -207,7 +214,25 @@ export function MeetingsTab(props: Props) {
                 </ActionIcon>
               }
             >
-              <Menu.Label>Filter</Menu.Label>
+              {isMobile && <Menu.Label>Filter</Menu.Label>}
+              {isMobile && (
+                <Menu.Item>
+                  <Chips
+                    value={filterValue}
+                    onChange={setFilterValue}
+                    multiple={false}
+                    color="primary"
+                    variant="filled"
+                    spacing={5}
+                    size="sm"
+                  >
+                    <Chip value="today">Today</Chip>
+                    <Chip value="week">This Week</Chip>
+                    <Chip value="all">All Meetings</Chip>
+                  </Chips>
+                </Menu.Item>
+              )}
+              <Menu.Label>Settings</Menu.Label>
               <Menu.Item>
                 <Switch
                   checked={isPastMeetingsVisible}

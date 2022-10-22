@@ -6,6 +6,7 @@ import {
   Tooltip,
   Stack,
   TextInput,
+  useMantineTheme,
 } from '@mantine/core';
 import { useModals } from '@mantine/modals';
 import { showNotification, updateNotification } from '@mantine/notifications';
@@ -31,6 +32,7 @@ import {
 } from 'tabler-icons-react';
 import { v4 as uuidv4 } from 'uuid';
 import { IMAGE_MIME_TYPE, MIME_TYPES } from '@mantine/dropzone';
+import { useMediaQuery } from '@mantine/hooks';
 
 interface Prop {
   id: string;
@@ -73,6 +75,9 @@ export function AttachedFile(props: Prop) {
   const [fileNameOnEdit, setFileNameOnEdit] = React.useState(name);
   let editFileNameTemp = React.useRef('');
   let editFileExtTemp = React.useRef('');
+
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.md}px)`);
 
   React.useEffect(() => {
     if (!name) return;
@@ -436,7 +441,7 @@ export function AttachedFile(props: Prop) {
         </Button>
       )}
 
-      {renderButtons()}
+      {(!isOnEditMode || !isMobile) && renderButtons()}
     </Group>
   );
 }

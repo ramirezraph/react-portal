@@ -23,14 +23,14 @@ import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from 'services/firebase';
 
 interface Props {
-  opened: boolean;
-  burgerOnClick: React.Dispatch<React.SetStateAction<boolean>>;
+  navbarVisible: boolean;
+  setNavbarVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function AppHeader(props: Props) {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const { opened, burgerOnClick } = props;
+  const { navbarVisible, setNavbarVisible } = props;
   const { logout } = useAuth0();
 
   const { currentUser } = useSelector(selectUser);
@@ -79,20 +79,23 @@ export function AppHeader(props: Props) {
   }, [currentUser]);
 
   return (
-    <Header height={50} className="bg-zinc-800 text-white sm:px-6" p="md">
+    <Header height={50} className="bg-zinc-800 p-4 text-white md:px-6">
       {/* Handle other responsive styles with MediaQuery component or createStyles function */}
       <div className="flex h-full items-center">
         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
           <Burger
-            opened={opened}
-            onClick={() => burgerOnClick(o => !o)}
+            opened={navbarVisible}
+            onClick={() => setNavbarVisible(o => !o)}
             size="sm"
             color={theme.colors.gray[6]}
             mr="xl"
+            className="-ml-1"
           />
         </MediaQuery>
-        <Group position="apart" className="w-full">
-          <Text weight="bold">DPVMHS Portal</Text>
+        <Group className="w-full justify-end md:justify-between">
+          <Text className="hidden md:inline" weight="bold">
+            Student Portal
+          </Text>
           <Group spacing={'xl'}>
             <ActionIcon
               className="text-white hover:bg-transparent hover:text-secondary"
