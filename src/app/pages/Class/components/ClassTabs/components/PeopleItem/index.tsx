@@ -5,7 +5,6 @@ import {
   Text,
   Checkbox,
   useMantineTheme,
-  Stack,
   Menu,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';

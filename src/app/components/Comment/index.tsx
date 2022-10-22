@@ -6,7 +6,6 @@ import {
   Textarea,
   Popover,
   ActionIcon,
-  MediaQuery,
   useMantineTheme,
 } from '@mantine/core';
 import { useModals } from '@mantine/modals';
