@@ -265,7 +265,7 @@ export function JoinClassCollapseCard(props: Props) {
             value={classKeyValue}
             onChange={event => setClassKeyValue(event.currentTarget.value)}
             radius="md"
-            className="w-1/2"
+            className="w-full lg:w-1/2"
             placeholder="Class key"
             error={classKeyErrorMessage}
             size="lg"

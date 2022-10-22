@@ -1,4 +1,11 @@
-import { Group, ActionIcon, Text, Button } from '@mantine/core';
+import {
+  Group,
+  ActionIcon,
+  Text,
+  Button,
+  useMantineTheme,
+} from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { selectClassroom } from 'app/pages/Class/slice/selectors';
 import { getDocs, query, where } from 'firebase/firestore';
 import * as React from 'react';
@@ -28,6 +35,9 @@ export function Topbar(props: Props) {
   const [numberOfLessons, setNumberOfLessons] = React.useState(0);
 
   const { lessonModalBackground } = useSelector(selectClassroom);
+
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.md}px)`);
 
   React.useEffect(() => {
     if (!id) {
@@ -76,14 +86,15 @@ export function Topbar(props: Props) {
     <Group
       position="apart"
       className="w-full flex-grow-0 rounded-tr-md rounded-tl-md bg-document p-4"
+      noWrap
     >
-      <Group>
-        <Group className="gap-2 rounded-md bg-white py-1 px-2">
+      <Group noWrap>
+        <Group className="gap-2 rounded-md bg-white py-1 px-2" noWrap>
           <Text size="sm" weight="bold">
             {classCode}
           </Text>
-          <ChevronRight size={16} />
-          <Text size="sm">{unitNumber}</Text>
+          {!isMobile && <ChevronRight size={16} />}
+          {!isMobile && <Text size="sm">{unitNumber}</Text>}
           <ChevronRight size={16} />
           {lessonIsNew && <Text size="sm">New Lesson</Text>}
 
@@ -99,7 +110,7 @@ export function Topbar(props: Props) {
             </ActionIcon>
           )} */}
         </Group>
-        {!student && !lessonIsNew && (
+        {!student && !lessonIsNew && !isMobile && (
           <Button size="md" compact onClick={onAddNewLessonClicked}>
             <Text className="text-sm font-normal">Add new lesson</Text>
           </Button>

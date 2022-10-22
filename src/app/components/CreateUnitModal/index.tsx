@@ -140,7 +140,7 @@ export function CreateUnitModal(props: Props) {
       <form onSubmit={form.onSubmit(values => onCreate(values))}>
         <Group direction="column" spacing="xs">
           <Text className="w-full" size="sm">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Please fill out the required fields.
           </Text>
           <TextInput
             label={
@@ -175,10 +175,10 @@ export function CreateUnitModal(props: Props) {
             minRows={4}
             {...form.getInputProps('unitTextContent')}
           />
-          <Group className="mt-6">
+          <Group className="mt-6 w-full md:w-auto" noWrap>
             <Button
               type="submit"
-              className="px-12"
+              className="w-full px-12 md:w-auto"
               loading={createButtonLoading}
             >
               <Text size="sm" weight={400}>
@@ -188,7 +188,7 @@ export function CreateUnitModal(props: Props) {
             <Button
               variant="subtle"
               color="dark"
-              className="px-12"
+              className="w-full px-12 md:w-auto"
               onClick={onCancel}
             >
               <Text size="sm" weight={400}>

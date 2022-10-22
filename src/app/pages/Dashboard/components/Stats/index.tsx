@@ -22,6 +22,7 @@ export function Stats(props: Props) {
         title="Meetings today"
         value={numberOfTodaysMeetings}
         color="bg-pink-500"
+        className="mt-3 xl:mt-0"
       />
     </Group>
   );

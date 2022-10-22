@@ -96,8 +96,8 @@ export function PendingInviteItem(props: Prop) {
   };
 
   return (
-    <Group position="apart">
-      <Group className="pt-6">
+    <Group position="apart" className="mt-3 md:mt-6" noWrap>
+      <Group>
         <Avatar radius="xl" src={picture} />
         <Text>{fullname}</Text>
       </Group>

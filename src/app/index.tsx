@@ -35,6 +35,9 @@ import {
 import * as JSURL from 'jsurl';
 import { ClassworkModal } from './components/ClassworkModal';
 import { LessonModal } from './components/LessonModal';
+import { ClassMaterialsTab } from './pages/Class/components/ClassTabs/ClassMaterialsTab';
+import { useMantineTheme } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 
 export function useQueryParam<T>(
   key: string,
@@ -63,6 +66,9 @@ export function App() {
 
   let state = location.state as { backgroundLocation?: Location };
 
+  const theme = useMantineTheme();
+  const isLargeScreen = useMediaQuery(`(min-width: ${theme.breakpoints.xl}px)`);
+
   return (
     <>
       <Helmet
@@ -82,8 +88,16 @@ export function App() {
           <Route path="/class/:id" element={<Class />}>
             <Route
               index
-              element={<Navigate to="discussions" replace={true} />}
+              element={
+                <Navigate
+                  to={isLargeScreen ? 'discussions' : 'materials'}
+                  replace={true}
+                />
+              }
             />
+            {!isLargeScreen && (
+              <Route path="materials" element={<ClassMaterialsTab />} />
+            )}
             <Route path="discussions" element={<DiscussionTab />} />
             {/* <Route path="classwork" element={<ClassworkTab />} /> */}
             <Route path="people" element={<PeopleTab />} />

@@ -21,7 +21,7 @@ import { AppNavbar } from 'app/components/Navbar';
 import { AppHeader } from 'app/components/Header';
 
 export function Main() {
-  const [opened, setOpened] = React.useState(false);
+  const [navbarVisible, setNavbarVisible] = React.useState(false);
 
   const { isAuthenticated, isLoading, user } = useAuth0();
   const navigate = useNavigate();
@@ -123,8 +123,18 @@ export function Main() {
         navbarOffsetBreakpoint="sm"
         // fixed prop on AppShell will be automatically added to Header and Navbar
         fixed
-        navbar={<AppNavbar hidden={!opened} />}
-        header={<AppHeader opened={opened} burgerOnClick={setOpened} />}
+        navbar={
+          <AppNavbar
+            navbarVisible={!navbarVisible}
+            setNavbarVisible={setNavbarVisible}
+          />
+        }
+        header={
+          <AppHeader
+            navbarVisible={navbarVisible}
+            setNavbarVisible={setNavbarVisible}
+          />
+        }
         className="bg-document"
         padding={0}
       >

@@ -44,5 +44,5 @@ export const GlobalStyle = createGlobalStyle`
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s 0.25s, opacity 0.25s ease;
-}
+  }
 `;

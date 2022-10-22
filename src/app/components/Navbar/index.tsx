@@ -9,11 +9,12 @@ import { Class } from 'app/pages/Classes/slice/types';
 import { UserAvatar } from '../UserAvatar';
 
 interface Props {
-  hidden: boolean;
+  navbarVisible: boolean;
+  setNavbarVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function AppNavbar(props: Props) {
-  const { hidden } = props;
+  const { navbarVisible, setNavbarVisible } = props;
 
   const userSlice = useSelector(selectUser);
   const classesSlice = useSelector(selectClasses);
@@ -31,18 +32,22 @@ export function AppNavbar(props: Props) {
     setClasses(classesSlice.classes);
   }, [classesSlice.classes]);
 
+  const onNavButtonClicked = () => {
+    setNavbarVisible(false);
+  };
+
   return (
     <Navbar
       p="md"
       // Breakpoint at which navbar will be hidden if hidden prop is true
       hiddenBreakpoint="sm"
       // Hides navbar when viewport size is less than value specified in hiddenBreakpoint
-      hidden={hidden}
+      hidden={navbarVisible}
       // when viewport size is less than theme.breakpoints.sm navbar width is 100%
       // viewport size > theme.breakpoints.sm – width is 300px
       // viewport size > theme.breakpoints.lg – width is 400px
       width={{ sm: 200, lg: 230 }}
-      className="z-50 bg-white p-6"
+      className="z-50 bg-white p-4 md:p-6"
     >
       <Group direction="column">
         <Group direction="column">
@@ -57,11 +62,31 @@ export function AppNavbar(props: Props) {
           color={'dark'}
           className="my-2 w-8"
         />
-        <NavButton to="/" text="Dashboard" icon={<Home />} />
-        <NavButton to="/discussions" text="Discussions" icon={<Message />} />
-        <NavButton to="/classes" text="Classes" icon={<Users />} />
+        <NavButton
+          to="/"
+          text="Dashboard"
+          icon={<Home />}
+          onClick={onNavButtonClicked}
+        />
+        <NavButton
+          to="/discussions"
+          text="Discussions"
+          icon={<Message />}
+          onClick={onNavButtonClicked}
+        />
+        <NavButton
+          to="/classes"
+          text="Classes"
+          icon={<Users />}
+          onClick={onNavButtonClicked}
+        />
         {/* <NavButton to="/grades" text="Grades" icon={<ChartArrowsVertical />} /> */}
-        <NavButton to="/calendar" text="Calendar" icon={<Calendar />} />
+        <NavButton
+          to="/calendar"
+          text="Calendar"
+          icon={<Calendar />}
+          onClick={onNavButtonClicked}
+        />
         <Divider
           variant="solid"
           size="sm"
@@ -74,6 +99,7 @@ export function AppNavbar(props: Props) {
             to={`/class/${c.id}`}
             text={c.code}
             icon={<Book />}
+            onClick={onNavButtonClicked}
           />
         ))}
       </Group>

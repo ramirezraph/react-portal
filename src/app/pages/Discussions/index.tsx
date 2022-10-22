@@ -231,11 +231,11 @@ export function Discussions() {
       <Helmet>
         <title>Discussions</title>
       </Helmet>
-      <PageContainer className="pr-48">
+      <PageContainer className="w-full xl:pr-48">
         <Text weight="bold" className="pt-6">
           Discussions
         </Text>
-        <Group spacing={'xs'} className="mt-6">
+        <Group spacing={'xs'} className="mt-6 w-full">
           <Menu
             control={
               <Button
@@ -275,20 +275,22 @@ export function Discussions() {
               );
             })}
           </Menu>
-          <TextInput
-            value={searchTextValue}
-            onChange={e => setSearchTextValue(e.target.value)}
-            className="w-2/5"
-            placeholder="Search"
-            size="md"
-            required
-            icon={<Search size={20} />}
-          />
-          <Button color="gray" variant="default" size="md" onClick={onSearch}>
-            <Text size="sm" weight={400} color="black">
-              Search
-            </Text>
-          </Button>
+          <Group spacing={'xs'} noWrap className="flex-grow">
+            <TextInput
+              value={searchTextValue}
+              onChange={e => setSearchTextValue(e.target.value)}
+              className="w-full xl:w-2/5"
+              placeholder="Search"
+              size="md"
+              required
+              icon={<Search size={20} />}
+            />
+            <Button color="gray" variant="default" size="md" onClick={onSearch}>
+              <Text size="sm" weight={400} color="black">
+                Search
+              </Text>
+            </Button>
+          </Group>
         </Group>
 
         {renderPostItems()}

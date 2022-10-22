@@ -11,10 +11,11 @@ interface Props {
   radius?: MantineNumberSize;
   alt?: string;
   color?: DefaultMantineColor;
+  className?: string;
 }
 
 export function UserAvatar(props: Props) {
-  const { currentUser, size, radius, color, userId } = props;
+  const { currentUser, size, radius, color, userId, className } = props;
 
   const { currentUser: CurrentAuthUser } = useSelector(selectUser);
 
@@ -59,6 +60,7 @@ export function UserAvatar(props: Props) {
       radius={radius ? radius : 'lg'}
       alt={fullname}
       color={color ? color : 'primary'}
+      className={className}
     />
   );
 }

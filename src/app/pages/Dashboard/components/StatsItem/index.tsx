@@ -6,12 +6,15 @@ interface Props {
   title: string;
   value: number;
   color: string;
+  className?: string;
 }
 
 export function StatsItem(props: Props) {
-  const { title, value, color } = props;
+  const { title, value, color, className } = props;
   return (
-    <Box className={`w-72 rounded-md border-none bg-white p-2 px-6 py-6`}>
+    <Box
+      className={`w-full rounded-md border-none bg-white p-2 px-6 py-6 lg:w-72 ${className}`}
+    >
       <Group>
         <Box
           className={`absolute mb-6 flex h-12 w-12 items-center justify-center rounded-md ${color}`}

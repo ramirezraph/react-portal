@@ -7,7 +7,9 @@ import {
   Stack,
   Text,
   TextInput,
+  useMantineTheme,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { SendClassInviteModal } from 'app/components/SendClassInviteModal/Loadable';
 import {
   collection,
@@ -56,6 +58,9 @@ export function PeopleTab(props: Props) {
   const [students, setStudents] = useState<People[]>([]);
 
   const [invitePermValue, setInvitePermValue] = useState('Off');
+
+  const theme = useMantineTheme();
+  const isTablet = useMediaQuery(`(min-width: ${theme.breakpoints.md}px)`);
 
   React.useEffect(() => {
     if (!activeClass?.id) return;
@@ -128,7 +133,33 @@ export function PeopleTab(props: Props) {
         onToggle={setOpenedSendInvite}
       />
 
-      {activeClassRole === ClassRole.Teacher && (
+      {activeClassRole === ClassRole.Teacher && !isTablet && (
+        <Group position="apart">
+          <ActionIcon
+            onClick={() => setOpenedSendInvite(true)}
+            variant="filled"
+            size={'xl'}
+            radius="xl"
+            color="primary"
+            disabled={invitePermValue === 'Off'}
+          >
+            <UserPlus size={19} />
+          </ActionIcon>
+          <Button
+            compact
+            size="sm"
+            leftIcon={<Menu2 color="black" size={19} />}
+            variant="subtle"
+            onClick={() => setOpenedPendingInvite(true)}
+          >
+            <Text weight={400} color="black">
+              Pending Invites
+            </Text>
+          </Button>
+        </Group>
+      )}
+
+      {activeClassRole === ClassRole.Teacher && isTablet && (
         <Group position="apart">
           <Button
             onClick={() => setOpenedSendInvite(true)}
@@ -190,8 +221,10 @@ export function PeopleTab(props: Props) {
               </Button>
             }
           >
-            <Menu.Item icon={<Mail size={18} />}>Send an email</Menu.Item>
-            <Menu.Item color="red" icon={<X size={18} />}>
+            <Menu.Item color="gray" icon={<Mail size={20} />}>
+              Send an email
+            </Menu.Item>
+            <Menu.Item color="red" icon={<X size={20} />}>
               Kick
             </Menu.Item>
           </Menu>
@@ -199,7 +232,15 @@ export function PeopleTab(props: Props) {
             <ArrowsUpDown size={20} />
           </ActionIcon>
         </Group>
-        <TextInput placeholder="Search" rightSection={<Search size={15} />} />
+
+        {isTablet ? (
+          <TextInput placeholder="Search" rightSection={<Search size={15} />} />
+        ) : (
+          <ActionIcon>
+            <Search size={20} />
+          </ActionIcon>
+        )}
+
         <Stack spacing="sm" className="w-full">
           {students.length === 0 && (
             <Text size="sm" color="gray" className="ml-9">
