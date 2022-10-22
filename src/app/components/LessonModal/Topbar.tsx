@@ -93,10 +93,10 @@ export function Topbar(props: Props) {
           <Text size="sm" weight="bold">
             {classCode}
           </Text>
+          {!isMobile && <ChevronRight size={16} />}
+          {!isMobile && <Text size="sm">{unitNumber}</Text>}
           <ChevronRight size={16} />
-          <Text size="sm">{unitNumber}</Text>
-          <ChevronRight size={16} />
-          {lessonIsNew && !isMobile && <Text size="sm">New Lesson</Text>}
+          {lessonIsNew && <Text size="sm">New Lesson</Text>}
 
           {!lessonIsNew && (
             <Text size="sm">
