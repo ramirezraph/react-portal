@@ -95,9 +95,7 @@ export function App() {
                 />
               }
             />
-            {!isLargeScreen && (
-              <Route path="materials" element={<ClassMaterialsTab />} />
-            )}
+            <Route path="materials" element={<ClassMaterialsTab />} />
             <Route path="discussions" element={<DiscussionTab />} />
             {/* <Route path="classwork" element={<ClassworkTab />} /> */}
             <Route path="people" element={<PeopleTab />} />
