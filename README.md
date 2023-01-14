@@ -16,14 +16,14 @@ Project is created with:
 - Redux
 - and a lot more
 
-### Project Status
+# Project Status
 The project is still not fully complete, but major functionalities are working.
 
-### URL
+# URL
 This project utilizes GitHub Actions connected to Azure Static Web Apps
 You can access the page using the url: https://thankful-hill-0fb16e900.1.azurestaticapps.net/
 
-## Setup
+# Setup
 #### Clone the repository
 ```ssh
 $ git clone https://github.com/ramirezraph/react-portal.git
@@ -36,7 +36,7 @@ $ yarn
 $ yarn start
 ```
 
-## Screenshots
+# Screenshots
 The following images shown what it looks like on PC, but the app is also mobile-friendly!
 
 ### Landing Page
