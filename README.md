@@ -5,7 +5,8 @@ A concept web-based student portal application to aid teachers and students with
 #### What is React Boilerplate CRA Template?
 https://cansahin.gitbook.io/react-boilerplate-cra-template/
 
-#### Technologies used:
+### Technologies:
+Project is created with:
 - React 
 - TypeScript
 - Mantine UI
@@ -14,6 +15,13 @@ https://cansahin.gitbook.io/react-boilerplate-cra-template/
 - Auth0
 - Redux
 - and a lot more
+
+### Project Status
+The project is still not fully complete, but major functionalities are working.
+
+### URL
+This project utilizes GitHub Actions connected to Azure Static Web Apps
+You can access the page using the url: https://thankful-hill-0fb16e900.1.azurestaticapps.net/
 
 ## Setup
 #### Clone the repository
