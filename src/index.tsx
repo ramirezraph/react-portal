@@ -99,3 +99,6 @@ if (module.hot) {
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// Mutes all console logs on production
+if (process.env.NODE_ENV !== 'development') console.log = () => {};
