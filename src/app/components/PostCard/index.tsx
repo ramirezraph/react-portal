@@ -504,7 +504,7 @@ export function PostCard(props: Prop) {
             )}
           </Group>
           {content !== '<p><br></p>' && content !== '<p></p>' && (
-            <div>{parse(content)}</div>
+            <div className="-my-5">{parse(content)}</div>
           )}
           <ImagesGrid images={imageList} />
           <Group className="w-full" position="apart" noWrap>
