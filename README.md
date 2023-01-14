@@ -18,7 +18,7 @@ https://cansahin.gitbook.io/react-boilerplate-cra-template/
 ## Setup
 #### Clone the repository
 ```ssh
-git clone https://github.com/ramirezraph/react-portal.git
+$ git clone https://github.com/ramirezraph/react-portal.git
 ```
 #### To try out the project, you just run it like a typical react application.
 
