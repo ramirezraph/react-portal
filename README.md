@@ -29,6 +29,7 @@ $ yarn start
 ```
 
 ## Screenshots
+The following images shown what it looks like on PC, but the app is also mobile-friendly!
 
 ### Landing Page
 <img src="demo/landing.png" />
@@ -48,4 +49,5 @@ $ yarn start
 <img src="demo/write-post.png" />
 #### Lesson
 <img src="demo/lesson-modal.png" />
-
+#### On mobile
+<img src="demo/class-mobile.png" />
