@@ -31,3 +31,4 @@ $ yarn start
 ## Screenshots
 
 ### Landing Page
+<img src="demo/landing" />
