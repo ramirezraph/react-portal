@@ -37,7 +37,7 @@ $ yarn start
 ```
 
 # Screenshots
-The following images shown what it looks like on PC, but the app is also mobile-friendly!
+The following images show what it looks like on a PC, but the app is also mobile-friendly!
 
 ### Landing Page
 <img src="demo/landing.png" />
