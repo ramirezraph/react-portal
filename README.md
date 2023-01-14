@@ -6,7 +6,14 @@ A concept web-based student portal application to aid teachers and students with
 https://cansahin.gitbook.io/react-boilerplate-cra-template/
 
 #### Technologies used:
-React, TypeScript, Mantine UI, TailwindCSS, Cloud Firestore, Auth0, Redux etc.
+- React 
+- TypeScript
+- Mantine UI
+- TailwindCSS
+- Cloud Firestore
+- Auth0
+- Redux
+- and a lot more
 
 ## Setup
 #### Clone the repository
