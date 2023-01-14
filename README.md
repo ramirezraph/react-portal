@@ -31,4 +31,21 @@ $ yarn start
 ## Screenshots
 
 ### Landing Page
-<img src="demo/landing" />
+<img src="demo/landing.png" />
+
+### Login (Auth0 Auth Flow)
+<img src="demo/login.png" />
+
+### Dashboard Page
+<img src="demo/dashboard.png" />
+
+### Classes Page
+<img src="demo/classes.png" />
+
+### Class Page
+<img src="demo/class.png" />
+#### Write Post
+<img src="demo/write-post.png" />
+#### Lesson
+<img src="demo/lesson-modal.png" />
+
