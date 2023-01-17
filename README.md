@@ -20,7 +20,7 @@ Project is created with:
 The project is still not fully complete, but major functionalities are working.
 
 # URL
-This project utilizes GitHub Actions connected to Azure Static Web Apps
+This project utilizes GitHub Actions connected to Azure Static Web Apps.
 You can access the page using the url: https://calm-mushroom-02b5f1600.2.azurestaticapps.net/
 
 # Setup
